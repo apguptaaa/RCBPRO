@@ -1,0 +1,89 @@
+@if (store.customOpen()) {
+  <!-- Backdrop -->
+  <div
+    class="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-espresso/65 p-4 backdrop-blur-sm"
+    (mousedown)="store.customOpen.set(false)">
+
+    <!-- Form modal -->
+    <form
+      (submit)="onSubmit($event)"
+      class="modal-card relative w-full max-w-2xl rounded-3xl bg-cream p-6 shadow-2xl sm:p-9"
+      (mousedown)="$event.stopPropagation()">
+
+      <!-- Close button -->
+      <button
+        type="button"
+        (click)="store.customOpen.set(false)"
+        class="absolute right-4 top-4 rounded-full p-2 hover:bg-sand"
+        aria-label="Close">
+        <svg lucideX [size]="22"></svg>
+      </button>
+
+      <span class="text-xs font-bold uppercase tracking-[.2em] text-caramel">Made especially for you</span>
+      <h2 class="mt-2 pr-8 font-display text-3xl font-bold text-espresso sm:text-4xl">Design your custom cake</h2>
+      <p class="mt-2 text-sm text-cocoa/55">Tell us a little about your celebration. Our cake artist will contact you with ideas and pricing.</p>
+
+      <div class="mt-7 grid gap-4 sm:grid-cols-2">
+
+        <label class="text-sm font-bold">
+          Occasion
+          <select required class="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+            <option>Birthday</option>
+            <option>Anniversary</option>
+            <option>Wedding</option>
+            <option>Baby shower</option>
+            <option>Other</option>
+          </select>
+        </label>
+
+        <label class="text-sm font-bold">
+          Preferred flavour
+          <select required class="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+            <option>Belgian chocolate</option>
+            <option>Vanilla berry</option>
+            <option>Red velvet</option>
+            <option>Butterscotch</option>
+            <option>Fresh fruit</option>
+          </select>
+        </label>
+
+        <label class="text-sm font-bold">
+          Serving size
+          <select required class="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+            <option>6–8 people</option>
+            <option>10–15 people</option>
+            <option>20–30 people</option>
+            <option>30+ people</option>
+          </select>
+        </label>
+
+        <label class="text-sm font-bold">
+          Celebration date
+          <input
+            type="date"
+            required
+            class="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel" />
+        </label>
+
+      </div>
+
+      <label class="mt-4 block text-sm font-bold">
+        Your design idea
+        <textarea
+          required
+          rows="3"
+          placeholder="Theme, colours, message, references or any special details..."
+          class="mt-2 w-full resize-none rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+        </textarea>
+      </label>
+
+      <button
+        type="submit"
+        class="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-cocoa px-5 py-4 text-sm font-bold text-cream transition hover:bg-espresso">
+        Request a consultation
+        <svg lucideArrowRight [size]="17"></svg>
+      </button>
+
+    </form>
+  </div>
+}

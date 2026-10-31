@@ -1,0 +1,34 @@
+<section id="categories" class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+
+  <!-- Section header -->
+  <div class="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+    <div>
+      <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">Explore our bakery</span>
+      <h2 class="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">What are you craving?</h2>
+    </div>
+    <button
+      (click)="viewAll()"
+      class="flex items-center gap-2 self-start text-sm font-bold text-cocoa transition hover:text-caramel">
+      View everything
+      <svg lucideArrowRight [size]="17"></svg>
+    </button>
+  </div>
+
+  <!-- Horizontal scroll strip -->
+  <div class="hide-scrollbar flex snap-x gap-5 overflow-x-auto pb-4">
+    @for (cat of categories; track cat.name) {
+      <button
+        (click)="pick(cat.name)"
+        class="group min-w-[132px] snap-start text-center sm:min-w-[155px]">
+        <div class="mx-auto h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-sand shadow-card transition duration-300 group-hover:-translate-y-1 group-hover:border-rosebeige sm:h-36 sm:w-36">
+          <img
+            [src]="cat.image"
+            [alt]="cat.name"
+            class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+        </div>
+        <span class="mt-4 block text-sm font-bold transition group-hover:text-caramel">{{ cat.name }}</span>
+      </button>
+    }
+  </div>
+
+</section>

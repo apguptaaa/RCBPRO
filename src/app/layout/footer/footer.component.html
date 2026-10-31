@@ -1,0 +1,113 @@
+<footer class="bg-espresso text-cream">
+  <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+
+    <!-- Top grid: brand + nav columns -->
+    <div class="grid gap-10 border-b border-cream/10 pb-12 sm:grid-cols-2 lg:grid-cols-5">
+
+      <!-- Brand column -->
+      <div class="sm:col-span-2">
+        <a href="#" class="flex items-center gap-3">
+          <span class="grid h-11 w-11 place-items-center rounded-full bg-cream text-cocoa">
+            <svg lucideCakeSlice [size]="22"></svg>
+          </span>
+          <span class="font-display text-2xl font-bold">Crumb &amp; Bloom</span>
+        </a>
+        <p class="mt-5 max-w-sm text-sm leading-6 text-cream/55">
+          Artisan cakes, handcrafted desserts and fresh florals for the moments that matter.
+        </p>
+
+        <!-- Social buttons — inline SVG used because @lucide/angular v1.66 removed brand icons -->
+        <div class="mt-6 flex gap-2">
+
+          <!-- Instagram -->
+          <button
+            class="grid h-10 w-10 place-items-center rounded-full border border-cream/15 transition hover:bg-cream hover:text-cocoa"
+            aria-label="instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+              <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+            </svg>
+          </button>
+
+          <!-- Facebook -->
+          <button
+            class="grid h-10 w-10 place-items-center rounded-full border border-cream/15 transition hover:bg-cream hover:text-cocoa"
+            aria-label="facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+            </svg>
+          </button>
+
+          <!-- YouTube -->
+          <button
+            class="grid h-10 w-10 place-items-center rounded-full border border-cream/15 transition hover:bg-cream hover:text-cocoa"
+            aria-label="youtube">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.95C5.12 20 12 20 12 20s6.88 0 8.59-.47a2.78 2.78 0 0 0 1.95-1.95A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
+              <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"/>
+            </svg>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Shop column -->
+      <div>
+        <h3 class="text-sm font-bold">Shop</h3>
+        <ul class="mt-5 space-y-3 text-sm text-cream/55">
+          <li><a href="#categories" class="hover:text-cream">Cakes</a></li>
+          <li><a href="#shop"       class="hover:text-cream">Cupcakes</a></li>
+          <li><a href="#shop"       class="hover:text-cream">Brownies</a></li>
+          <li><a href="#shop"       class="hover:text-cream">Chocolates</a></li>
+          <li><a href="#shop"       class="hover:text-cream">Flowers</a></li>
+        </ul>
+      </div>
+
+      <!-- Help column -->
+      <div>
+        <h3 class="text-sm font-bold">Help</h3>
+        <ul class="mt-5 space-y-3 text-sm text-cream/55">
+          <li><a href="#" class="hover:text-cream">Track order</a></li>
+          <li><a href="#" class="hover:text-cream">Delivery information</a></li>
+          <li><a href="#" class="hover:text-cream">FAQs</a></li>
+          <li><a href="#" class="hover:text-cream">Contact us</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact column -->
+      <div>
+        <h3 class="text-sm font-bold">Contact</h3>
+        <ul class="mt-5 space-y-4 text-sm text-cream/55">
+          <li class="flex gap-2 items-start">
+            <svg lucidePhone [size]="16" class="mt-0.5 shrink-0"></svg>
+            +91 98765 43210
+          </li>
+          <li class="flex gap-2 items-start">
+            <svg lucideMail [size]="16" class="mt-0.5 shrink-0"></svg>
+            hello@crumbandbloom.in
+          </li>
+          <li class="flex gap-2 items-start">
+            <svg lucideClock3 [size]="16" class="mt-0.5 shrink-0"></svg>
+            8:00 AM – 10:00 PM
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Legal row -->
+    <div class="flex flex-col justify-between gap-3 pt-7 text-xs text-cream/40 sm:flex-row">
+      <p>© 2025 Crumb &amp; Bloom. All rights reserved.</p>
+      <div class="flex gap-5">
+        <a href="#" class="hover:text-cream">Privacy</a>
+        <a href="#" class="hover:text-cream">Terms</a>
+        <a href="#" class="hover:text-cream">Refund policy</a>
+      </div>
+    </div>
+
+  </div>
+</footer>

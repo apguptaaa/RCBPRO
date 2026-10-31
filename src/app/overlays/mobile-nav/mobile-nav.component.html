@@ -1,0 +1,56 @@
+@if (store.mobileOpen()) {
+  <!-- Backdrop -->
+  <div
+    class="fixed inset-0 z-50 bg-espresso/55 backdrop-blur-sm"
+    (mousedown)="close()">
+
+    <!-- Drawer panel — stops propagation so clicks inside don't close -->
+    <aside
+      class="h-full w-[86%] max-w-sm bg-cream p-5 shadow-2xl"
+      (mousedown)="$event.stopPropagation()">
+
+      <!-- Header row -->
+      <div class="flex items-center justify-between border-b border-cocoa/10 pb-5">
+        <span class="font-display text-2xl font-bold">Crumb &amp; Bloom</span>
+        <button
+          (click)="close()"
+          class="rounded-full p-2 hover:bg-sand"
+          aria-label="Close menu">
+          <svg lucideX [size]="24"></svg>
+        </button>
+      </div>
+
+      <!-- Nav links -->
+      <nav class="mt-6 space-y-1">
+        @for (link of navLinks; track link.label) {
+          <a
+            [href]="link.href"
+            (click)="close()"
+            class="flex items-center justify-between rounded-xl px-3 py-4 font-bold hover:bg-sand/50">
+            {{ link.label }}
+            <svg lucideChevronRight [size]="18"></svg>
+          </a>
+        }
+
+        <!-- Customize button -->
+        <button
+          (click)="openCustomize()"
+          class="flex w-full items-center justify-between rounded-xl px-3 py-4 text-left font-bold hover:bg-sand/50">
+          Customize a cake
+          <svg lucideChevronRight [size]="18"></svg>
+        </button>
+      </nav>
+
+      <!-- Help card -->
+      <div class="mt-7 rounded-2xl bg-cocoa p-5 text-cream">
+        <p class="text-xs uppercase tracking-[.18em] text-cream/55">Need help?</p>
+        <p class="mt-2 font-display text-xl font-bold">Talk to a cake expert</p>
+        <button class="mt-4 flex items-center gap-2 text-sm font-bold">
+          <svg lucidePhone [size]="16"></svg>
+          +91 98765 43210
+        </button>
+      </div>
+
+    </aside>
+  </div>
+}

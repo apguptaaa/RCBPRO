@@ -1,1 +1,200 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+/* ─── Tailwind v4 theme tokens ──────────────────────────────────────────── */
+@theme {
+  --color-cream: #F7F0E5;
+  --color-sand: #E8D7C0;
+  --color-cocoa: #3A241B;
+  --color-espresso: #24150F;
+  --color-caramel: #A86F45;
+  --color-rosebeige: #D8B7A4;
+  --color-sage: #697360;
+
+  --font-display: "Playfair Display", serif;
+  --font-body: "DM Sans", sans-serif;
+
+  --shadow-soft: 0 18px 50px rgba(58, 36, 27, 0.10);
+  --shadow-card: 0 14px 35px rgba(58, 36, 27, 0.09);
+}
+
+/* ─── CSS custom properties ─────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+  --cream: #f7f0e5;
+  --cocoa: #3a241b;
+  --espresso: #24150f;
+  --caramel: #a86f45;
+}
+
+/* ─── Base resets ────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--cocoa);
+  background:
+    radial-gradient(circle at 1px 1px, rgba(58, 36, 27, .075) 1px, transparent 1.1px),
+    #f7f0e5;
+  background-size: 24px 24px;
+  font-family: "DM Sans", sans-serif;
+  overflow-x: hidden;
+}
+
+body.no-scroll {
+  overflow: hidden;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+img {
+  display: block;
+}
+
+/* ─── Grain texture overlay ─────────────────────────────────────────────── */
+.grain {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: .24;
+  background-image:
+    linear-gradient(45deg, transparent 48%, rgba(255, 255, 255, .25) 49%, transparent 52%),
+    linear-gradient(-45deg, transparent 48%, rgba(255, 255, 255, .15) 49%, transparent 52%);
+  background-size: 35px 35px;
+}
+
+/* ─── Hero blob animations ──────────────────────────────────────────────── */
+.hero-blob {
+  animation: float 6s ease-in-out infinite;
+}
+
+.hero-blob-secondary {
+  animation: float 7s ease-in-out infinite reverse;
+}
+
+/* ─── Section reveal animation ──────────────────────────────────────────── */
+.reveal {
+  animation: reveal .65s ease both;
+}
+
+/* ─── Product card hover ─────────────────────────────────────────────────── */
+.product-card {
+  transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 24px 55px rgba(58, 36, 27, .14);
+  border-color: rgba(168, 111, 69, .35);
+}
+
+.product-card img {
+  transition: transform .6s cubic-bezier(.2, .7, .2, 1);
+}
+
+.product-card:hover img {
+  transform: scale(1.07);
+}
+
+/* ─── Scrollbar hide ─────────────────────────────────────────────────────── */
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ─── Marquee ────────────────────────────────────────────────────────────── */
+.marquee-track {
+  width: max-content;
+  animation: marquee 22s linear infinite;
+}
+
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ─── Overlay panels ─────────────────────────────────────────────────────── */
+.cart-panel {
+  animation: slideIn .32s ease both;
+}
+
+.modal-card {
+  animation: modalUp .3s ease both;
+}
+
+.toast {
+  animation: toastIn .35s ease both;
+}
+
+/* ─── Text truncation ────────────────────────────────────────────────────── */
+.line-clamp-1 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Keyframe animations ────────────────────────────────────────────────── */
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-14px) rotate(1deg); }
+}
+
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes marquee {
+  to { transform: translateX(-50%); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes modalUp {
+  from { opacity: 0; transform: translateY(20px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Reduced motion ─────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
+}

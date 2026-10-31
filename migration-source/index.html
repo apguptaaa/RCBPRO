@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2f1d15" />
+  <meta name="description" content="Handcrafted cakes, cupcakes, chocolates, brownies and floral bouquets delivered fresh." />
+  <title>Crumb & Bloom — Artisan Cakes and Gifts</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cream: "#F7F0E5",
+            sand: "#E8D7C0",
+            cocoa: "#3A241B",
+            espresso: "#24150F",
+            caramel: "#A86F45",
+            rosebeige: "#D8B7A4",
+            sage: "#697360"
+          },
+          fontFamily: {
+            display: ["Playfair Display", "serif"],
+            body: ["DM Sans", "sans-serif"]
+          },
+          boxShadow: {
+            soft: "0 18px 50px rgba(58,36,27,.10)",
+            card: "0 14px 35px rgba(58,36,27,.09)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: light;
+      --cream: #f7f0e5;
+      --cocoa: #3a241b;
+      --espresso: #24150f;
+      --caramel: #a86f45;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--cocoa);
+      background:
+        radial-gradient(circle at 1px 1px, rgba(58, 36, 27, .075) 1px, transparent 1.1px),
+        #f7f0e5;
+      background-size: 24px 24px;
+      font-family: "DM Sans", sans-serif;
+      overflow-x: hidden;
+    }
+
+    body.no-scroll {
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    img {
+      display: block;
+    }
+
+    .grain {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .grain::after {
+      content: "";
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      opacity: .24;
+      background-image:
+        linear-gradient(45deg, transparent 48%, rgba(255,255,255,.25) 49%, transparent 52%),
+        linear-gradient(-45deg, transparent 48%, rgba(255,255,255,.15) 49%, transparent 52%);
+      background-size: 35px 35px;
+    }
+
+    .hero-blob {
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .hero-blob-secondary {
+      animation: float 7s ease-in-out infinite reverse;
+    }
+
+    .reveal {
+      animation: reveal .65s ease both;
+    }
+
+    .product-card {
+      transition: transform .35s ease, box-shadow .35s ease, border-color .35s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 24px 55px rgba(58, 36, 27, .14);
+      border-color: rgba(168, 111, 69, .35);
+    }
+
+    .product-card img {
+      transition: transform .6s cubic-bezier(.2,.7,.2,1);
+    }
+
+    .product-card:hover img {
+      transform: scale(1.07);
+    }
+
+    .hide-scrollbar {
+      scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .marquee-track {
+      width: max-content;
+      animation: marquee 22s linear infinite;
+    }
+
+    .marquee-track:hover {
+      animation-play-state: paused;
+    }
+
+    .cart-panel {
+      animation: slideIn .32s ease both;
+    }
+
+    .modal-card {
+      animation: modalUp .3s ease both;
+    }
+
+    .toast {
+      animation: toastIn .35s ease both;
+    }
+
+    .line-clamp-1 {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50% { transform: translateY(-14px) rotate(1deg); }
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes marquee {
+      to { transform: translateX(-50%); }
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes modalUp {
+      from { opacity: 0; transform: translateY(20px) scale(.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useEffect, useMemo, useState } = React;
+
+    const categoryData = [
+      { name: "Bento Cakes", image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=500&q=85" },
+      { name: "Birthday Cakes", image: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=500&q=85" },
+      { name: "Fondant Cakes", image: "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?auto=format&fit=crop&w=500&q=85" },
+      { name: "Anniversary", image: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=500&q=85" },
+      { name: "Custom Cakes", image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=500&q=85" },
+      { name: "Cupcakes", image: "https://images.unsplash.com/photo-1587668178277-295251f900ce?auto=format&fit=crop&w=500&q=85" },
+      { name: "Jar Cakes", image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=500&q=85" },
+      { name: "Brownies", image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=500&q=85" },
+      { name: "Chocolates", image: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=500&q=85" },
+      { name: "Flower Bouquets", image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=500&q=85" }
+    ];
+
+    const products = [
+      {
+        id: 1,
+        name: "Vintage Cherry Bento",
+        category: "Bento Cakes",
+        price: 599,
+        oldPrice: 699,
+        rating: 4.9,
+        reviews: 186,
+        badge: "Bestseller",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?auto=format&fit=crop&w=900&q=88",
+        description: "Petite vanilla sponge layered with whipped cream and cherry compote."
+      },
+      {
+        id: 2,
+        name: "Belgian Truffle Celebration",
+        category: "Birthday Cakes",
+        price: 949,
+        oldPrice: 1099,
+        rating: 4.8,
+        reviews: 312,
+        badge: "15% off",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=88",
+        description: "Rich cocoa sponge with silky Belgian chocolate ganache."
+      },
+      {
+        id: 3,
+        name: "Ivory Garden Fondant Cake",
+        category: "Fondant Cakes",
+        price: 2199,
+        oldPrice: 2499,
+        rating: 4.9,
+        reviews: 97,
+        badge: "Premium",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=900&q=88",
+        description: "Elegant fondant finish with delicate floral detailing."
+      },
+      {
+        id: 4,
+        name: "Rose & Raspberry Romance",
+        category: "Anniversary",
+        price: 1299,
+        oldPrice: 1499,
+        rating: 4.7,
+        reviews: 145,
+        badge: "Loved",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=900&q=88",
+        description: "Raspberry preserve, vanilla sponge and soft rose buttercream."
+      },
+      {
+        id: 5,
+        name: "Classic Buttercream Cupcakes",
+        category: "Cupcakes",
+        price: 699,
+        oldPrice: 799,
+        rating: 4.8,
+        reviews: 201,
+        badge: "Box of 6",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1587668178277-295251f900ce?auto=format&fit=crop&w=900&q=88",
+        description: "Six handcrafted cupcakes with smooth vanilla buttercream."
+      },
+      {
+        id: 6,
+        name: "Chocolate Hazelnut Jar Duo",
+        category: "Jar Cakes",
+        price: 449,
+        oldPrice: 499,
+        rating: 4.6,
+        reviews: 88,
+        badge: "New",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1563805042-7684c019e1cb?auto=format&fit=crop&w=900&q=88",
+        description: "Layered chocolate cake jars with toasted hazelnut cream."
+      },
+      {
+        id: 7,
+        name: "Fudgy Walnut Brownie Box",
+        category: "Brownies",
+        price: 649,
+        oldPrice: 749,
+        rating: 4.9,
+        reviews: 274,
+        badge: "Bestseller",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?auto=format&fit=crop&w=900&q=88",
+        description: "Dense cocoa brownies with roasted walnuts and dark chocolate."
+      },
+      {
+        id: 8,
+        name: "Artisan Chocolate Collection",
+        category: "Chocolates",
+        price: 899,
+        oldPrice: 999,
+        rating: 4.8,
+        reviews: 116,
+        badge: "Handmade",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=900&q=88",
+        description: "A refined assortment of handcrafted filled chocolates."
+      },
+      {
+        id: 9,
+        name: "Blush Rose Celebration Bouquet",
+        category: "Flower Bouquets",
+        price: 1199,
+        oldPrice: 1399,
+        rating: 4.7,
+        reviews: 79,
+        badge: "Fresh today",
+        veg: false,
+        image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=900&q=88",
+        description: "Fresh blush roses wrapped in premium textured paper."
+      },
+      {
+        id: 10,
+        name: "Pastel Dream Custom Cake",
+        category: "Custom Cakes",
+        price: 1799,
+        oldPrice: 1999,
+        rating: 4.9,
+        reviews: 128,
+        badge: "Customisable",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=900&q=88",
+        description: "Personalise the flavour, palette, message and decorative details."
+      },
+      {
+        id: 11,
+        name: "Strawberry Cloud Birthday Cake",
+        category: "Birthday Cakes",
+        price: 1099,
+        oldPrice: 1249,
+        rating: 4.8,
+        reviews: 165,
+        badge: "Eggless",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1558636508-e0db3814bd1d?auto=format&fit=crop&w=900&q=88",
+        description: "Light vanilla sponge with strawberries and cloud-soft cream."
+      },
+      {
+        id: 12,
+        name: "Minimal Cocoa Bento",
+        category: "Bento Cakes",
+        price: 549,
+        oldPrice: 649,
+        rating: 4.7,
+        reviews: 104,
+        badge: "Trending",
+        veg: true,
+        image: "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&w=900&q=88",
+        description: "Minimalist chocolate bento cake made for intimate celebrations."
+      }
+    ];
+
+    const occasions = [
+      { title: "Birthday Cheers", note: "Make their day unforgettable", image: "https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?auto=format&fit=crop&w=1000&q=85" },
+      { title: "Anniversary Love", note: "Thoughtful treats for two", image: "https://images.unsplash.com/photo-1535254973040-607b474cb50d?auto=format&fit=crop&w=1000&q=85" },
+      { title: "Just Because", note: "Sweet surprises need no reason", image: "https://images.unsplash.com/photo-1523438885200-e635ba2c371e?auto=format&fit=crop&w=1000&q=85" }
+    ];
+
+    const formatPrice = value => `₹${value.toLocaleString("en-IN")}`;
+
+    function Icon({ name, size = 20, className = "", strokeWidth = 2 }) {
+      useEffect(() => {
+        if (window.lucide) window.lucide.createIcons();
+      });
+      return <i data-lucide={name} className={className} style={{ width: size, height: size }} data-stroke-width={strokeWidth}></i>;
+    }
+
+    function App() {
+      const [mobileOpen, setMobileOpen] = useState(false);
+      const [cartOpen, setCartOpen] = useState(false);
+      const [cart, setCart] = useState([]);
+      const [wishlist, setWishlist] = useState([]);
+      const [activeCategory, setActiveCategory] = useState("All");
+      const [search, setSearch] = useState("");
+      const [sort, setSort] = useState("popular");
+      const [quickView, setQuickView] = useState(null);
+      const [toast, setToast] = useState("");
+      const [location, setLocation] = useState("New Delhi");
+      const [customOpen, setCustomOpen] = useState(false);
+
+      useEffect(() => {
+        document.body.classList.toggle("no-scroll", cartOpen || quickView || customOpen || mobileOpen);
+        return () => document.body.classList.remove("no-scroll");
+      }, [cartOpen, quickView, customOpen, mobileOpen]);
+
+      useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(""), 2400);
+        return () => clearTimeout(timer);
+      }, [toast]);
+
+      const filteredProducts = useMemo(() => {
+        let list = products.filter(product => {
+          const categoryMatch = activeCategory === "All" || product.category === activeCategory;
+          const searchMatch = `${product.name} ${product.category}`.toLowerCase().includes(search.toLowerCase());
+          return categoryMatch && searchMatch;
+        });
+
+        if (sort === "priceLow") list.sort((a, b) => a.price - b.price);
+        if (sort === "priceHigh") list.sort((a, b) => b.price - a.price);
+        if (sort === "rating") list.sort((a, b) => b.rating - a.rating);
+        return list;
+      }, [activeCategory, search, sort]);
+
+      const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+      function addToCart(product) {
+        setCart(current => {
+          const exists = current.find(item => item.id === product.id);
+          if (exists) {
+            return current.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+          }
+          return [...current, { ...product, quantity: 1 }];
+        });
+        setToast(`${product.name} added to your bag`);
+      }
+
+      function updateQuantity(id, amount) {
+        setCart(current =>
+          current
+            .map(item => item.id === id ? { ...item, quantity: item.quantity + amount } : item)
+            .filter(item => item.quantity > 0)
+        );
+      }
+
+      function toggleWishlist(id) {
+        setWishlist(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
+      }
+
+      function chooseCategory(category) {
+        setActiveCategory(category);
+        document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+      }
+
+      function submitSearch(event) {
+        event.preventDefault();
+        document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" });
+      }
+
+      return (
+        <div className="min-h-screen">
+          <div className="bg-espresso px-4 py-2.5 text-center text-xs font-medium tracking-wide text-cream sm:text-sm">
+            <span>Freshly baked every day</span>
+            <span className="mx-3 text-sand/40">•</span>
+            <span>Complimentary delivery on orders above ₹999</span>
+          </div>
+
+          <header className="sticky top-0 z-40 border-b border-cocoa/10 bg-cream/95 backdrop-blur-xl">
+            <div className="mx-auto flex h-20 max-w-7xl items-center gap-5 px-4 sm:px-6 lg:px-8">
+              <button
+                className="rounded-full p-2 text-cocoa lg:hidden"
+                onClick={() => setMobileOpen(true)}
+                aria-label="Open menu"
+              >
+                <Icon name="menu" size={25} />
+              </button>
+
+              <a href="#" className="mr-auto flex shrink-0 items-center gap-2 lg:mr-4">
+                <span className="grid h-11 w-11 place-items-center rounded-full border border-cocoa/20 bg-cocoa text-cream">
+                  <Icon name="cake-slice" size={23} strokeWidth={1.7} />
+                </span>
+                <span>
+                  <strong className="block font-display text-xl leading-none text-espresso sm:text-2xl">Crumb & Bloom</strong>
+                  <small className="hidden text-[9px] font-bold uppercase tracking-[.28em] text-caramel sm:block">Bakery & Florals</small>
+                </span>
+              </a>
+
+              <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">
+                <a href="#" className="transition hover:text-caramel">Home</a>
+                <a href="#categories" className="transition hover:text-caramel">Cakes</a>
+                <a href="#shop" className="transition hover:text-caramel">Best Sellers</a>
+                <a href="#occasions" className="transition hover:text-caramel">Occasions</a>
+                <button onClick={() => setCustomOpen(true)} className="transition hover:text-caramel">Customize</button>
+              </nav>
+
+              <div className="hidden items-center gap-2 rounded-full border border-cocoa/10 bg-white/60 px-3 py-2 xl:flex">
+                <Icon name="map-pin" size={16} className="text-caramel" />
+                <select
+                  value={location}
+                  onChange={event => setLocation(event.target.value)}
+                  className="cursor-pointer bg-transparent text-xs font-semibold outline-none"
+                  aria-label="Delivery location"
+                >
+                  <option>New Delhi</option>
+                  <option>Mumbai</option>
+                  <option>Bengaluru</option>
+                  <option>Jaipur</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button className="hidden rounded-full p-2.5 transition hover:bg-sand/60 sm:block" aria-label="Account">
+                  <Icon name="user-round" size={21} />
+                </button>
+                <button className="relative rounded-full p-2.5 transition hover:bg-sand/60" aria-label="Wishlist">
+                  <Icon name="heart" size={21} />
+                  {wishlist.length > 0 && (
+                    <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-caramel px-1 text-[10px] font-bold text-white">
+                      {wishlist.length}
+                    </span>
+                  )}
+                </button>
+                <button onClick={() => setCartOpen(true)} className="relative rounded-full p-2.5 transition hover:bg-sand/60" aria-label="Shopping bag">
+                  <Icon name="shopping-bag" size={21} />
+                  {cartCount > 0 && (
+                    <span className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-cocoa px-1 text-[10px] font-bold text-white">
+                      {cartCount}
+                    </span>
+                  )}
+                </button>
+              </div>
+            </div>
+          </header>
+
+          <main>
+            <section className="relative overflow-hidden bg-[#eadbc8]">
+              <div className="absolute -left-24 top-20 h-72 w-72 rounded-full bg-[#d5b59b]/45 blur-3xl"></div>
+              <div className="absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-white/55 blur-3xl"></div>
+
+              <div className="relative mx-auto grid min-h-[660px] max-w-7xl items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-20">
+                <div className="reveal relative z-10">
+                  <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cocoa/15 bg-white/45 px-4 py-2 text-xs font-bold uppercase tracking-[.18em] text-cocoa backdrop-blur">
+                    <span className="h-2 w-2 rounded-full bg-caramel"></span>
+                    Made fresh for your moment
+                  </div>
+
+                  <h1 className="max-w-3xl font-display text-5xl font-bold leading-[1.02] tracking-tight text-espresso sm:text-6xl lg:text-[76px]">
+                    Life’s sweetest moments,
+                    <span className="italic text-caramel"> beautifully baked.</span>
+                  </h1>
+
+                  <p className="mt-6 max-w-xl text-base leading-7 text-cocoa/70 sm:text-lg">
+                    Artisan cakes, delicate desserts and fresh flowers—thoughtfully handcrafted and delivered to your doorstep.
+                  </p>
+
+                  <form onSubmit={submitSearch} className="mt-9 flex max-w-2xl flex-col rounded-2xl bg-white p-2 shadow-soft sm:flex-row sm:items-center">
+                    <div className="flex items-center gap-3 border-b border-cocoa/10 px-3 py-3 sm:w-44 sm:border-b-0 sm:border-r sm:py-1">
+                      <Icon name="map-pin" size={19} className="shrink-0 text-caramel" />
+                      <select
+                        value={location}
+                        onChange={event => setLocation(event.target.value)}
+                        className="w-full bg-transparent text-sm font-semibold outline-none"
+                      >
+                        <option>New Delhi</option>
+                        <option>Mumbai</option>
+                        <option>Bengaluru</option>
+                        <option>Jaipur</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-1 items-center gap-3 px-3 py-3">
+                      <Icon name="search" size={20} className="shrink-0 text-cocoa/45" />
+                      <input
+                        value={search}
+                        onChange={event => setSearch(event.target.value)}
+                        className="w-full bg-transparent text-sm outline-none placeholder:text-cocoa/40"
+                        placeholder="Search cakes, brownies, bouquets..."
+                        aria-label="Search products"
+                      />
+                    </div>
+                    <button className="rounded-xl bg-cocoa px-6 py-3.5 text-sm font-bold text-cream transition hover:bg-espresso">
+                      Find a treat
+                    </button>
+                  </form>
+
+                  <div className="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-cocoa/70">
+                    <span className="flex items-center gap-2"><Icon name="check" size={16} className="text-sage" /> 100% fresh</span>
+                    <span className="flex items-center gap-2"><Icon name="check" size={16} className="text-sage" /> Eggless options</span>
+                    <span className="flex items-center gap-2"><Icon name="clock-3" size={16} className="text-sage" /> Same-day delivery</span>
+                  </div>
+                </div>
+
+                <div className="relative mx-auto w-full max-w-[570px] pb-10 lg:pb-0">
+                  <div className="hero-blob relative ml-auto aspect-[4/4.35] w-[87%] overflow-hidden rounded-[48%_48%_45%_45%/42%_42%_58%_58%] border-[10px] border-white/40 shadow-2xl">
+                    <img
+                      src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=1100&q=92"
+                      alt="Beautiful artisan celebration cake"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+
+                  <div className="hero-blob-secondary absolute -left-1 bottom-2 rounded-2xl border border-white/60 bg-white/90 p-4 shadow-soft backdrop-blur sm:left-0 sm:p-5">
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-11 w-11 place-items-center rounded-full bg-sand/70 text-cocoa">
+                        <Icon name="star" size={20} />
+                      </div>
+                      <div>
+                        <strong className="block text-sm">4.9 customer rating</strong>
+                        <span className="text-xs text-cocoa/55">From 2,500+ celebrations</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="absolute -right-1 top-12 hidden rounded-2xl bg-cocoa px-5 py-4 text-cream shadow-soft sm:block">
+                    <span className="block text-xs uppercase tracking-[.18em] text-cream/65">Today only</span>
+                    <strong className="font-display text-2xl">15% off</strong>
+                    <span className="block text-xs text-cream/70">on first orders</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <div className="overflow-hidden border-y border-cocoa/10 bg-cocoa py-3 text-cream">
+              <div className="marquee-track flex gap-10 pr-10 text-xs font-bold uppercase tracking-[.23em]">
+                {[...Array(2)].flatMap((_, index) => [
+                  <span key={`a${index}`}>Handcrafted with care</span>,
+                  <span key={`b${index}`} className="text-rosebeige">◆</span>,
+                  <span key={`c${index}`}>Same-day delivery</span>,
+                  <span key={`d${index}`} className="text-rosebeige">◆</span>,
+                  <span key={`e${index}`}>Premium ingredients</span>,
+                  <span key={`f${index}`} className="text-rosebeige">◆</span>,
+                  <span key={`g${index}`}>Made for every celebration</span>,
+                  <span key={`h${index}`} className="text-rosebeige">◆</span>
+                ])}
+              </div>
+            </div>
+
+            <section id="categories" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+              <div className="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-[.22em] text-caramel">Explore our bakery</span>
+                  <h2 className="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">What are you craving?</h2>
+                </div>
+                <button onClick={() => chooseCategory("All")} className="flex items-center gap-2 self-start text-sm font-bold text-cocoa transition hover:text-caramel">
+                  View everything <Icon name="arrow-right" size={17} />
+                </button>
+              </div>
+
+              <div className="hide-scrollbar flex snap-x gap-5 overflow-x-auto pb-4">
+                {categoryData.map(category => (
+                  <button
+                    key={category.name}
+                    onClick={() => chooseCategory(category.name)}
+                    className="group min-w-[132px] snap-start text-center sm:min-w-[155px]"
+                  >
+                    <div className="mx-auto h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-sand shadow-card transition duration-300 group-hover:-translate-y-1 group-hover:border-rosebeige sm:h-36 sm:w-36">
+                      <img src={category.image} alt={category.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+                    </div>
+                    <span className="mt-4 block text-sm font-bold transition group-hover:text-caramel">{category.name}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+
+            <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+              <div className="grain relative overflow-hidden rounded-[2rem] bg-espresso px-6 py-10 text-cream shadow-soft sm:px-10 lg:px-14">
+                <div className="relative z-10 grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-[.22em] text-rosebeige">A little extra sweetness</span>
+                    <h3 className="mt-3 max-w-2xl font-display text-3xl font-bold sm:text-4xl">Get 15% off your first celebration order.</h3>
+                    <p className="mt-3 text-sm text-cream/65">Use code <strong className="text-cream">FIRSTBITE</strong> at checkout. Valid on orders above ₹799.</p>
+                  </div>
+                  <a href="#shop" className="inline-flex items-center justify-center gap-2 rounded-full bg-cream px-6 py-3.5 text-sm font-bold text-cocoa transition hover:bg-sand">
+                    Shop the collection <Icon name="arrow-up-right" size={17} />
+                  </a>
+                </div>
+                <div className="absolute -right-12 -top-16 h-52 w-52 rounded-full border-[35px] border-rosebeige/10"></div>
+              </div>
+            </section>
+
+            <section id="shop" className="bg-[#f1e6d7]/75 py-20">
+              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-[.22em] text-caramel">Fresh from the kitchen</span>
+                    <h2 className="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">Our most-loved treats</h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-cocoa/60 sm:text-base">
+                      Thoughtfully designed, freshly prepared and packed with care.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <label className="hidden text-xs font-bold uppercase tracking-wider text-cocoa/55 sm:block">Sort by</label>
+                    <select
+                      value={sort}
+                      onChange={event => setSort(event.target.value)}
+                      className="rounded-xl border border-cocoa/15 bg-cream px-4 py-3 text-sm font-semibold outline-none"
+                    >
+                      <option value="popular">Most popular</option>
+                      <option value="rating">Top rated</option>
+                      <option value="priceLow">Price: low to high</option>
+                      <option value="priceHigh">Price: high to low</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="hide-scrollbar mt-8 flex gap-2 overflow-x-auto pb-2">
+                  {["All", ...categoryData.map(item => item.name)].map(category => (
+                    <button
+                      key={category}
+                      onClick={() => setActiveCategory(category)}
+                      className={`whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold transition ${
+                        activeCategory === category
+                          ? "bg-cocoa text-cream shadow-lg"
+                          : "border border-cocoa/10 bg-cream text-cocoa hover:border-caramel/50"
+                      }`}
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+
+                {filteredProducts.length > 0 ? (
+                  <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {filteredProducts.map((product, index) => (
+                      <article
+                        key={product.id}
+                        className="product-card reveal overflow-hidden rounded-[1.4rem] border border-cocoa/10 bg-cream shadow-card"
+                        style={{ animationDelay: `${Math.min(index * 45, 250)}ms` }}
+                      >
+                        <div className="relative aspect-[1.12/1] overflow-hidden bg-sand">
+                          <img src={product.image} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
+                          <span className="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-cocoa shadow">
+                            {product.badge}
+                          </span>
+                          <button
+                            onClick={() => toggleWishlist(product.id)}
+                            className={`absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full backdrop-blur transition ${
+                              wishlist.includes(product.id) ? "bg-cocoa text-cream" : "bg-cream/90 text-cocoa hover:bg-white"
+                            }`}
+                            aria-label="Toggle wishlist"
+                          >
+                            <Icon name="heart" size={18} />
+                          </button>
+                          <button
+                            onClick={() => setQuickView(product)}
+                            className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/95 px-4 py-2 text-xs font-bold opacity-0 shadow transition group-hover:opacity-100 sm:product-card-hover"
+                          >
+                            Quick view
+                          </button>
+                        </div>
+
+                        <div className="p-4">
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-[.14em] text-caramel">{product.category}</span>
+                            <span className="flex items-center gap-1 text-xs font-bold">
+                              <Icon name="star" size={13} className="fill-caramel text-caramel" />
+                              {product.rating}
+                              <span className="font-normal text-cocoa/40">({product.reviews})</span>
+                            </span>
+                          </div>
+
+                          <h3 className="line-clamp-1 font-display text-lg font-bold text-espresso">{product.name}</h3>
+                          <div className="mt-2 flex items-center gap-2">
+                            <strong className="text-lg text-cocoa">{formatPrice(product.price)}</strong>
+                            <span className="text-xs text-cocoa/40 line-through">{formatPrice(product.oldPrice)}</span>
+                          </div>
+
+                          <button
+                            onClick={() => addToCart(product)}
+                            className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-cocoa bg-transparent px-4 py-3 text-sm font-bold transition hover:bg-cocoa hover:text-cream"
+                          >
+                            <Icon name="shopping-bag" size={17} /> Add to bag
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-10 rounded-3xl border border-dashed border-cocoa/20 bg-cream px-6 py-16 text-center">
+                    <Icon name="search-x" size={34} className="mx-auto text-cocoa/45" />
+                    <h3 className="mt-4 font-display text-2xl font-bold">No treats found</h3>
+                    <p className="mt-2 text-sm text-cocoa/55">Try another search or browse all products.</p>
+                    <button
+                      onClick={() => { setSearch(""); setActiveCategory("All"); }}
+                      className="mt-5 rounded-full bg-cocoa px-5 py-2.5 text-sm font-bold text-cream"
+                    >
+                      Show all treats
+                    </button>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
+              <div className="grid overflow-hidden rounded-[2rem] bg-cocoa text-cream shadow-soft lg:grid-cols-2">
+                <div className="min-h-[420px] overflow-hidden">
+                  <img
+                    src="https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=1200&q=90"
+                    alt="Cake artist decorating a custom cake"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="grain flex items-center p-7 sm:p-12 lg:p-16">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-[.22em] text-rosebeige">Designed by you</span>
+                    <h2 className="mt-3 font-display text-4xl font-bold leading-tight sm:text-5xl">A cake as unique as your celebration.</h2>
+                    <p className="mt-5 max-w-xl leading-7 text-cream/70">
+                      Choose your flavour, size, colour palette, message and theme. Our cake artists will turn your idea into an edible centrepiece.
+                    </p>
+
+                    <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                      {["Personalised design", "Eggless available", "Preview before baking", "Dedicated cake artist"].map(item => (
+                        <div key={item} className="flex items-center gap-2 text-sm font-semibold">
+                          <span className="grid h-6 w-6 place-items-center rounded-full bg-cream/10">
+                            <Icon name="check" size={14} />
+                          </span>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setCustomOpen(true)}
+                      className="mt-9 inline-flex items-center gap-2 rounded-full bg-cream px-6 py-3.5 text-sm font-bold text-cocoa transition hover:bg-sand"
+                    >
+                      Start customizing <Icon name="arrow-right" size={17} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section id="occasions" className="pb-20">
+              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="text-center">
+                  <span className="text-xs font-bold uppercase tracking-[.22em] text-caramel">Gifts that feel personal</span>
+                  <h2 className="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">Shop by occasion</h2>
+                </div>
+
+                <div className="mt-10 grid gap-5 md:grid-cols-3">
+                  {occasions.map((occasion, index) => (
+                    <button
+                      key={occasion.title}
+                      onClick={() => chooseCategory(index === 1 ? "Anniversary" : index === 2 ? "Flower Bouquets" : "Birthday Cakes")}
+                      className="group relative min-h-[410px] overflow-hidden rounded-[1.7rem] text-left shadow-card"
+                    >
+                      <img src={occasion.image} alt={occasion.title} className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-espresso/90 via-cocoa/15 to-transparent"></div>
+                      <div className="absolute inset-x-0 bottom-0 p-6 text-cream">
+                        <h3 className="font-display text-3xl font-bold">{occasion.title}</h3>
+                        <p className="mt-1 text-sm text-cream/70">{occasion.note}</p>
+                        <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold">
+                          Explore gifts <Icon name="arrow-right" size={17} className="transition group-hover:translate-x-1" />
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            <section className="bg-[#e7d5bf] py-20">
+              <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <div className="grid items-center gap-12 lg:grid-cols-[.8fr_1.2fr]">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-[.22em] text-caramel">From our customers</span>
+                    <h2 className="mt-3 font-display text-4xl font-bold text-espresso sm:text-5xl">Celebrations made sweeter.</h2>
+                    <p className="mt-4 leading-7 text-cocoa/65">Thousands of thoughtful gifts delivered with freshness, care and a little bit of magic.</p>
+                    <div className="mt-7 flex items-center gap-4">
+                      <strong className="font-display text-5xl">4.9</strong>
+                      <div>
+                        <div className="flex gap-1 text-caramel">
+                          {[1,2,3,4,5].map(item => <Icon key={item} name="star" size={16} className="fill-caramel" />)}
+                        </div>
+                        <p className="mt-1 text-xs text-cocoa/55">Based on 2,500+ verified reviews</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {[
+                      ["The vintage bento cake looked exactly like the photo and tasted even better. Beautiful packaging too!", "Aarohi S.", "New Delhi"],
+                      ["The custom design process was seamless. Everyone at the anniversary dinner loved the cake.", "Meera K.", "Mumbai"],
+                      ["Fresh roses, rich brownies and delivery right on time. A genuinely premium experience.", "Rohan M.", "Bengaluru"],
+                      ["Not overly sweet, wonderfully soft and elegant. This is now our family celebration bakery.", "Naina P.", "Jaipur"]
+                    ].map(([quote, name, city], index) => (
+                      <article key={name} className={`rounded-2xl bg-cream p-6 shadow-card ${index % 2 ? "sm:translate-y-5" : ""}`}>
+                        <div className="flex gap-1 text-caramel">
+                          {[1,2,3,4,5].map(item => <Icon key={item} name="star" size={14} className="fill-caramel" />)}
+                        </div>
+                        <p className="mt-4 text-sm leading-6 text-cocoa/75">“{quote}”</p>
+                        <div className="mt-5 border-t border-cocoa/10 pt-4">
+                          <strong className="text-sm">{name}</strong>
+                          <span className="ml-2 text-xs text-cocoa/45">{city}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+              <div className="grid gap-8 rounded-[2rem] border border-cocoa/10 bg-cream/80 p-7 shadow-card sm:p-10 lg:grid-cols-[1fr_auto] lg:items-center">
+                <div>
+                  <h2 className="font-display text-3xl font-bold text-espresso">Sweet notes, seasonal menus and special offers.</h2>
+                  <p className="mt-2 text-sm text-cocoa/60">Join our table. We send only the good stuff.</p>
+                </div>
+                <form
+                  className="flex flex-col gap-2 sm:flex-row"
+                  onSubmit={event => {
+                    event.preventDefault();
+                    event.currentTarget.reset();
+                    setToast("Welcome to the Crumb & Bloom table");
+                  }}
+                >
+                  <input
+                    type="email"
+                    required
+                    placeholder="Your email address"
+                    className="min-w-0 rounded-xl border border-cocoa/15 bg-white px-4 py-3.5 text-sm outline-none focus:border-caramel sm:w-72"
+                  />
+                  <button className="rounded-xl bg-cocoa px-6 py-3.5 text-sm font-bold text-cream transition hover:bg-espresso">
+                    Subscribe
+                  </button>
+                </form>
+              </div>
+            </section>
+          </main>
+
+          <footer className="bg-espresso text-cream">
+            <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+              <div className="grid gap-10 border-b border-cream/10 pb-12 sm:grid-cols-2 lg:grid-cols-5">
+                <div className="sm:col-span-2">
+                  <a href="#" className="flex items-center gap-3">
+                    <span className="grid h-11 w-11 place-items-center rounded-full bg-cream text-cocoa">
+                      <Icon name="cake-slice" size={22} />
+                    </span>
+                    <span className="font-display text-2xl font-bold">Crumb & Bloom</span>
+                  </a>
+                  <p className="mt-5 max-w-sm text-sm leading-6 text-cream/55">
+                    Artisan cakes, handcrafted desserts and fresh florals for the moments that matter.
+                  </p>
+                  <div className="mt-6 flex gap-2">
+                    {["instagram", "facebook", "youtube"].map(icon => (
+                      <button key={icon} className="grid h-10 w-10 place-items-center rounded-full border border-cream/15 transition hover:bg-cream hover:text-cocoa" aria-label={icon}>
+                        <Icon name={icon} size={17} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold">Shop</h3>
+                  <ul className="mt-5 space-y-3 text-sm text-cream/55">
+                    <li><a href="#categories" className="hover:text-cream">Cakes</a></li>
+                    <li><a href="#shop" className="hover:text-cream">Cupcakes</a></li>
+                    <li><a href="#shop" className="hover:text-cream">Brownies</a></li>
+                    <li><a href="#shop" className="hover:text-cream">Chocolates</a></li>
+                    <li><a href="#shop" className="hover:text-cream">Flowers</a></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold">Help</h3>
+                  <ul className="mt-5 space-y-3 text-sm text-cream/55">
+                    <li><a href="#" className="hover:text-cream">Track order</a></li>
+                    <li><a href="#" className="hover:text-cream">Delivery information</a></li>
+                    <li><a href="#" className="hover:text-cream">FAQs</a></li>
+                    <li><a href="#" className="hover:text-cream">Contact us</a></li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold">Contact</h3>
+                  <ul className="mt-5 space-y-4 text-sm text-cream/55">
+                    <li className="flex gap-2"><Icon name="phone" size={16} /> +91 98765 43210</li>
+                    <li className="flex gap-2"><Icon name="mail" size={16} /> hello@crumbandbloom.in</li>
+                    <li className="flex gap-2"><Icon name="clock-3" size={16} /> 8:00 AM – 10:00 PM</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex flex-col justify-between gap-3 pt-7 text-xs text-cream/40 sm:flex-row">
+                <p>© 2025 Crumb & Bloom. All rights reserved.</p>
+                <div className="flex gap-5">
+                  <a href="#" className="hover:text-cream">Privacy</a>
+                  <a href="#" className="hover:text-cream">Terms</a>
+                  <a href="#" className="hover:text-cream">Refund policy</a>
+                </div>
+              </div>
+            </div>
+          </footer>
+
+          {mobileOpen && (
+            <div className="fixed inset-0 z-50 bg-espresso/55 backdrop-blur-sm" onMouseDown={() => setMobileOpen(false)}>
+              <aside className="h-full w-[86%] max-w-sm bg-cream p-5 shadow-2xl" onMouseDown={event => event.stopPropagation()}>
+                <div className="flex items-center justify-between border-b border-cocoa/10 pb-5">
+                  <span className="font-display text-2xl font-bold">Crumb & Bloom</span>
+                  <button onClick={() => setMobileOpen(false)} className="rounded-full p-2 hover:bg-sand" aria-label="Close menu">
+                    <Icon name="x" size={24} />
+                  </button>
+                </div>
+                <nav className="mt-6 space-y-1">
+                  {[
+                    ["Home", "#"],
+                    ["Cakes", "#categories"],
+                    ["Best Sellers", "#shop"],
+                    ["Occasions", "#occasions"]
+                  ].map(([label, href]) => (
+                    <a
+                      key={label}
+                      href={href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center justify-between rounded-xl px-3 py-4 font-bold hover:bg-sand/50"
+                    >
+                      {label}<Icon name="chevron-right" size={18} />
+                    </a>
+                  ))}
+                  <button
+                    onClick={() => { setMobileOpen(false); setTimeout(() => setCustomOpen(true), 200); }}
+                    className="flex w-full items-center justify-between rounded-xl px-3 py-4 text-left font-bold hover:bg-sand/50"
+                  >
+                    Customize a cake <Icon name="chevron-right" size={18} />
+                  </button>
+                </nav>
+                <div className="mt-7 rounded-2xl bg-cocoa p-5 text-cream">
+                  <p className="text-xs uppercase tracking-[.18em] text-cream/55">Need help?</p>
+                  <p className="mt-2 font-display text-xl font-bold">Talk to a cake expert</p>
+                  <button className="mt-4 flex items-center gap-2 text-sm font-bold"><Icon name="phone" size={16} /> +91 98765 43210</button>
+                </div>
+              </aside>
+            </div>
+          )}
+
+          {cartOpen && (
+            <div className="fixed inset-0 z-50 bg-espresso/60 backdrop-blur-sm" onMouseDown={() => setCartOpen(false)}>
+              <aside
+                className="cart-panel ml-auto flex h-full w-full max-w-md flex-col bg-cream shadow-2xl"
+                onMouseDown={event => event.stopPropagation()}
+              >
+                <div className="flex items-center justify-between border-b border-cocoa/10 p-5 sm:p-6">
+                  <div>
+                    <h2 className="font-display text-2xl font-bold">Your bag</h2>
+                    <p className="mt-1 text-xs text-cocoa/50">{cartCount} {cartCount === 1 ? "item" : "items"}</p>
+                  </div>
+                  <button onClick={() => setCartOpen(false)} className="rounded-full p-2 hover:bg-sand" aria-label="Close cart">
+                    <Icon name="x" size={24} />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-5 sm:p-6">
+                  {cart.length === 0 ? (
+                    <div className="flex h-full flex-col items-center justify-center text-center">
+                      <div className="grid h-20 w-20 place-items-center rounded-full bg-sand/60">
+                        <Icon name="shopping-bag" size={34} className="text-cocoa/55" />
+                      </div>
+                      <h3 className="mt-5 font-display text-2xl font-bold">Your bag is empty</h3>
+                      <p className="mt-2 max-w-xs text-sm text-cocoa/50">Add a little sweetness to your celebration.</p>
+                      <button
+                        onClick={() => { setCartOpen(false); document.getElementById("shop")?.scrollIntoView({ behavior: "smooth" }); }}
+                        className="mt-6 rounded-full bg-cocoa px-6 py-3 text-sm font-bold text-cream"
+                      >
+                        Browse treats
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-5">
+                      {cart.map(item => (
+                        <div key={item.id} className="flex gap-4 border-b border-cocoa/10 pb-5">
+                          <img src={item.image} alt={item.name} className="h-24 w-24 rounded-xl object-cover" />
+                          <div className="min-w-0 flex-1">
+                            <h3 className="font-display font-bold leading-tight">{item.name}</h3>
+                            <p className="mt-1 text-xs text-cocoa/50">{item.category}</p>
+                            <div className="mt-3 flex items-center justify-between">
+                              <div className="flex items-center rounded-full border border-cocoa/15">
+                                <button onClick={() => updateQuantity(item.id, -1)} className="p-2" aria-label="Decrease quantity"><Icon name="minus" size={14} /></button>
+                                <span className="w-7 text-center text-xs font-bold">{item.quantity}</span>
+                                <button onClick={() => updateQuantity(item.id, 1)} className="p-2" aria-label="Increase quantity"><Icon name="plus" size={14} /></button>
+                              </div>
+                              <strong>{formatPrice(item.price * item.quantity)}</strong>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {cart.length > 0 && (
+                  <div className="border-t border-cocoa/10 bg-white/60 p-5 sm:p-6">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-cocoa/60">Subtotal</span>
+                      <strong>{formatPrice(subtotal)}</strong>
+                    </div>
+                    <div className="mt-2 flex justify-between text-sm">
+                      <span className="text-cocoa/60">Delivery</span>
+                      <strong className={subtotal >= 999 ? "text-sage" : ""}>{subtotal >= 999 ? "Complimentary" : "₹79"}</strong>
+                    </div>
+                    <div className="mt-4 flex justify-between border-t border-cocoa/10 pt-4 text-lg">
+                      <span className="font-bold">Total</span>
+                      <strong>{formatPrice(subtotal + (subtotal >= 999 ? 0 : 79))}</strong>
+                    </div>
+                    <button
+                      onClick={() => setToast("Checkout is ready for payment integration")}
+                      className="mt-5 w-full rounded-xl bg-cocoa py-4 text-sm font-bold text-cream transition hover:bg-espresso"
+                    >
+                      Proceed to checkout
+                    </button>
+                  </div>
+                )}
+              </aside>
+            </div>
+          )}
+
+          {quickView && (
+            <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-espresso/65 p-4 backdrop-blur-sm" onMouseDown={() => setQuickView(null)}>
+              <div className="modal-card relative grid w-full max-w-4xl overflow-hidden rounded-3xl bg-cream shadow-2xl md:grid-cols-2" onMouseDown={event => event.stopPropagation()}>
+                <button onClick={() => setQuickView(null)} className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-cream shadow" aria-label="Close">
+                  <Icon name="x" size={21} />
+                </button>
+                <img src={quickView.image} alt={quickView.name} className="h-72 w-full object-cover md:h-full md:min-h-[510px]" />
+                <div className="flex flex-col justify-center p-7 sm:p-10">
+                  <span className="text-xs font-bold uppercase tracking-[.18em] text-caramel">{quickView.category}</span>
+                  <h2 className="mt-3 font-display text-3xl font-bold text-espresso sm:text-4xl">{quickView.name}</h2>
+                  <div className="mt-4 flex items-center gap-2">
+                    <div className="flex gap-1 text-caramel">
+                      {[1,2,3,4,5].map(item => <Icon key={item} name="star" size={15} className="fill-caramel" />)}
+                    </div>
+                    <span className="text-xs text-cocoa/50">{quickView.rating} · {quickView.reviews} reviews</span>
+                  </div>
+                  <p className="mt-6 leading-7 text-cocoa/65">{quickView.description}</p>
+                  <div className="mt-6 flex items-end gap-3">
+                    <strong className="text-2xl">{formatPrice(quickView.price)}</strong>
+                    <span className="pb-1 text-sm text-cocoa/40 line-through">{formatPrice(quickView.oldPrice)}</span>
+                  </div>
+                  <div className="mt-5 rounded-xl bg-sand/40 p-4 text-sm">
+                    <div className="flex items-center gap-2 font-semibold"><Icon name="truck" size={18} /> Earliest delivery: Today, 5:00 PM</div>
+                  </div>
+                  <button
+                    onClick={() => { addToCart(quickView); setQuickView(null); }}
+                    className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-cocoa px-5 py-4 text-sm font-bold text-cream"
+                  >
+                    <Icon name="shopping-bag" size={18} /> Add to bag
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {customOpen && (
+            <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-espresso/65 p-4 backdrop-blur-sm" onMouseDown={() => setCustomOpen(false)}>
+              <form
+                className="modal-card relative w-full max-w-2xl rounded-3xl bg-cream p-6 shadow-2xl sm:p-9"
+                onMouseDown={event => event.stopPropagation()}
+                onSubmit={event => {
+                  event.preventDefault();
+                  setCustomOpen(false);
+                  setToast("Your custom cake request has been received");
+                }}
+              >
+                <button type="button" onClick={() => setCustomOpen(false)} className="absolute right-4 top-4 rounded-full p-2 hover:bg-sand" aria-label="Close">
+                  <Icon name="x" size={22} />
+                </button>
+
+                <span className="text-xs font-bold uppercase tracking-[.2em] text-caramel">Made especially for you</span>
+                <h2 className="mt-2 pr-8 font-display text-3xl font-bold text-espresso sm:text-4xl">Design your custom cake</h2>
+                <p className="mt-2 text-sm text-cocoa/55">Tell us a little about your celebration. Our cake artist will contact you with ideas and pricing.</p>
+
+                <div className="mt-7 grid gap-4 sm:grid-cols-2">
+                  <label className="text-sm font-bold">
+                    Occasion
+                    <select required className="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+                      <option>Birthday</option>
+                      <option>Anniversary</option>
+                      <option>Wedding</option>
+                      <option>Baby shower</option>
+                      <option>Other</option>
+                    </select>
+                  </label>
+                  <label className="text-sm font-bold">
+                    Preferred flavour
+                    <select required className="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+                      <option>Belgian chocolate</option>
+                      <option>Vanilla berry</option>
+                      <option>Red velvet</option>
+                      <option>Butterscotch</option>
+                      <option>Fresh fruit</option>
+                    </select>
+                  </label>
+                  <label className="text-sm font-bold">
+                    Serving size
+                    <select required className="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel">
+                      <option>6–8 people</option>
+                      <option>10–15 people</option>
+                      <option>20–30 people</option>
+                      <option>30+ people</option>
+                    </select>
+                  </label>
+                  <label className="text-sm font-bold">
+                    Celebration date
+                    <input type="date" required className="mt-2 w-full rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel" />
+                  </label>
+                </div>
+
+                <label className="mt-4 block text-sm font-bold">
+                  Your design idea
+                  <textarea
+                    required
+                    rows="3"
+                    placeholder="Theme, colours, message, references or any special details..."
+                    className="mt-2 w-full resize-none rounded-xl border border-cocoa/15 bg-white px-4 py-3 font-normal outline-none focus:border-caramel"
+                  ></textarea>
+                </label>
+
+                <button className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-cocoa px-5 py-4 text-sm font-bold text-cream">
+                  Request a consultation <Icon name="arrow-right" size={17} />
+                </button>
+              </form>
+            </div>
+          )}
+
+          {toast && (
+            <div className="toast fixed bottom-5 left-1/2 z-[70] flex -translate-x-1/2 items-center gap-3 rounded-full bg-espresso px-5 py-3 text-sm font-semibold text-cream shadow-2xl">
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-cream/15"><Icon name="check" size={15} /></span>
+              <span className="max-w-[240px]">{toast}</span>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

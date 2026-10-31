@@ -1,0 +1,118 @@
+<section class="relative overflow-hidden bg-[#eadbc8]">
+
+  <!-- Background blur blobs -->
+  <div class="absolute -left-24 top-20 h-72 w-72 rounded-full bg-[#d5b59b]/45 blur-3xl"></div>
+  <div class="absolute -right-24 bottom-0 h-96 w-96 rounded-full bg-white/55 blur-3xl"></div>
+
+  <!-- Two-column grid -->
+  <div class="relative mx-auto grid min-h-[660px] max-w-7xl items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_.95fr] lg:px-8 lg:py-20">
+
+    <!-- ── Left column: copy + search form ───────────────────────────────── -->
+    <div class="reveal relative z-10">
+
+      <!-- Eyebrow badge -->
+      <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-cocoa/15 bg-white/45 px-4 py-2 text-xs font-bold uppercase tracking-[.18em] text-cocoa backdrop-blur">
+        <span class="h-2 w-2 rounded-full bg-caramel"></span>
+        Made fresh for your moment
+      </div>
+
+      <!-- Headline -->
+      <h1 class="max-w-3xl font-display text-5xl font-bold leading-[1.02] tracking-tight text-espresso sm:text-6xl lg:text-[76px]">
+        Life's sweetest moments,
+        <span class="italic text-caramel"> beautifully baked.</span>
+      </h1>
+
+      <!-- Sub-headline -->
+      <p class="mt-6 max-w-xl text-base leading-7 text-cocoa/70 sm:text-lg">
+        Artisan cakes, delicate desserts and fresh flowers—thoughtfully handcrafted and delivered to your doorstep.
+      </p>
+
+      <!-- Search form -->
+      <form
+        (ngSubmit)="onSubmit($event)"
+        class="mt-9 flex max-w-2xl flex-col rounded-2xl bg-white p-2 shadow-soft sm:flex-row sm:items-center">
+
+        <!-- Location picker -->
+        <div class="flex items-center gap-3 border-b border-cocoa/10 px-3 py-3 sm:w-44 sm:border-b-0 sm:border-r sm:py-1">
+          <svg lucideMapPin [size]="19" [class]="'shrink-0 text-caramel'"></svg>
+          <select
+            [(ngModel)]="locationModel"
+            name="location"
+            class="w-full bg-transparent text-sm font-semibold outline-none">
+            @for (city of cities; track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Search input -->
+        <div class="flex flex-1 items-center gap-3 px-3 py-3">
+          <svg lucideSearch [size]="20" [class]="'shrink-0 text-cocoa/45'"></svg>
+          <input
+            [(ngModel)]="searchModel"
+            name="search"
+            type="text"
+            class="w-full bg-transparent text-sm outline-none placeholder:text-cocoa/40"
+            placeholder="Search cakes, brownies, bouquets..."
+            aria-label="Search products" />
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="submit"
+          class="rounded-xl bg-cocoa px-6 py-3.5 text-sm font-bold text-cream transition hover:bg-espresso">
+          Find a treat
+        </button>
+      </form>
+
+      <!-- Trust badges -->
+      <div class="mt-7 flex flex-wrap gap-x-6 gap-y-3 text-sm font-semibold text-cocoa/70">
+        <span class="flex items-center gap-2">
+          <svg lucideCheck [size]="16" [class]="'text-sage'"></svg>
+          100% fresh
+        </span>
+        <span class="flex items-center gap-2">
+          <svg lucideCheck [size]="16" [class]="'text-sage'"></svg>
+          Eggless options
+        </span>
+        <span class="flex items-center gap-2">
+          <svg lucideClock3 [size]="16" [class]="'text-sage'"></svg>
+          Same-day delivery
+        </span>
+      </div>
+    </div>
+
+    <!-- ── Right column: floating image + badges ─────────────────────────── -->
+    <div class="relative mx-auto w-full max-w-[570px] pb-10 lg:pb-0">
+
+      <!-- Hero blob image -->
+      <div class="hero-blob relative ml-auto aspect-[4/4.35] w-[87%] overflow-hidden rounded-[48%_48%_45%_45%/42%_42%_58%_58%] border-[10px] border-white/40 shadow-2xl">
+        <img
+          src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=1100&q=92"
+          alt="Beautiful artisan celebration cake"
+          class="h-full w-full object-cover" />
+      </div>
+
+      <!-- Rating float card (bottom-left, counter-animated) -->
+      <div class="hero-blob-secondary absolute -left-1 bottom-2 rounded-2xl border border-white/60 bg-white/90 p-4 shadow-soft backdrop-blur sm:left-0 sm:p-5">
+        <div class="flex items-center gap-3">
+          <div class="grid h-11 w-11 place-items-center rounded-full bg-sand/70 text-cocoa">
+            <svg lucideStar [size]="20"></svg>
+          </div>
+          <div>
+            <strong class="block text-sm">4.9 customer rating</strong>
+            <span class="text-xs text-cocoa/55">From 2,500+ celebrations</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discount badge (top-right) -->
+      <div class="absolute -right-1 top-12 hidden rounded-2xl bg-cocoa px-5 py-4 text-cream shadow-soft sm:block">
+        <span class="block text-xs uppercase tracking-[.18em] text-cream/65">Today only</span>
+        <strong class="font-display text-2xl">15% off</strong>
+        <span class="block text-xs text-cream/70">on first orders</span>
+      </div>
+
+    </div>
+  </div>
+</section>

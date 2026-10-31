@@ -1,0 +1,112 @@
+<section id="shop" class="bg-[#f1e6d7]/75 py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+    <!-- Section header + sort -->
+    <div class="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+      <div>
+        <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">Fresh from the kitchen</span>
+        <h2 class="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">Our most-loved treats</h2>
+        <p class="mt-3 max-w-2xl text-sm leading-6 text-cocoa/60 sm:text-base">
+          Thoughtfully designed, freshly prepared and packed with care.
+        </p>
+      </div>
+      <div class="flex items-center gap-3">
+        <label class="hidden text-xs font-bold uppercase tracking-wider text-cocoa/55 sm:block">Sort by</label>
+        <select
+          [(ngModel)]="sortModel"
+          class="rounded-xl border border-cocoa/15 bg-cream px-4 py-3 text-sm font-semibold outline-none">
+          @for (opt of sortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Category filter chips -->
+    <div class="hide-scrollbar mt-8 flex gap-2 overflow-x-auto pb-2">
+      @for (chip of filterChips; track chip) {
+        <button
+          (click)="store.activeCategory.set(chip)"
+          [class]="'whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold transition ' +
+            (store.activeCategory() === chip
+              ? 'bg-cocoa text-cream shadow-lg'
+              : 'border border-cocoa/10 bg-cream text-cocoa hover:border-caramel/50')">
+          {{ chip }}
+        </button>
+      }
+    </div>
+
+    <!-- Product grid -->
+    @if (store.filteredProducts().length > 0) {
+      <div class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        @for (product of store.filteredProducts(); track product.id; let i = $index) {
+          <article
+            class="product-card reveal group overflow-hidden rounded-[1.4rem] border border-cocoa/10 bg-cream shadow-card"
+            [style.animationDelay]="animDelay(i)">
+
+            <!-- Image area -->
+            <div class="relative aspect-[1.12/1] overflow-hidden bg-sand">
+              <img [src]="product.image" [alt]="product.name" class="h-full w-full object-cover" loading="lazy" />
+
+              <!-- Badge -->
+              <span class="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-cocoa shadow">
+                {{ product.badge }}
+              </span>
+
+              <!-- Wishlist button -->
+              <button
+                (click)="store.toggleWishlist(product.id)"
+                [class]="'absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full backdrop-blur transition ' +
+                  (store.isWishlisted(product.id) ? 'bg-cocoa text-cream' : 'bg-cream/90 text-cocoa hover:bg-white')"
+                aria-label="Toggle wishlist">
+                <svg lucideHeart [size]="18"></svg>
+              </button>
+
+              <!-- Quick view — visible on hover via group -->
+              <button
+                (click)="store.quickView.set(product)"
+                class="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/95 px-4 py-2 text-xs font-bold opacity-0 shadow transition group-hover:opacity-100">
+                Quick view
+              </button>
+            </div>
+
+            <!-- Card body -->
+            <div class="p-4">
+              <div class="mb-2 flex items-center justify-between gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-[.14em] text-caramel">{{ product.category }}</span>
+                <span class="flex items-center gap-1 text-xs font-bold">
+                  <svg lucideStar [size]="13" [class]="'fill-caramel text-caramel'"></svg>
+                  {{ product.rating }}
+                  <span class="font-normal text-cocoa/40">({{ product.reviews }})</span>
+                </span>
+              </div>
+              <h3 class="line-clamp-1 font-display text-lg font-bold text-espresso">{{ product.name }}</h3>
+              <div class="mt-2 flex items-center gap-2">
+                <strong class="text-lg text-cocoa">{{ product.price | formatPrice }}</strong>
+                <span class="text-xs text-cocoa/40 line-through">{{ product.oldPrice | formatPrice }}</span>
+              </div>
+              <button
+                (click)="store.addToCart(product)"
+                class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-cocoa bg-transparent px-4 py-3 text-sm font-bold transition hover:bg-cocoa hover:text-cream">
+                <svg lucideShoppingBag [size]="17"></svg> Add to bag
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <!-- Empty state -->
+      <div class="mt-10 rounded-3xl border border-dashed border-cocoa/20 bg-cream px-6 py-16 text-center">
+        <svg lucideSearchX [size]="34" [class]="'mx-auto text-cocoa/45'"></svg>
+        <h3 class="mt-4 font-display text-2xl font-bold">No treats found</h3>
+        <p class="mt-2 text-sm text-cocoa/55">Try another search or browse all products.</p>
+        <button
+          (click)="store.clearSearch()"
+          class="mt-5 rounded-full bg-cocoa px-5 py-2.5 text-sm font-bold text-cream">
+          Show all treats
+        </button>
+      </div>
+    }
+
+  </div>
+</section>

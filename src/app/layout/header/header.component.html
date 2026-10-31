@@ -1,0 +1,86 @@
+<header class="sticky top-0 z-40 border-b border-cocoa/10 bg-cream/95 backdrop-blur-xl">
+  <div class="mx-auto flex h-20 max-w-7xl items-center gap-5 px-4 sm:px-6 lg:px-8">
+
+    <!-- Mobile menu trigger -->
+    <button
+      class="rounded-full p-2 text-cocoa lg:hidden"
+      (click)="store.mobileOpen.set(true)"
+      aria-label="Open menu">
+      <svg lucideMenu [size]="25"></svg>
+    </button>
+
+    <!-- Logo -->
+    <a href="#" class="mr-auto flex shrink-0 items-center gap-2 lg:mr-4">
+      <span class="grid h-11 w-11 place-items-center rounded-full border border-cocoa/20 bg-cocoa text-cream">
+        <svg lucideCakeSlice [size]="23" [strokeWidth]="1.7"></svg>
+      </span>
+      <span>
+        <strong class="block font-display text-xl leading-none text-espresso sm:text-2xl">Crumb &amp; Bloom</strong>
+        <small class="hidden text-[9px] font-bold uppercase tracking-[.28em] text-caramel sm:block">Bakery &amp; Florals</small>
+      </span>
+    </a>
+
+    <!-- Desktop nav links -->
+    <nav class="hidden items-center gap-7 text-sm font-semibold lg:flex">
+      <a href="#" class="transition hover:text-caramel">Home</a>
+      <a href="#categories" class="transition hover:text-caramel">Cakes</a>
+      <a href="#shop" class="transition hover:text-caramel">Best Sellers</a>
+      <a href="#occasions" class="transition hover:text-caramel">Occasions</a>
+      <button
+        (click)="store.customOpen.set(true)"
+        class="transition hover:text-caramel">
+        Customize
+      </button>
+    </nav>
+
+    <!-- Location picker — desktop xl+ -->
+    <div class="hidden items-center gap-2 rounded-full border border-cocoa/10 bg-white/60 px-3 py-2 xl:flex">
+      <svg lucideMapPin [size]="16" [class]="'text-caramel'"></svg>
+      <select
+        [(ngModel)]="locationModel"
+        class="cursor-pointer bg-transparent text-xs font-semibold outline-none"
+        aria-label="Delivery location">
+        @for (city of cities; track city) {
+          <option [value]="city">{{ city }}</option>
+        }
+      </select>
+    </div>
+
+    <!-- Icon actions -->
+    <div class="flex items-center gap-1 sm:gap-2">
+
+      <!-- Account -->
+      <button
+        class="hidden rounded-full p-2.5 transition hover:bg-sand/60 sm:block"
+        aria-label="Account">
+        <svg lucideUserRound [size]="21"></svg>
+      </button>
+
+      <!-- Wishlist -->
+      <button
+        class="relative rounded-full p-2.5 transition hover:bg-sand/60"
+        aria-label="Wishlist">
+        <svg lucideHeart [size]="21"></svg>
+        @if (store.wishlist().length > 0) {
+          <span class="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-caramel px-1 text-[10px] font-bold text-white">
+            {{ store.wishlist().length }}
+          </span>
+        }
+      </button>
+
+      <!-- Cart -->
+      <button
+        (click)="store.cartOpen.set(true)"
+        class="relative rounded-full p-2.5 transition hover:bg-sand/60"
+        aria-label="Shopping bag">
+        <svg lucideShoppingBag [size]="21"></svg>
+        @if (store.cartCount() > 0) {
+          <span class="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-cocoa px-1 text-[10px] font-bold text-white">
+            {{ store.cartCount() }}
+          </span>
+        }
+      </button>
+
+    </div>
+  </div>
+</header>

@@ -1,0 +1,43 @@
+<section class="bg-[#e7d5bf] py-20">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="grid items-center gap-12 lg:grid-cols-[.8fr_1.2fr]">
+
+      <!-- Left: heading + overall rating -->
+      <div>
+        <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">From our customers</span>
+        <h2 class="mt-3 font-display text-4xl font-bold text-espresso sm:text-5xl">Celebrations made sweeter.</h2>
+        <p class="mt-4 leading-7 text-cocoa/65">Thousands of thoughtful gifts delivered with freshness, care and a little bit of magic.</p>
+        <div class="mt-7 flex items-center gap-4">
+          <strong class="font-display text-5xl">4.9</strong>
+          <div>
+            <div class="flex gap-1 text-caramel">
+              @for (s of stars; track s) {
+                <svg lucideStar [size]="16" [class]="'fill-caramel'"></svg>
+              }
+            </div>
+            <p class="mt-1 text-xs text-cocoa/55">Based on 2,500+ verified reviews</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: review cards -->
+      <div class="grid gap-4 sm:grid-cols-2">
+        @for (review of reviews; track review.name; let i = $index) {
+          <article [class]="'rounded-2xl bg-cream p-6 shadow-card' + (i % 2 ? ' sm:translate-y-5' : '')">
+            <div class="flex gap-1 text-caramel">
+              @for (s of stars; track s) {
+                <svg lucideStar [size]="14" [class]="'fill-caramel'"></svg>
+              }
+            </div>
+            <p class="mt-4 text-sm leading-6 text-cocoa/75">"{{ review.quote }}"</p>
+            <div class="mt-5 border-t border-cocoa/10 pt-4">
+              <strong class="text-sm">{{ review.name }}</strong>
+              <span class="ml-2 text-xs text-cocoa/45">{{ review.city }}</span>
+            </div>
+          </article>
+        }
+      </div>
+
+    </div>
+  </div>
+</section>
