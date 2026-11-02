@@ -7,11 +7,11 @@ interface MarqueeItem {
 }
 
 const STRIP: MarqueeItem[] = [
-  { key: 'a', text: 'Handcrafted with care',        dim: false },
+  { key: 'a', text: '100% eggless cakes',            dim: false },
   { key: 'b', text: '◆',                            dim: true  },
-  { key: 'c', text: 'Same-day delivery',             dim: false },
+  { key: 'c', text: 'Freshly made to order',         dim: false },
   { key: 'd', text: '◆',                            dim: true  },
-  { key: 'e', text: 'Premium ingredients',           dim: false },
+  { key: 'e', text: 'Gwalior-only delivery',         dim: false },
   { key: 'f', text: '◆',                            dim: true  },
   { key: 'g', text: 'Made for every celebration',   dim: false },
   { key: 'h', text: '◆',                            dim: true  },

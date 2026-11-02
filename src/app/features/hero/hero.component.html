@@ -13,18 +13,18 @@
       <!-- Eyebrow badge -->
       <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-cocoa/15 bg-white/45 px-4 py-2 text-xs font-bold uppercase tracking-[.18em] text-cocoa backdrop-blur">
         <span class="h-2 w-2 rounded-full bg-caramel"></span>
-        Made fresh for your moment
+        Gwalior's fresh, eggless cake studio
       </div>
 
       <!-- Headline -->
       <h1 class="max-w-3xl font-display text-5xl font-bold leading-[1.02] tracking-tight text-espresso sm:text-6xl lg:text-[76px]">
-        Life's sweetest moments,
-        <span class="italic text-caramel"> beautifully baked.</span>
+        Fresh cakes for
+        <span class="italic text-caramel"> Gwalior celebrations.</span>
       </h1>
 
       <!-- Sub-headline -->
       <p class="mt-6 max-w-xl text-base leading-7 text-cocoa/70 sm:text-lg">
-        Artisan cakes, delicate desserts and fresh flowers—thoughtfully handcrafted and delivered to your doorstep.
+        100% eggless cakes, freshly made to order and delivered only across Gwalior.
       </p>
 
       <!-- Search form -->
@@ -35,14 +35,7 @@
         <!-- Location picker -->
         <div class="flex items-center gap-3 border-b border-cocoa/10 px-3 py-3 sm:w-44 sm:border-b-0 sm:border-r sm:py-1">
           <svg lucideMapPin [size]="19" [class]="'shrink-0 text-caramel'"></svg>
-          <select
-            [(ngModel)]="locationModel"
-            name="location"
-            class="w-full bg-transparent text-sm font-semibold outline-none">
-            @for (city of cities; track city) {
-              <option [value]="city">{{ city }}</option>
-            }
-          </select>
+          <span class="text-sm font-semibold">Gwalior only</span>
         </div>
 
         <!-- Search input -->
@@ -73,23 +66,23 @@
         </span>
         <span class="flex items-center gap-2">
           <svg lucideCheck [size]="16" [class]="'text-sage'"></svg>
-          Eggless options
+          100% eggless
         </span>
         <span class="flex items-center gap-2">
           <svg lucideClock3 [size]="16" [class]="'text-sage'"></svg>
-          Same-day delivery
+          Made fresh to order
         </span>
       </div>
     </div>
 
     <!-- ── Right column: floating image + badges ─────────────────────────── -->
-    <div class="relative mx-auto w-full max-w-[570px] pb-10 lg:pb-0">
+    <div class="hero-cake-scene relative mx-auto w-full max-w-[570px] pb-10 lg:pb-0">
 
       <!-- Hero blob image -->
-      <div class="hero-blob relative ml-auto aspect-[4/4.35] w-[87%] overflow-hidden rounded-[48%_48%_45%_45%/42%_42%_58%_58%] border-[10px] border-white/40 shadow-2xl">
+      <div class="hero-blob relative ml-auto aspect-[4/4.35] w-[87%] overflow-hidden rounded-[2rem] border-[10px] border-white/40 shadow-2xl">
         <img
-          src="https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?auto=format&fit=crop&w=1100&q=92"
-          alt="Beautiful artisan celebration cake"
+          src="/images/apcake.png"
+          alt="Chocolate and berry celebration cake from Kiko"
           class="h-full w-full object-cover" />
       </div>
 

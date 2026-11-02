@@ -18,7 +18,6 @@ export class StoreService {
   readonly activeCategory = signal<string>('All');
   readonly search         = signal<string>('');
   readonly sort           = signal<string>('popular');
-  readonly location       = signal<string>('New Delhi');
 
   // ── Cart & wishlist ──────────────────────────────────────────────────────
   readonly cart     = signal<CartItem[]>([]);

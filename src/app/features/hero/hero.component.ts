@@ -25,16 +25,6 @@ import {
 export class HeroComponent {
   readonly store = inject(StoreService);
 
-  readonly cities = ['New Delhi', 'Mumbai', 'Bengaluru', 'Jaipur'];
-
-  /** Two-way bridge between ngModel and the store signal */
-  get locationModel(): string {
-    return this.store.location();
-  }
-  set locationModel(value: string) {
-    this.store.location.set(value);
-  }
-
   /** Two-way bridge for search input */
   get searchModel(): string {
     return this.store.search();

@@ -36,14 +36,7 @@
     <!-- Location picker — desktop xl+ -->
     <div class="hidden items-center gap-2 rounded-full border border-cocoa/10 bg-white/60 px-3 py-2 xl:flex">
       <svg lucideMapPin [size]="16" [class]="'text-caramel'"></svg>
-      <select
-        [(ngModel)]="locationModel"
-        class="cursor-pointer bg-transparent text-xs font-semibold outline-none"
-        aria-label="Delivery location">
-        @for (city of cities; track city) {
-          <option [value]="city">{{ city }}</option>
-        }
-      </select>
+      <span class="text-xs font-semibold">Gwalior delivery</span>
     </div>
 
     <!-- Icon actions -->

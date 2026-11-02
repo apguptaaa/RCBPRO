@@ -4,7 +4,6 @@ import { LucideStar } from '@lucide/angular';
 interface Review {
   quote: string;
   name: string;
-  city: string;
 }
 
 @Component({
@@ -17,9 +16,9 @@ export class ReviewsComponent {
   readonly stars = [1, 2, 3, 4, 5];
 
   readonly reviews: Review[] = [
-    { quote: 'The vintage bento cake looked exactly like the photo and tasted even better. Beautiful packaging too!', name: 'Aarohi S.', city: 'New Delhi'  },
-    { quote: 'The custom design process was seamless. Everyone at the anniversary dinner loved the cake.',            name: 'Meera K.',  city: 'Mumbai'    },
-    { quote: 'Fresh roses, rich brownies and delivery right on time. A genuinely premium experience.',               name: 'Rohan M.',  city: 'Bengaluru' },
-    { quote: 'Not overly sweet, wonderfully soft and elegant. This is now our family celebration bakery.',           name: 'Naina P.',  city: 'Jaipur'    },
+    { quote: 'The vintage bento cake looked exactly like the photo and tasted even better. Beautiful packaging too!', name: 'Aarohi S.' },
+    { quote: 'The custom design process was seamless. Everyone at the anniversary dinner loved the cake.',            name: 'Meera K.'  },
+    { quote: 'Fresh roses, rich brownies and delivery right on time. A genuinely premium experience.',               name: 'Rohan M.'  },
+    { quote: 'Not overly sweet, wonderfully soft and elegant. This is now our family celebration bakery.',           name: 'Naina P.'  },
   ];
 }

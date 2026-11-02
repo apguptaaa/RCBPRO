@@ -4,7 +4,7 @@ import { Occasion } from '../../core/models/product.model';
 import { OCCASIONS } from '../../core/data/catalog.data';
 import { LucideArrowRight } from '@lucide/angular';
 
-const OCCASION_CATEGORIES = ['Birthday Cakes', 'Anniversary', 'Flower Bouquets'];
+const OCCASION_CATEGORIES = ['Birthday Cakes', 'Anniversary Cakes', 'Custom Cakes'];
 
 @Component({
   selector: 'app-occasions',

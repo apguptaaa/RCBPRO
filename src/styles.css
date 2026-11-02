@@ -86,8 +86,56 @@ img {
 }
 
 /* ─── Hero blob animations ──────────────────────────────────────────────── */
+.hero-cake-scene {
+  perspective: 1200px;
+  isolation: isolate;
+}
+
+.hero-cake-scene::before,
+.hero-cake-scene::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+}
+
+.hero-cake-scene::before {
+  top: 8%;
+  left: 50%;
+  width: 82%;
+  aspect-ratio: 1;
+  border: 1px solid rgba(168, 111, 69, .2);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 68% 28%, rgba(216, 183, 164, .55), transparent 34%),
+    radial-gradient(circle at 30% 72%, rgba(232, 215, 192, .9), transparent 44%),
+    radial-gradient(circle, rgba(247, 240, 229, .98) 0%, rgba(232, 215, 192, .7) 68%, rgba(216, 183, 164, .25) 100%);
+  box-shadow:
+    0 25px 60px rgba(58, 36, 27, .12),
+    inset 0 0 35px rgba(255, 255, 255, .55);
+  transform: translateX(-50%) rotate(-9deg);
+}
+
+.hero-cake-scene::after {
+  bottom: 8%;
+  left: 50%;
+  width: 70%;
+  height: 13%;
+  border-radius: 50%;
+  background: rgba(58, 36, 27, .3);
+  filter: blur(22px);
+  transform: translateX(-50%) rotateX(62deg);
+}
+
 .hero-blob {
-  animation: float 6s ease-in-out infinite;
+  animation: cakeFloat 6s ease-in-out infinite;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.hero-cake-scene:hover .hero-blob {
+  animation-play-state: paused;
+  transform: translateY(-5px) rotateY(-7deg) rotateX(3deg);
 }
 
 .hero-blob-secondary {
@@ -161,6 +209,11 @@ img {
 @keyframes float {
   0%, 100% { transform: translateY(0) rotate(-1deg); }
   50% { transform: translateY(-14px) rotate(1deg); }
+}
+
+@keyframes cakeFloat {
+  0%, 100% { transform: translateY(0) rotateY(-4deg) rotateX(1deg); }
+  50% { transform: translateY(-12px) rotateY(3deg) rotateX(-1deg); }
 }
 
 @keyframes reveal {

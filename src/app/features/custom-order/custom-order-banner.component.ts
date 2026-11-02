@@ -10,5 +10,5 @@ import { LucideCheck, LucideArrowRight } from '@lucide/angular';
 })
 export class CustomOrderBannerComponent {
   readonly store = inject(StoreService);
-  readonly features = ['Personalised design', 'Eggless available', 'Preview before baking', 'Dedicated cake artist'];
+  readonly features = ['100% eggless', 'Freshly made to order', 'Personalised design', 'Made for Gwalior'];
 }
