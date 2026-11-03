@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { HeroComponent } from '../hero/hero.component';
+import { PromoCarouselComponent } from '../promo-carousel/promo-carousel.component';
 import { MarqueeComponent } from '../marquee/marquee.component';
 import { CategoriesComponent } from '../categories/categories.component';
-import { PromoBannerComponent } from '../promo-banner/promo-banner.component';
 import { ShopComponent } from '../shop/shop.component';
 import { CustomOrderBannerComponent } from '../custom-order/custom-order-banner.component';
 import { OccasionsComponent } from '../occasions/occasions.component';
@@ -14,9 +14,9 @@ import { NewsletterComponent } from '../newsletter/newsletter.component';
   standalone: true,
   imports: [
     HeroComponent,
+    PromoCarouselComponent,
     MarqueeComponent,
     CategoriesComponent,
-    PromoBannerComponent,
     ShopComponent,
     CustomOrderBannerComponent,
     OccasionsComponent,
@@ -28,7 +28,7 @@ import { NewsletterComponent } from '../newsletter/newsletter.component';
       <app-hero />
       <app-categories />
       <app-marquee />
-      <app-promo-banner />
+      <app-promo-carousel />
       <app-shop />
       <app-custom-order-banner />
       <app-occasions />

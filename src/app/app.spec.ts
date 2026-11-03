@@ -29,6 +29,29 @@ describe('App', () => {
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Fresh cakes for');
   });
 
+  it('should replace the promo banner with a five-slide Diwali carousel below the marquee', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelectorAll('.promo-indicator')).toHaveLength(5);
+    expect(root.querySelector('.promo-title')?.textContent).toContain('Diwali ki mithaas');
+    const carousel = root.querySelector('.promo-carousel')!;
+    const hero = root.querySelector('app-hero')!;
+    const marquee = root.querySelector('app-marquee')!;
+    const shop = root.querySelector('app-shop')!;
+    expect(hero.compareDocumentPosition(carousel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(marquee.compareDocumentPosition(carousel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(carousel.compareDocumentPosition(shop) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    root.querySelector<HTMLButtonElement>('[aria-label="Next offer"]')?.click();
+    fixture.detectChanges();
+    expect(root.querySelector('.promo-title')?.textContent).toContain('chocolate');
+    expect(root.querySelectorAll('.bakery-texture svg')).toHaveLength(5);
+  });
+
   it('should render a cake detail route without a hash URL', async () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
