@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@source "./app";
 
 /* ─── Tailwind v4 theme tokens ──────────────────────────────────────────── */
 @theme {
