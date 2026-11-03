@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
     <!-- Section header + sort -->
-    <div class="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+    <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
       <div>
         <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">Fresh from the kitchen</span>
         <h2 class="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">Our most-loved treats</h2>
@@ -10,7 +10,7 @@
           Every cake is 100% eggless, freshly made to order and available for delivery in Gwalior.
         </p>
       </div>
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-3">
         <label class="hidden text-xs font-bold uppercase tracking-wider text-cocoa/55 sm:block">Sort by</label>
         <select
           [(ngModel)]="sortModel"
@@ -19,12 +19,17 @@
             <option [value]="opt.value">{{ opt.label }}</option>
           }
         </select>
+        <a
+          routerLink="/cakes"
+          class="rounded-full border border-cocoa/15 px-4 py-3 text-sm font-bold text-cocoa transition hover:border-caramel hover:text-caramel">
+          View all cakes
+        </a>
       </div>
     </div>
 
     <!-- Category filter chips -->
     <div class="hide-scrollbar mt-8 flex gap-2 overflow-x-auto pb-2">
-      @for (chip of filterChips; track chip) {
+      @for (chip of filterChips(); track chip) {
         <button
           (click)="store.activeCategory.set(chip)"
           [class]="'whitespace-nowrap rounded-full px-5 py-2.5 text-sm font-bold transition ' +
@@ -37,16 +42,18 @@
     </div>
 
     <!-- Product grid -->
-    @if (store.filteredProducts().length > 0) {
-      <div class="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        @for (product of store.filteredProducts(); track product.id; let i = $index) {
+    @if (featuredProducts().length > 0) {
+      <div class="mt-9 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
+        @for (product of featuredProducts(); track product.id; let i = $index) {
           <article
             class="product-card reveal group overflow-hidden rounded-[1.4rem] border border-cocoa/10 bg-cream shadow-card"
             [style.animationDelay]="animDelay(i)">
 
             <!-- Image area -->
             <div class="relative aspect-[1.12/1] overflow-hidden bg-sand">
-              <img [src]="product.image" [alt]="product.name" class="h-full w-full object-cover" loading="lazy" />
+              <a [routerLink]="['/products', product.id]" [attr.aria-label]="'View ' + product.name">
+                <img [src]="product.image" [alt]="product.name" class="h-full w-full object-cover" loading="lazy" />
+              </a>
 
               <!-- Badge -->
               <span class="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-cocoa shadow">
@@ -58,15 +65,9 @@
                 (click)="store.toggleWishlist(product.id)"
                 [class]="'absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full backdrop-blur transition ' +
                   (store.isWishlisted(product.id) ? 'bg-cocoa text-cream' : 'bg-cream/90 text-cocoa hover:bg-white')"
-                aria-label="Toggle wishlist">
-                <svg lucideHeart [size]="18"></svg>
-              </button>
-
-              <!-- Quick view — visible on hover via group -->
-              <button
-                (click)="store.quickView.set(product)"
-                class="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-white/95 px-4 py-2 text-xs font-bold opacity-0 shadow transition group-hover:opacity-100">
-                Quick view
+                [attr.aria-label]="store.isWishlisted(product.id) ? 'Remove from favourites' : 'Add to favourites'"
+                [attr.aria-pressed]="store.isWishlisted(product.id)">
+                <svg lucideHeart [size]="18" [class]="store.isWishlisted(product.id) ? 'fill-current' : 'fill-none'"></svg>
               </button>
             </div>
 
@@ -80,16 +81,19 @@
                   <span class="font-normal text-cocoa/40">({{ product.reviews }})</span>
                 </span>
               </div>
-              <h3 class="line-clamp-1 font-display text-lg font-bold text-espresso">{{ product.name }}</h3>
-              <div class="mt-2 flex items-center gap-2">
+              <h3 class="line-clamp-1 font-display text-lg font-bold text-espresso">
+                <a [routerLink]="['/products', product.id]" class="transition hover:text-caramel">
+                  {{ product.name }}
+                </a>
+              </h3>
+              <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
                 <strong class="text-lg text-cocoa">{{ product.price | formatPrice }}</strong>
                 <span class="text-xs text-cocoa/40 line-through">{{ product.oldPrice | formatPrice }}</span>
+                <span class="text-[10px] font-bold text-sage">
+                  {{ 100 - (product.price / product.oldPrice * 100) | number:'1.0-0' }}% off
+                </span>
               </div>
-              <button
-                (click)="store.addToCart(product)"
-                class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl border border-cocoa bg-transparent px-4 py-3 text-sm font-bold transition hover:bg-cocoa hover:text-cream">
-                <svg lucideShoppingBag [size]="17"></svg> Add to bag
-              </button>
+              <p class="mt-1 text-[11px] text-cocoa/50">{{ product.reviews }} reviews</p>
             </div>
           </article>
         }

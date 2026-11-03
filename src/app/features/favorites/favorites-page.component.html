@@ -1,0 +1,71 @@
+<main class="min-h-[65vh] bg-cream/70 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <nav aria-label="Breadcrumb" class="mb-6 flex items-center gap-2 text-xs text-cocoa/55 sm:text-sm">
+      <a routerLink="/" class="hover:text-caramel">Home</a>
+      <span aria-hidden="true">›</span>
+      <span class="font-semibold text-cocoa">Favourites</span>
+    </nav>
+
+    <header class="mb-7">
+      <span class="text-xs font-bold uppercase tracking-[.2em] text-caramel">Saved for later</span>
+      <h1 class="mt-2 font-display text-3xl font-bold text-espresso sm:text-4xl">Your favourites</h1>
+      <p class="mt-2 text-sm text-cocoa/60">
+        {{ products().length }} {{ products().length === 1 ? 'cake' : 'cakes' }} saved
+      </p>
+    </header>
+
+    @if (products().length) {
+      <section aria-label="Favourite cakes" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        @for (product of products(); track product.id) {
+          <article class="product-card group overflow-hidden rounded-[1.4rem] border border-cocoa/10 bg-cream shadow-card">
+            <div class="relative aspect-[1.12/1] overflow-hidden bg-sand">
+              <a [routerLink]="['/products', product.id]" [attr.aria-label]="'View ' + product.name">
+                <img [src]="product.image" [alt]="product.name" class="h-full w-full object-cover" loading="lazy" />
+              </a>
+              <span class="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-cocoa shadow">
+                {{ product.badge }}
+              </span>
+              <button
+                (click)="store.toggleWishlist(product.id)"
+                class="absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-cocoa text-cream backdrop-blur transition hover:scale-105"
+                [attr.aria-label]="'Remove ' + product.name + ' from favourites'">
+                <svg lucideHeart [size]="18" [class]="'fill-current'"></svg>
+              </button>
+            </div>
+            <div class="p-4">
+              <div class="mb-2 flex items-center justify-between gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-[.14em] text-caramel">{{ product.category }}</span>
+                <span class="flex items-center gap-1 text-xs font-bold">
+                  <svg lucideStar [size]="13" [class]="'fill-caramel text-caramel'"></svg>
+                  {{ product.rating }}
+                </span>
+              </div>
+              <h2 class="line-clamp-1 font-display text-lg font-bold text-espresso">
+                <a [routerLink]="['/products', product.id]" class="transition hover:text-caramel">{{ product.name }}</a>
+              </h2>
+              <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <strong class="text-lg text-cocoa">{{ product.price | formatPrice }}</strong>
+                <span class="text-xs text-cocoa/40 line-through">{{ product.oldPrice | formatPrice }}</span>
+                <span class="text-[10px] font-bold text-sage">
+                  {{ 100 - (product.price / product.oldPrice * 100) | number:'1.0-0' }}% off
+                </span>
+              </div>
+              <p class="mt-1 text-[11px] text-cocoa/50">{{ product.reviews }} reviews</p>
+            </div>
+          </article>
+        }
+      </section>
+    } @else {
+      <section class="rounded-2xl border border-dashed border-cocoa/20 bg-white/70 px-6 py-16 text-center">
+        <span class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-sand/60 text-cocoa/60">
+          <svg lucideHeart [size]="28"></svg>
+        </span>
+        <h2 class="mt-5 font-display text-2xl font-bold text-espresso">No favourites yet</h2>
+        <p class="mt-2 text-sm text-cocoa/55">Tap the heart on a cake to save it here.</p>
+        <a routerLink="/" class="mt-5 inline-flex rounded-full bg-cocoa px-5 py-2.5 text-sm font-bold text-cream">
+          Explore cakes
+        </a>
+      </section>
+    }
+  </div>
+</main>

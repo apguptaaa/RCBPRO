@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { LucideArrowUpRight } from '@lucide/angular';
+import { StoreService } from '../../core/services/store.service';
 
 @Component({
   selector: 'app-promo-banner',
@@ -7,4 +8,6 @@ import { LucideArrowUpRight } from '@lucide/angular';
   imports: [LucideArrowUpRight],
   templateUrl: './promo-banner.component.html'
 })
-export class PromoBannerComponent {}
+export class PromoBannerComponent {
+  readonly store = inject(StoreService);
+}

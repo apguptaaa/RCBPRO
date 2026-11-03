@@ -1,0 +1,83 @@
+<main class="min-h-[65vh] bg-cream/70 px-4 py-8 sm:px-6 lg:px-8">
+  <div class="mx-auto max-w-7xl">
+    <nav aria-label="Breadcrumb" class="mb-6 flex items-center gap-2 text-xs text-cocoa/55 sm:text-sm">
+      <a routerLink="/" class="hover:text-caramel">Home</a>
+      <span aria-hidden="true">›</span>
+      <span class="font-semibold text-cocoa">{{ categoryName() }}</span>
+    </nav>
+
+    <header class="relative overflow-hidden rounded-2xl border border-cocoa/10 bg-sand/45 p-6 shadow-soft sm:p-9">
+      @if (category(); as selectedCategory) {
+        <img
+          [src]="selectedCategory.image"
+          [alt]="selectedCategory.name"
+          class="absolute inset-0 h-full w-full object-cover opacity-20" />
+      }
+      <div class="relative">
+        <span class="text-xs font-bold uppercase tracking-[.2em] text-caramel">Fresh from our kitchen</span>
+        <h1 class="mt-2 font-display text-3xl font-bold text-espresso sm:text-4xl">{{ categoryName() }}</h1>
+        <p class="mt-2 text-sm text-cocoa/65">
+          Freshly made, 100% eggless cakes for your Gwalior celebrations.
+        </p>
+        <span class="mt-4 inline-block text-xs font-semibold text-cocoa/55">
+          {{ products().length }} {{ products().length === 1 ? 'cake' : 'cakes' }}
+        </span>
+      </div>
+    </header>
+
+    @if (products().length) {
+      <section aria-label="Cakes in this category" class="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        @for (product of products(); track product.id) {
+          <article class="product-card group overflow-hidden rounded-[1.4rem] border border-cocoa/10 bg-cream shadow-card">
+            <div class="relative aspect-[1.12/1] overflow-hidden bg-sand">
+              <a [routerLink]="['/products', product.id]" [attr.aria-label]="'View ' + product.name">
+                <img [src]="product.image" [alt]="product.name" class="h-full w-full object-cover" loading="lazy" />
+              </a>
+              <span class="absolute left-3 top-3 rounded-full bg-cream/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-cocoa shadow">
+                {{ product.badge }}
+              </span>
+              <button
+                (click)="store.toggleWishlist(product.id)"
+                [class]="'absolute right-3 top-3 grid h-10 w-10 place-items-center rounded-full backdrop-blur transition ' +
+                  (store.isWishlisted(product.id) ? 'bg-cocoa text-cream' : 'bg-cream/90 text-cocoa hover:bg-white')"
+                [attr.aria-label]="store.isWishlisted(product.id) ? 'Remove from favourites' : 'Add to favourites'"
+                [attr.aria-pressed]="store.isWishlisted(product.id)">
+                <svg lucideHeart [size]="18" [class]="store.isWishlisted(product.id) ? 'fill-current' : 'fill-none'"></svg>
+              </button>
+            </div>
+
+            <div class="p-4">
+              <div class="mb-2 flex items-center justify-between gap-2">
+                <span class="text-[10px] font-bold uppercase tracking-[.14em] text-caramel">{{ product.category }}</span>
+                <span class="flex items-center gap-1 text-xs font-bold">
+                  <svg lucideStar [size]="13" [class]="'fill-caramel text-caramel'"></svg>
+                  {{ product.rating }}
+                </span>
+              </div>
+              <h2 class="line-clamp-1 font-display text-lg font-bold text-espresso">
+                <a [routerLink]="['/products', product.id]" class="transition hover:text-caramel">{{ product.name }}</a>
+              </h2>
+              <p class="mt-2 line-clamp-1 text-xs text-cocoa/55">{{ product.description }}</p>
+              <div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1">
+                <strong class="text-lg text-cocoa">{{ product.price | formatPrice }}</strong>
+                <span class="text-xs text-cocoa/40 line-through">{{ product.oldPrice | formatPrice }}</span>
+                <span class="text-[10px] font-bold text-sage">
+                  {{ 100 - (product.price / product.oldPrice * 100) | number:'1.0-0' }}% off
+                </span>
+              </div>
+              <p class="mt-1 text-[11px] text-cocoa/50">{{ product.reviews }} reviews</p>
+            </div>
+          </article>
+        }
+      </section>
+    } @else {
+      <section class="mt-7 rounded-2xl border border-dashed border-cocoa/20 bg-white/70 px-6 py-16 text-center">
+        <h2 class="font-display text-2xl font-bold text-espresso">No cakes in this category yet</h2>
+        <p class="mt-2 text-sm text-cocoa/55">Please browse all of our freshly made cakes.</p>
+        <a routerLink="/cakes" class="mt-5 inline-flex rounded-full bg-cocoa px-5 py-2.5 text-sm font-bold text-cream">
+          View all cakes
+        </a>
+      </section>
+    }
+  </div>
+</main>

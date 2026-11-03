@@ -1,18 +1,25 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
-import { CartItem, Product } from '../models/product.model';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { CartItem, Category, Product } from '../models/product.model';
 import { CATEGORY_DATA, PRODUCTS } from '../data/catalog.data';
+import { AdminAddon, AdminBanner } from '../data/admin-catalog.models';
+import { AdminDataService } from './admin-data.service';
 
 @Injectable({ providedIn: 'root' })
 export class StoreService {
+  private readonly adminData = inject(AdminDataService);
   // ── Static catalog ───────────────────────────────────────────────────────
   readonly categoryData = CATEGORY_DATA;
-  readonly products     = PRODUCTS;
+  readonly products     = signal<Product[]>(PRODUCTS);
+  readonly categories = signal<Category[]>(CATEGORY_DATA);
+  readonly addons = signal<AdminAddon[]>([]);
+  readonly banners = signal<AdminBanner[]>([]);
 
   // ── Overlay state ────────────────────────────────────────────────────────
   readonly mobileOpen = signal(false);
   readonly cartOpen   = signal(false);
   readonly quickView  = signal<Product | null>(null);
   readonly customOpen = signal(false);
+  readonly whatsappOpen = signal(false);
 
   // ── Shop state ───────────────────────────────────────────────────────────
   readonly activeCategory = signal<string>('All');
@@ -30,7 +37,7 @@ export class StoreService {
     const q      = this.search().toLowerCase();
     const sortBy = this.sort();
 
-    let list = PRODUCTS.filter(p => {
+    let list = this.products().filter(p => {
       const catMatch    = cat === 'All' || p.category === cat;
       const searchMatch = `${p.name} ${p.category}`.toLowerCase().includes(q);
       return catMatch && searchMatch;
@@ -56,8 +63,9 @@ export class StoreService {
 
   // ── Effects ──────────────────────────────────────────────────────────────
   constructor() {
+    void this.refreshCatalog();
     effect(() => {
-      const lock = this.cartOpen() || !!this.quickView() || this.customOpen() || this.mobileOpen();
+      const lock = this.cartOpen() || !!this.quickView() || this.customOpen() || this.mobileOpen() || this.whatsappOpen();
       document.body.classList.toggle('no-scroll', lock);
     });
 
@@ -70,24 +78,61 @@ export class StoreService {
     });
   }
 
-  // ── Cart ─────────────────────────────────────────────────────────────────
-  addToCart(product: Product): void {
-    this.cart.update(current => {
-      const exists = current.find(item => item.id === product.id);
-      if (exists) {
-        return current.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [...current, { ...product, quantity: 1 }];
-    });
-    this.toast.set(`${product.name} added to your bag`);
+  async refreshCatalog(): Promise<void> {
+    const categories = this.adminData.listCategories().filter(category => category.active);
+    const subcategories = this.adminData.listSubcategories().filter(subcategory => subcategory.active);
+    this.products.set(this.adminData.listProducts()
+      .filter(product => product.active)
+      .map(({ old_price, active: _active, ...product }) => ({ ...product, oldPrice: old_price })));
+    this.categories.set([
+      ...categories.map(({ name, image }) => ({ name, image })),
+      ...subcategories
+        .filter(subcategory => categories.some(category => category.id === subcategory.categoryId))
+        .map(subcategory => ({
+          name: subcategory.name,
+          image: subcategory.image || categories.find(category => category.id === subcategory.categoryId)?.image || '',
+          parentName: categories.find(category => category.id === subcategory.categoryId)?.name
+        }))
+    ]);
+    this.addons.set(this.adminData.listAddons().filter(addon => addon.active));
+    this.banners.set(this.adminData.listBanners().filter(banner => banner.active));
   }
 
-  updateQuantity(id: number, amount: number): void {
+  async refreshProducts(): Promise<void> {
+    await this.refreshCatalog();
+  }
+
+  // ── Cart ─────────────────────────────────────────────────────────────────
+  addToCart(product: Product, options: { variant?: string; message?: string } = {}): void {
+    this.cart.update(current => {
+      const exists = current.find(item =>
+        item.id === product.id &&
+        item.variant === options.variant &&
+        item.message === options.message
+      );
+      if (exists) {
+        return current.map(item =>
+          item.id === product.id &&
+          item.variant === options.variant &&
+          item.message === options.message
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...current, { ...product, ...options, quantity: 1 }];
+    });
+    this.toast.set(`${product.name} added to your bag`);
+    this.cartOpen.set(true);
+  }
+
+  updateQuantity(id: number, amount: number, variant?: string, message?: string): void {
     this.cart.update(current =>
       current
-        .map(item => item.id === id ? { ...item, quantity: item.quantity + amount } : item)
+        .map(item =>
+          item.id === id && item.variant === variant && item.message === message
+            ? { ...item, quantity: item.quantity + amount }
+            : item
+        )
         .filter(item => item.quantity > 0)
     );
   }

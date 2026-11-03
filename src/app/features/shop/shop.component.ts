@@ -1,25 +1,26 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
+import { DecimalPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { StoreService } from '../../core/services/store.service';
 import { FormatPricePipe } from '../../core/pipes/format-price.pipe';
-import { CATEGORY_DATA } from '../../core/data/catalog.data';
 import {
   LucideHeart,
   LucideStar,
-  LucideShoppingBag,
   LucideSearchX
 } from '@lucide/angular';
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [FormsModule, FormatPricePipe, LucideHeart, LucideStar, LucideShoppingBag, LucideSearchX],
+  imports: [FormsModule, DecimalPipe, RouterLink, FormatPricePipe, LucideHeart, LucideStar, LucideSearchX],
   templateUrl: './shop.component.html'
 })
 export class ShopComponent {
   readonly store = inject(StoreService);
+  readonly featuredProducts = computed(() => this.store.filteredProducts().slice(0, 4));
 
-  readonly filterChips = ['All', ...CATEGORY_DATA.map(c => c.name)];
+  readonly filterChips = computed(() => ['All', ...this.store.categories().map(category => category.name)]);
 
   readonly sortOptions = [
     { value: 'popular',    label: 'Most popular'        },

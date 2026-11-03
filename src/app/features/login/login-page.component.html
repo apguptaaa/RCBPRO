@@ -1,0 +1,128 @@
+<main class="min-h-[65vh] bg-cream/70 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+  <div class="mx-auto max-w-4xl">
+    <a routerLink="/" class="mb-5 inline-flex items-center gap-2 text-sm font-semibold text-cocoa/65 transition hover:text-caramel">
+      <svg lucideArrowLeft [size]="17"></svg>
+      Back to the bakery
+    </a>
+
+    <section class="grid overflow-hidden rounded-3xl border border-cocoa/10 bg-white/80 shadow-soft md:grid-cols-[.85fr_1.15fr]">
+      <aside class="relative hidden flex-col justify-between overflow-hidden bg-cocoa p-8 text-cream md:flex lg:p-10">
+        <div class="absolute -right-20 -top-20 h-60 w-60 rounded-full border-[35px] border-rosebeige/10"></div>
+        <div class="relative">
+          <span class="grid h-12 w-12 place-items-center rounded-full bg-cream text-cocoa">
+            <svg lucideCakeSlice [size]="25"></svg>
+          </span>
+          <p class="mt-8 text-xs font-bold uppercase tracking-[.2em] text-rosebeige">A little sweetness, always</p>
+          <h1 class="mt-3 font-display text-4xl font-bold leading-tight">Your celebrations, all in one place.</h1>
+          <p class="mt-4 text-sm leading-6 text-cream/65">
+            Sign in to keep your favourite cakes close and make your next celebration easier.
+          </p>
+        </div>
+        <div class="relative mt-10 space-y-4 text-sm text-cream/80">
+          <p class="flex items-center gap-3"><svg lucideTruck [size]="18" [class]="'text-rosebeige'"></svg> Track your cake orders</p>
+          <p class="flex items-center gap-3"><svg lucideHeart [size]="18" [class]="'text-rosebeige'"></svg> Keep favourite cakes saved</p>
+          <p class="flex items-center gap-3"><svg lucideGift [size]="18" [class]="'text-rosebeige'"></svg> Plan every celebration</p>
+        </div>
+      </aside>
+
+      <div class="p-5 sm:p-8 lg:p-10">
+        <div class="mx-auto max-w-md">
+          <div class="md:hidden">
+            <span class="grid h-11 w-11 place-items-center rounded-full bg-cocoa text-cream">
+              <svg lucideCakeSlice [size]="22"></svg>
+            </span>
+          </div>
+
+          <span class="mt-5 block text-xs font-bold uppercase tracking-[.2em] text-caramel md:mt-0">Welcome to Crumb &amp; Bloom</span>
+          <h2 class="mt-2 font-display text-3xl font-bold text-espresso sm:text-4xl">
+            {{ mode() === 'login' ? 'Login' : 'Create your account' }}
+          </h2>
+          <p class="mt-2 text-sm leading-6 text-cocoa/60">
+            Sign in with your demo account to continue.
+          </p>
+
+          <div class="mt-6 grid grid-cols-2 rounded-xl bg-sand/45 p-1" role="tablist" aria-label="Account options">
+            <button
+              (click)="mode.set('login'); feedback.set('')"
+              [attr.aria-selected]="mode() === 'login'"
+              role="tab"
+              [class]="mode() === 'login' ? 'rounded-lg bg-cream px-3 py-2.5 text-sm font-bold text-cocoa shadow' : 'rounded-lg px-3 py-2.5 text-sm font-semibold text-cocoa/60'">
+              Login
+            </button>
+            <button
+              (click)="mode.set('signup'); feedback.set('')"
+              [attr.aria-selected]="mode() === 'signup'"
+              role="tab"
+              [class]="mode() === 'signup' ? 'rounded-lg bg-cream px-3 py-2.5 text-sm font-bold text-cocoa shadow' : 'rounded-lg px-3 py-2.5 text-sm font-semibold text-cocoa/60'">
+              Sign up
+            </button>
+          </div>
+
+          <form (ngSubmit)="submit()" class="mt-6 space-y-4">
+            @if (mode() === 'signup') {
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-bold text-cocoa">Your name</span>
+                <input
+                  [(ngModel)]="customerName"
+                  name="customerName"
+                  required
+                  maxlength="80"
+                  autocomplete="name"
+                  placeholder="Enter your name"
+                  class="w-full rounded-xl border border-cocoa/15 bg-cream/70 px-4 py-3.5 text-sm outline-none transition focus:border-caramel" />
+              </label>
+            }
+
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-bold text-cocoa">Email</span>
+              <input
+                [(ngModel)]="identity"
+                name="identity"
+                required
+                type="email"
+                autocomplete="username"
+                inputmode="email"
+                placeholder="name@example.com"
+                class="w-full rounded-xl border border-cocoa/15 bg-cream/70 px-4 py-3.5 text-sm outline-none transition focus:border-caramel" />
+            </label>
+
+            @if (mode() === 'login') {
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-bold text-cocoa">Password</span>
+                <input
+                  [(ngModel)]="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  class="w-full rounded-xl border border-cocoa/15 bg-cream/70 px-4 py-3.5 text-sm outline-none transition focus:border-caramel" />
+              </label>
+              <div class="rounded-xl border border-cocoa/10 bg-sand/30 p-3 text-xs leading-5 text-cocoa/70">
+                <p class="font-bold text-cocoa">Demo accounts</p>
+                <p class="mt-1">Admin: admin&#64;crumbandbloom.com / admin123</p>
+                <p>Customer: customer&#64;crumbandbloom.com / user123</p>
+                <p class="mt-1 text-cocoa/50">Only the admin account sees the Admin panel menu.</p>
+              </div>
+            }
+
+            <button
+              type="submit"
+              class="w-full rounded-xl bg-cocoa px-5 py-3.5 text-sm font-bold text-cream transition hover:bg-espresso">
+              Continue
+            </button>
+          </form>
+
+          @if (feedback()) {
+            <p class="mt-4 rounded-xl border border-caramel/20 bg-sand/35 p-3 text-xs leading-5 text-cocoa/75" role="status">
+              {{ feedback() }}
+            </p>
+          }
+
+          <p class="mt-5 text-center text-[11px] leading-5 text-cocoa/50">
+            By continuing, you agree to our terms and privacy policy.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>

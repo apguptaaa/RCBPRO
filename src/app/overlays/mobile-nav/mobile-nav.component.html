@@ -1,7 +1,7 @@
 @if (store.mobileOpen()) {
   <!-- Backdrop -->
   <div
-    class="fixed inset-0 z-50 bg-espresso/55 backdrop-blur-sm"
+    class="fixed inset-0 z-50 bg-espresso/25 backdrop-blur-[2px]"
     (mousedown)="close()">
 
     <!-- Drawer panel — stops propagation so clicks inside don't close -->
@@ -28,6 +28,17 @@
             (click)="close()"
             class="flex items-center justify-between rounded-xl px-3 py-4 font-bold hover:bg-sand/50">
             {{ link.label }}
+            <svg lucideChevronRight [size]="18"></svg>
+          </a>
+        }
+        @if (adminAuth.role() === 'admin' || adminAuth.role() === 'super_admin') {
+          <a
+            routerLink="/admin"
+            routerLinkActive="bg-cocoa text-cream"
+            ariaCurrentWhenActive="page"
+            (click)="close()"
+            class="flex items-center justify-between rounded-xl px-3 py-4 font-bold text-cocoa hover:bg-sand/50">
+            Admin panel
             <svg lucideChevronRight [size]="18"></svg>
           </a>
         }

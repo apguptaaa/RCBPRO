@@ -1,4 +1,26 @@
-<section class="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+<section class="mx-auto max-w-7xl px-4 pt-2 pb-20 sm:px-6 sm:pt-4 lg:px-8">
+  @if (store.banners().length) {
+    <div class="space-y-5">
+      @for (banner of store.banners(); track banner.id) {
+        <a
+          [href]="banner.link"
+          class="grain relative block overflow-hidden rounded-[2rem] bg-espresso px-6 py-10 text-cream shadow-soft sm:px-10 lg:px-14">
+          <img [src]="banner.image" [alt]="banner.title" class="absolute inset-0 h-full w-full object-cover opacity-25" />
+          <div class="relative z-10 grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-[.22em] text-rosebeige">A little extra sweetness</span>
+              <h3 class="mt-3 max-w-2xl font-display text-3xl font-bold sm:text-4xl">{{ banner.title }}</h3>
+              <p class="mt-3 text-sm text-cream/75">{{ banner.subtitle }}</p>
+            </div>
+            <span class="inline-flex items-center justify-center gap-2 rounded-full bg-cream px-6 py-3.5 text-sm font-bold text-cocoa transition hover:bg-sand">
+              Shop the collection
+              <svg lucideArrowUpRight [size]="17"></svg>
+            </span>
+          </div>
+        </a>
+      }
+    </div>
+  } @else {
   <div class="grain relative overflow-hidden rounded-[2rem] bg-espresso px-6 py-10 text-cream shadow-soft sm:px-10 lg:px-14">
 
     <!-- Content grid -->
@@ -25,4 +47,5 @@
     <div class="absolute -right-12 -top-16 h-52 w-52 rounded-full border-[35px] border-rosebeige/10"></div>
 
   </div>
+  }
 </section>

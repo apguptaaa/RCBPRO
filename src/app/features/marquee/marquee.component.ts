@@ -21,7 +21,7 @@ const STRIP: MarqueeItem[] = [
   selector: 'app-marquee',
   standalone: true,
   template: `
-    <div class="overflow-hidden border-y border-cocoa/10 bg-cocoa py-3 text-cream">
+    <div class="my-6 overflow-hidden border-y border-cocoa/10 bg-cocoa py-3 text-cream sm:my-8">
       <div class="marquee-track flex gap-10 pr-10 text-xs font-bold uppercase tracking-[.23em]">
         @for (item of items; track item.key) {
           <span [class]="item.dim ? 'text-rosebeige' : ''">{{ item.text }}</span>

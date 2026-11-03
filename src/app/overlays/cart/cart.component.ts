@@ -23,6 +23,43 @@ export class CartComponent {
   }
 
   checkout(): void {
-    this.store.toast.set('Checkout is ready for payment integration');
+    const lines = this.store.cart().map((item, index) => {
+      const details = [
+        item.variant ? `Weight/design: ${item.variant}` : '',
+        item.message ? `Cake message: ${item.message}` : ''
+      ].filter(Boolean);
+      return [
+        `${index + 1}. ${item.name} × ${item.quantity}`,
+        ...details.map(detail => `   ${detail}`),
+        `   ${this.formatCurrency(item.price)} each — ${this.formatCurrency(item.price * item.quantity)}`
+      ].join('\n');
+    });
+    const delivery = this.store.delivery() === 0 ? 'Free' : this.formatCurrency(this.store.delivery());
+    const message = [
+      'Hello! I would like to place this cake order:',
+      '',
+      ...lines,
+      '',
+      `Subtotal: ${this.formatCurrency(this.store.subtotal())}`,
+      `Delivery: ${delivery}`,
+      `Total: ${this.formatCurrency(this.store.total())}`,
+      '',
+      'Please confirm availability and delivery details.'
+    ].join('\n');
+
+    this.openWhatsApp(message);
+  }
+
+  private formatCurrency(amount: number): string {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount);
+  }
+
+  private openWhatsApp(message: string): void {
+    const url = `https://wa.me/919131138005?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   }
 }

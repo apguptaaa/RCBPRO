@@ -54,6 +54,16 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## Demo admin dashboard
+
+Open `/admin/login` after starting the development server and use:
+
+- Email: `admin@crumbandbloom.com`
+- Password: `admin123`
+- Customer demo: `customer@crumbandbloom.com` / `user123`
+
+The demo dashboard supports adding, editing, and deleting products, categories, subcategories, add-ons, and banners. Categories and subcategories appear in the storefront's **Shop by category** strip. Changes and uploaded demo images are stored in the current browser's local storage and update the storefront, but are not sent to an API or backend. The Admin panel navbar item appears only for the demo admin account. This client-side demo login is not suitable for production; replace it with backend authentication and persistence before deployment.
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.

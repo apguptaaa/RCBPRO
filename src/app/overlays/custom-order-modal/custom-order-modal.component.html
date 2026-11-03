@@ -1,13 +1,13 @@
 @if (store.customOpen()) {
   <!-- Backdrop -->
   <div
-    class="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-espresso/65 p-4 backdrop-blur-sm"
+    class="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-espresso/25 p-3 backdrop-blur-[2px] sm:p-5"
     (mousedown)="store.customOpen.set(false)">
 
     <!-- Form modal -->
     <form
       (submit)="onSubmit($event)"
-      class="modal-card relative w-full max-w-2xl rounded-3xl bg-cream p-6 shadow-2xl sm:p-9"
+      class="modal-card scrollbar-hidden relative my-auto max-h-[90dvh] w-full max-w-xl overflow-y-auto rounded-2xl bg-cream p-5 shadow-2xl sm:rounded-3xl sm:p-8"
       (mousedown)="$event.stopPropagation()">
 
       <!-- Close button -->

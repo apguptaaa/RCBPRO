@@ -1,19 +1,22 @@
-import { Component, inject } from '@angular/core';
-import { LucideArrowRight } from '@lucide/angular';
+import { Component, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
-import { Category } from '../../core/models/product.model';
-import { CATEGORY_DATA } from '../../core/data/catalog.data';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [LucideArrowRight],
   templateUrl: './categories.component.html'
 })
 export class CategoriesComponent {
-  readonly store = inject(StoreService);
-  readonly categories: Category[] = CATEGORY_DATA;
+  private readonly store = inject(StoreService);
+  readonly categories = computed(() => this.store.categories());
+  private readonly router = inject(Router);
 
-  viewAll(): void { this.store.chooseCategory('All'); }
-  pick(name: string): void { this.store.chooseCategory(name); }
+  viewAll(): void {
+    void this.router.navigateByUrl('/cakes');
+  }
+
+  pick(name: string): void {
+    void this.router.navigate(['/cakes', name]);
+  }
 }

@@ -1,34 +1,36 @@
-<section id="categories" class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-
-  <!-- Section header -->
-  <div class="mb-10 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-    <div>
-      <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">Explore our bakery</span>
-      <h2 class="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">What are you craving?</h2>
-    </div>
-    <button
-      (click)="viewAll()"
-      class="flex items-center gap-2 self-start text-sm font-bold text-cocoa transition hover:text-caramel">
-      View everything
-      <svg lucideArrowRight [size]="17"></svg>
-    </button>
-  </div>
-
-  <!-- Horizontal scroll strip -->
-  <div class="hide-scrollbar flex snap-x gap-5 overflow-x-auto pb-4">
-    @for (cat of categories; track cat.name) {
+<section id="categories" class="mx-auto max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
+  <div class="rounded-2xl border border-cocoa/10 bg-white/65 px-4 py-4 shadow-soft sm:px-6">
+    <div class="mb-4 flex items-center justify-between gap-4">
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-[.2em] text-caramel">Find your favourite</span>
+        <h2 class="mt-1 font-display text-xl font-bold text-espresso sm:text-2xl">Shop by category</h2>
+      </div>
       <button
-        (click)="pick(cat.name)"
-        class="group min-w-[132px] snap-start text-center sm:min-w-[155px]">
-        <div class="mx-auto h-32 w-32 overflow-hidden rounded-full border-4 border-white bg-sand shadow-card transition duration-300 group-hover:-translate-y-1 group-hover:border-rosebeige sm:h-36 sm:w-36">
-          <img
-            [src]="cat.image"
-            [alt]="cat.name"
-            class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
-        </div>
-        <span class="mt-4 block text-sm font-bold transition group-hover:text-caramel">{{ cat.name }}</span>
+        (click)="viewAll()"
+        class="shrink-0 text-xs font-bold text-cocoa transition hover:text-caramel sm:text-sm">
+        View all cakes
       </button>
-    }
-  </div>
+    </div>
 
+    <div class="grid grid-cols-3 gap-x-2 gap-y-4 sm:grid-cols-4 sm:gap-x-4 lg:grid-cols-7">
+      @for (cat of categories(); track cat.name) {
+        <button
+          (click)="pick(cat.name)"
+          class="group flex min-w-0 flex-col items-center px-1 text-center">
+          <div class="h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-sand shadow-card transition duration-300 group-hover:-translate-y-1 group-hover:border-caramel sm:h-[76px] sm:w-[76px]">
+            <img
+              [src]="cat.image"
+              [alt]="cat.name"
+              class="h-full w-full object-cover transition duration-500 group-hover:scale-110" />
+          </div>
+          <span class="mt-2 block w-full text-[10px] font-semibold leading-4 text-cocoa transition group-hover:text-caramel sm:text-xs">
+            {{ cat.name }}
+          </span>
+          @if (cat.parentName) {
+            <span class="text-[9px] text-cocoa/45">{{ cat.parentName }}</span>
+          }
+        </button>
+      }
+    </div>
+  </div>
 </section>

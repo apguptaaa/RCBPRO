@@ -1,5 +1,7 @@
 import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
+import { AdminAuthService } from '../../core/services/admin-auth.service';
 import {
   LucideX,
   LucideChevronRight,
@@ -14,11 +16,12 @@ interface NavLink {
 @Component({
   selector: 'app-mobile-nav',
   standalone: true,
-  imports: [LucideX, LucideChevronRight, LucidePhone],
+  imports: [LucideX, LucideChevronRight, LucidePhone, RouterLink, RouterLinkActive],
   templateUrl: './mobile-nav.component.html'
 })
 export class MobileNavComponent {
   readonly store = inject(StoreService);
+  readonly adminAuth = inject(AdminAuthService);
 
   readonly navLinks: NavLink[] = [
     { label: 'Home',         href: '#' },
