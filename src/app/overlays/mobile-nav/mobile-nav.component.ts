@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
-import { AdminAuthService } from '../../core/services/admin-auth.service';
 import {
   LucideX,
   LucideChevronRight,
@@ -10,32 +9,27 @@ import {
 
 interface NavLink {
   label: string;
-  href: string;
+  path: string;
 }
 
 @Component({
   selector: 'app-mobile-nav',
   standalone: true,
-  imports: [LucideX, LucideChevronRight, LucidePhone, RouterLink, RouterLinkActive],
+  imports: [LucideX, LucideChevronRight, LucidePhone, RouterLink],
   templateUrl: './mobile-nav.component.html'
 })
 export class MobileNavComponent {
   readonly store = inject(StoreService);
-  readonly adminAuth = inject(AdminAuthService);
 
   readonly navLinks: NavLink[] = [
-    { label: 'Home',         href: '#' },
-    { label: 'Cakes',        href: '#categories' },
-    { label: 'Best Sellers', href: '#shop' },
-    { label: 'Occasions',    href: '#occasions' }
+    { label: 'Home',         path: '/' },
+    { label: 'Cakes',        path: '/cakes' },
+    { label: 'Best Sellers', path: '/best-sellers' },
+    { label: 'Occasions',    path: '/occasions' },
+    { label: 'Customize',   path: '/customize' }
   ];
 
   close(): void {
     this.store.mobileOpen.set(false);
-  }
-
-  openCustomize(): void {
-    this.close();
-    setTimeout(() => this.store.customOpen.set(true), 200);
   }
 }

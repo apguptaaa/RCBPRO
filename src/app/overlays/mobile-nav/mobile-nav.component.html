@@ -24,32 +24,13 @@
       <nav class="mt-6 space-y-1">
         @for (link of navLinks; track link.label) {
           <a
-            [href]="link.href"
+            [routerLink]="link.path"
             (click)="close()"
             class="flex items-center justify-between rounded-xl px-3 py-4 font-bold hover:bg-sand/50">
             {{ link.label }}
             <svg lucideChevronRight [size]="18"></svg>
           </a>
         }
-        @if (adminAuth.role() === 'admin' || adminAuth.role() === 'super_admin') {
-          <a
-            routerLink="/admin"
-            routerLinkActive="bg-cocoa text-cream"
-            ariaCurrentWhenActive="page"
-            (click)="close()"
-            class="flex items-center justify-between rounded-xl px-3 py-4 font-bold text-cocoa hover:bg-sand/50">
-            Admin panel
-            <svg lucideChevronRight [size]="18"></svg>
-          </a>
-        }
-
-        <!-- Customize button -->
-        <button
-          (click)="openCustomize()"
-          class="flex w-full items-center justify-between rounded-xl px-3 py-4 text-left font-bold hover:bg-sand/50">
-          Customize a cake
-          <svg lucideChevronRight [size]="18"></svg>
-        </button>
       </nav>
 
       <!-- Help card -->

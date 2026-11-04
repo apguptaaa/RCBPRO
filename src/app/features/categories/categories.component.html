@@ -12,12 +12,12 @@
       </button>
     </div>
 
-    <div class="grid grid-cols-3 gap-x-2 gap-y-4 sm:grid-cols-4 sm:gap-x-4 lg:grid-cols-7">
+    <div class="grid grid-cols-3 gap-x-1 gap-y-3 sm:grid-cols-4 sm:gap-x-2 lg:grid-cols-7">
       @for (cat of categories(); track cat.name) {
         <button
           (click)="pick(cat.name)"
-          class="group flex min-w-0 flex-col items-center px-1 text-center">
-          <div class="h-16 w-16 overflow-hidden rounded-full border-2 border-white bg-sand shadow-card transition duration-300 group-hover:-translate-y-1 group-hover:border-caramel sm:h-[76px] sm:w-[76px]">
+          class="group flex min-w-0 flex-col items-center text-center">
+          <div class="h-20 w-20 overflow-hidden rounded-full border-2 border-white bg-sand shadow-card transition duration-300 group-hover:-translate-y-1 group-hover:border-caramel sm:h-[88px] sm:w-[88px]">
             <img
               [src]="cat.image"
               [alt]="cat.name"

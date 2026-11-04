@@ -1,6 +1,6 @@
-<section class="bg-[#e7d5bf] py-20">
+<section class="bg-[#e7d5bf] py-16 sm:py-20" aria-label="Customer reviews">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="grid items-center gap-12 lg:grid-cols-[.8fr_1.2fr]">
+    <div class="grid items-center gap-10 lg:grid-cols-[.8fr_1.2fr]">
 
       <!-- Left: heading + overall rating -->
       <div>
@@ -20,21 +20,70 @@
         </div>
       </div>
 
-      <!-- Right: review cards -->
-      <div class="grid gap-4 sm:grid-cols-2">
-        @for (review of reviews; track review.name; let i = $index) {
-          <article [class]="'rounded-2xl bg-cream p-6 shadow-card' + (i % 2 ? ' sm:translate-y-5' : '')">
-            <div class="flex gap-1 text-caramel">
-              @for (s of stars; track s) {
-                <svg lucideStar [size]="14" [class]="'fill-caramel'"></svg>
-              }
-            </div>
-            <p class="mt-4 text-sm leading-6 text-cocoa/75">"{{ review.quote }}"</p>
-            <div class="mt-5 border-t border-cocoa/10 pt-4">
-              <strong class="text-sm">{{ review.name }}</strong>
-            </div>
-          </article>
+      <div
+        class="relative mx-auto w-full max-w-2xl"
+        (mouseenter)="pause()"
+        (mouseleave)="resume()"
+        (focusin)="pause()"
+        (focusout)="onFocusOut($event)"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Customer testimonials">
+        @for (review of reviews; track review.name; let index = $index) {
+          @if (activeReview() === index) {
+            <article
+              class="review-slide min-h-64 rounded-3xl border border-cocoa/10 bg-cream p-6 shadow-card sm:p-9"
+              aria-live="polite">
+              <div class="flex gap-1 text-caramel" aria-label="5 out of 5 stars">
+                @for (s of stars; track s) {
+                  <svg lucideStar [size]="16" [class]="'fill-caramel'"></svg>
+                }
+              </div>
+              <p class="mt-6 font-display text-xl leading-8 text-espresso sm:text-2xl">“{{ review.quote }}”</p>
+              <div class="mt-7 flex items-center gap-3 border-t border-cocoa/10 pt-5">
+                <img
+                  [ngSrc]="review.avatar"
+                  [alt]="review.name + ' profile photo'"
+                  class="h-12 w-12 rounded-full object-cover ring-2 ring-sand"
+                  width="48"
+                  height="48"
+                  loading="lazy" />
+                <div>
+                  <strong class="block text-sm text-espresso">{{ review.name }}</strong>
+                  <span class="text-xs text-cocoa/55">Happy customer</span>
+                </div>
+              </div>
+            </article>
+          }
         }
+
+        <div class="mt-5 flex items-center justify-between gap-4">
+          <button
+            type="button"
+            (click)="previous()"
+            class="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cocoa/15 bg-cream text-xl transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel"
+            aria-label="Previous review">
+            ‹
+          </button>
+          <div class="flex items-center gap-2" role="group" aria-label="Choose a review">
+            @for (item of reviews; track item.name; let index = $index) {
+              <button
+                type="button"
+                (click)="goTo(index)"
+                [class]="activeReview() === index ? 'h-2.5 w-7 rounded-full bg-cocoa transition-all' : 'h-2.5 w-2.5 rounded-full bg-cocoa/25 transition-all'"
+                [attr.aria-label]="'Show review ' + (index + 1)"
+                [attr.aria-pressed]="activeReview() === index">
+              </button>
+            }
+          </div>
+          <button
+            type="button"
+            (click)="next()"
+            class="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-cocoa/15 bg-cream text-xl transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-caramel"
+            aria-label="Next review">
+            ›
+          </button>
+        </div>
       </div>
 
     </div>

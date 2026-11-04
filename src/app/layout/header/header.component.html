@@ -3,7 +3,7 @@
 
     <!-- Mobile menu trigger -->
     <button
-      class="rounded-full p-2 text-cocoa lg:hidden"
+      class="rounded-full p-2 text-cocoa xl:hidden"
       (click)="store.mobileOpen.set(true)"
       aria-label="Open menu">
       <svg lucideMenu [size]="25"></svg>
@@ -15,32 +15,19 @@
         <svg lucideCakeSlice [size]="23" [strokeWidth]="1.7"></svg>
       </span>
       <span>
-        <!-- <strong class="block font-display text-xl leading-none text-espresso sm:text-2xl">Crumb &amp; Bloom</strong> -->
-        <strong class="block font-display text-xl leading-none text-espresso sm:text-2xl">Royal Cake Bakery</strong>
+        <strong class="block font-display text-xl leading-none text-espresso sm:text-2xl">Crumb &amp; Bloom</strong>
+        <!-- <strong class="block font-display text-xl leading-none text-espresso sm:text-2xl">Royal Cake Bakery</strong> -->
         <small class="hidden text-[9px] font-bold uppercase tracking-[.28em] text-caramel sm:block">Bakery &amp; Florals</small>
       </span>
     </a>
 
     <!-- Desktop nav links -->
-    <nav class="hidden items-center gap-7 text-sm font-semibold lg:flex">
-      <button (click)="navigateToSection('')" class="transition hover:text-caramel">Home</button>
-      <button (click)="navigateToSection('categories')" class="transition hover:text-caramel">Cakes</button>
-      <button (click)="navigateToSection('shop')" class="transition hover:text-caramel">Best Sellers</button>
-      <button (click)="navigateToSection('occasions')" class="transition hover:text-caramel">Occasions</button>
-      <button
-        (click)="store.customOpen.set(true)"
-        class="transition hover:text-caramel">
-        Customize
-      </button>
-      @if (adminAuth.role() === 'super_admin' || adminAuth.role() === 'admin') {
-        <a
-          routerLink="/admin"
-          routerLinkActive="text-caramel"
-          ariaCurrentWhenActive="page"
-          class="transition hover:text-caramel">
-          Admin panel
-        </a>
-      }
+    <nav class="hidden items-center gap-4 text-xs font-semibold xl:flex 2xl:gap-6 2xl:text-sm" aria-label="Main navigation">
+      <a routerLink="/" routerLinkActive="text-caramel" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Home</a>
+      <a routerLink="/cakes" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Cakes</a>
+      <a routerLink="/best-sellers" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Best Sellers</a>
+      <a routerLink="/occasions" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Occasions</a>
+      <a routerLink="/customize" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Customize</a>
     </nav>
 
     <!-- Location picker — desktop xl+ -->
@@ -74,20 +61,10 @@
               {{ adminAuth.user() ? 'Signed in as ' + adminAuth.user()?.email : 'Sign in to keep track of your orders and favourite cakes.' }}
             </p>
             <button
-              (click)="adminAuth.user() ? adminAuth.signOut() : openLogin()"
+              (click)="adminAuth.user() ? signOut() : openLogin()"
               class="mt-4 w-full rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream transition hover:bg-espresso">
               {{ adminAuth.user() ? 'Sign out' : 'Login / Sign up' }}
             </button>
-            @if (adminAuth.role() === 'admin' || adminAuth.role() === 'super_admin') {
-              <a
-                routerLink="/admin"
-                routerLinkActive="text-caramel"
-                ariaCurrentWhenActive="page"
-                (click)="accountMenuOpen.set(false)"
-                class="mt-3 block text-center text-xs font-bold text-cocoa transition hover:text-caramel">
-                Open admin panel
-              </a>
-            }
           </section>
         }
       </div>

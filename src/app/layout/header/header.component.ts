@@ -37,26 +37,24 @@ export class HeaderComponent {
     this.accountMenuOpen.set(false);
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeAccountMenu();
+  }
+
   toggleAccountMenu(event: Event): void {
     event.stopPropagation();
     this.accountMenuOpen.update(open => !open);
   }
 
+  signOut(): void {
+    this.closeAccountMenu();
+    void this.adminAuth.signOut();
+  }
+
   openLogin(): void {
     this.accountMenuOpen.set(false);
     void this.router.navigateByUrl('/login');
-  }
-
-  navigateToSection(section: string): void {
-    void this.router.navigateByUrl('/').then(() => {
-      requestAnimationFrame(() => {
-        if (section) {
-          document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
-        } else {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      });
-    });
   }
 
   navigateToFavorites(): void {

@@ -5,6 +5,7 @@ import {
   LucideMail,
   LucideClock3
 } from '@lucide/angular';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
@@ -13,7 +14,8 @@ import {
     LucideCakeSlice,
     LucidePhone,
     LucideMail,
-    LucideClock3
+    LucideClock3,
+    RouterLink
   ],
   templateUrl: './footer.component.html'
 })

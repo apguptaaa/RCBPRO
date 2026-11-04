@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { StoreService } from '../../core/services/store.service';
+import { Router } from '@angular/router';
 import { Occasion } from '../../core/models/product.model';
 import { OCCASIONS } from '../../core/data/catalog.data';
 import { LucideArrowRight } from '@lucide/angular';
@@ -13,10 +13,10 @@ const OCCASION_CATEGORIES = ['Birthday Cakes', 'Anniversary Cakes', 'Custom Cake
   templateUrl: './occasions.component.html'
 })
 export class OccasionsComponent {
-  readonly store = inject(StoreService);
+  private readonly router = inject(Router);
   readonly occasions: Occasion[] = OCCASIONS;
 
   pick(index: number): void {
-    this.store.chooseCategory(OCCASION_CATEGORIES[index]);
+    void this.router.navigate(['/cakes', OCCASION_CATEGORIES[index]]);
   }
 }

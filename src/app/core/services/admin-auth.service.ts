@@ -27,10 +27,18 @@ export class AdminAuthService {
     }
 
     const user = { email: normalizedEmail };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, role }));
+    try {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, role }));
+    } catch {
+      return 'Login could not be saved in this browser. Enable site storage and try again.';
+    }
+
     this.user.set(user);
     this.role.set(role);
-    await this.router.navigateByUrl(role === 'super_admin' ? '/admin' : '/');
+    const navigated = await this.router.navigateByUrl(role === 'super_admin' ? '/admin' : '/');
+    if (!navigated) {
+      return 'Login was accepted, but the page could not be opened. Please try again.';
+    }
     return null;
   }
 

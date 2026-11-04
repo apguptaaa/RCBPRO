@@ -9,6 +9,36 @@ export const routes: Routes = [
   { path: '', component: HomePageComponent, title: 'Crumb & Bloom | Fresh Eggless Cakes' },
   { path: 'cakes', component: CategoryPageComponent, title: 'Cakes | Crumb & Bloom' },
   { path: 'cakes/:category', component: CategoryPageComponent, title: 'Shop Cakes | Crumb & Bloom' },
+  {
+    path: 'best-sellers',
+    loadComponent: () => import('./features/best-sellers/best-sellers-page.component').then(module => module.BestSellersPageComponent),
+    title: 'Best Sellers | Crumb & Bloom'
+  },
+  {
+    path: 'occasions',
+    loadComponent: () => import('./features/occasions/occasions-page.component').then(module => module.OccasionsPageComponent),
+    title: 'Shop by Occasion | Crumb & Bloom'
+  },
+  {
+    path: 'customize',
+    loadComponent: () => import('./features/customize/customize-page.component').then(module => module.CustomizePageComponent),
+    title: 'Custom Cakes | Crumb & Bloom'
+  },
+  {
+    path: 'about',
+    loadComponent: () => import('./features/about/about-page.component').then(module => module.AboutPageComponent),
+    title: 'About Us | Crumb & Bloom'
+  },
+  {
+    path: 'reviews',
+    loadComponent: () => import('./features/reviews/reviews.component').then(module => module.ReviewsComponent),
+    title: 'Customer Reviews | Crumb & Bloom'
+  },
+  {
+    path: 'support',
+    loadComponent: () => import('./features/support/support-page.component').then(module => module.SupportPageComponent),
+    title: 'Help & Support | Crumb & Bloom'
+  },
   { path: 'favorites', component: FavoritesPageComponent, title: 'Your Favourites | Crumb & Bloom' },
   {
     path: 'login',

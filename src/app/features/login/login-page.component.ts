@@ -34,7 +34,7 @@ export class LoginPageComponent {
       return;
     }
     this.store.toast.set(this.auth.role() === 'super_admin'
-      ? 'Admin login successful. Admin panel is now available in the navbar.'
+      ? 'Admin login successful.'
       : 'Customer demo login successful.');
   }
 }
