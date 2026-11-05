@@ -28,6 +28,9 @@
       <a routerLink="/best-sellers" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Best Sellers</a>
       <a routerLink="/occasions" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Occasions</a>
       <a routerLink="/customize" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Customize</a>
+      @if (adminAuth.role() === 'admin' || adminAuth.role() === 'super_admin') {
+        <a routerLink="/admin" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Admin panel</a>
+      }
     </nav>
 
     <!-- Location picker — desktop xl+ -->

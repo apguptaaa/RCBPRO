@@ -38,7 +38,7 @@
             {{ mode() === 'login' ? 'Login' : 'Create your account' }}
           </h2>
           <p class="mt-2 text-sm leading-6 text-cocoa/60">
-            Sign in with your demo account to continue.
+            Sign in or create an account to continue.
           </p>
 
           <div class="mt-6 grid grid-cols-2 rounded-xl bg-sand/45 p-1" role="tablist" aria-label="Account options">
@@ -93,16 +93,30 @@
                   [(ngModel)]="password"
                   name="password"
                   type="password"
-                  autocomplete="current-password"
+                  [autocomplete]="mode() === 'login' ? 'current-password' : 'new-password'"
+                  minlength="8"
+                  maxlength="128"
                   required
                   class="w-full rounded-xl border border-cocoa/15 bg-cream/70 px-4 py-3.5 text-sm outline-none transition focus:border-caramel" />
               </label>
               <div class="rounded-xl border border-cocoa/10 bg-sand/30 p-3 text-xs leading-5 text-cocoa/70">
-                <p class="font-bold text-cocoa">Demo accounts</p>
-                <p class="mt-1">Admin: admin&#64;crumbandbloom.com / admin123</p>
-                <p>Customer: customer&#64;crumbandbloom.com / user123</p>
-                <p class="mt-1 text-cocoa/50">Only the admin account sees the Admin panel menu.</p>
+                <p class="font-bold text-cocoa">Secure account access</p>
+                <p class="mt-1">Passwords must be at least 8 characters. Admin access is assigned by the store.</p>
               </div>
+            }
+            @if (mode() === 'signup') {
+              <label class="block">
+                <span class="mb-1.5 block text-xs font-bold text-cocoa">Password</span>
+                <input
+                [(ngModel)]="password"
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                minlength="8"
+                maxlength="128"
+                required
+                class="w-full rounded-xl border border-cocoa/15 bg-cream/70 px-4 py-3.5 text-sm outline-none transition focus:border-caramel" />
+              </label>
             }
 
             <button

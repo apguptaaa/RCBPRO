@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { CurrencyPipe } from '@angular/common';
-import { LucideCakeSlice, LucideImage, LucideLogOut, LucideTags, LucideTrash2 } from '@lucide/angular';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { LucideCakeSlice, LucideImage, LucideLogOut, LucideTags, LucideTrash2, LucideClipboardList, LucideStar } from '@lucide/angular';
 import {
   AdminAddon, AdminBanner, AdminCategory, AdminProduct, AdminSubcategory,
   AddonDraft, BannerDraft, CategoryDraft, ProductDraft, SubcategoryDraft
@@ -9,18 +9,23 @@ import {
 import { AdminAuthService } from '../../core/services/admin-auth.service';
 import { AdminDataService } from '../../core/services/admin-data.service';
 import { StoreService } from '../../core/services/store.service';
+import { AccountDataService, CustomOrderRequest, OrderInquiry } from '../../core/services/account-data.service';
+import { AdminReview, ReviewDraft } from '../../core/data/review.models';
+import { ReviewDataService } from '../../core/services/review-data.service';
 
-type AdminSection = 'products' | 'categories' | 'addons' | 'banners';
+type AdminSection = 'products' | 'categories' | 'addons' | 'banners' | 'orders' | 'reviews';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [FormsModule, CurrencyPipe, LucideCakeSlice, LucideImage, LucideLogOut, LucideTags, LucideTrash2],
+  imports: [FormsModule, CurrencyPipe, DatePipe, LucideCakeSlice, LucideImage, LucideLogOut, LucideTags, LucideTrash2, LucideClipboardList, LucideStar],
   templateUrl: './admin-dashboard.component.html'
 })
 export class AdminDashboardComponent implements OnInit {
   readonly auth = inject(AdminAuthService);
   private readonly data = inject(AdminDataService);
+  private readonly accountData = inject(AccountDataService);
+  private readonly reviewData = inject(ReviewDataService);
   readonly store = inject(StoreService);
   readonly section = signal<AdminSection>('products');
   readonly products = signal<AdminProduct[]>([]);
@@ -28,36 +33,128 @@ export class AdminDashboardComponent implements OnInit {
   readonly subcategories = signal<AdminSubcategory[]>([]);
   readonly addons = signal<AdminAddon[]>([]);
   readonly banners = signal<AdminBanner[]>([]);
+  readonly inquiries = signal<OrderInquiry[]>([]);
+  readonly customOrders = signal<CustomOrderRequest[]>([]);
+  readonly reviews = signal<AdminReview[]>([]);
   readonly loading = signal(true);
   readonly saving = signal(false);
   readonly error = signal('');
+  readonly inquiriesLoading = signal(false);
 
   productDraft: ProductDraft = this.emptyProduct();
   categoryDraft: CategoryDraft = this.emptyCategory();
   subcategoryDraft: SubcategoryDraft = this.emptySubcategory();
   addonDraft: AddonDraft = this.emptyAddon();
   bannerDraft: BannerDraft = this.emptyBanner();
+  reviewDraft: ReviewDraft = this.emptyReview();
 
   ngOnInit(): void {
     void this.load();
+  }
+
+  async openSection(section: AdminSection): Promise<void> {
+    this.section.set(section);
+    if (section === 'reviews') {
+      this.inquiriesLoading.set(true);
+      this.error.set('');
+      try {
+        this.reviews.set(await this.reviewData.getAdminReviews());
+      } catch (error) {
+        this.error.set(this.errorMessage(error));
+      } finally {
+        this.inquiriesLoading.set(false);
+      }
+      return;
+    }
+    if (section !== 'orders') return;
+    this.inquiriesLoading.set(true);
+    this.error.set('');
+    try {
+      const [inquiries, customOrders] = await Promise.all([
+        this.accountData.listOrderInquiries(),
+        this.accountData.listCustomOrders()
+      ]);
+      this.inquiries.set(inquiries);
+      this.customOrders.set(customOrders);
+    } catch (error) {
+      this.error.set(this.errorMessage(error));
+    } finally {
+      this.inquiriesLoading.set(false);
+    }
+  }
+
+  async updateInquiryStatus(inquiry: OrderInquiry, event: Event): Promise<void> {
+    const status = (event.target as HTMLSelectElement).value as OrderInquiry['status'];
+    this.saving.set(true);
+    this.error.set('');
+    try {
+      await this.accountData.updateOrderInquiryStatus(inquiry.id, status);
+      this.inquiries.update(current => current.map(item =>
+        item.id === inquiry.id ? { ...item, status } : item
+      ));
+      this.store.toast.set('Order request status updated.');
+    } catch (error) {
+      this.error.set(this.errorMessage(error));
+      (event.target as HTMLSelectElement).value = inquiry.status;
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  async updateCustomOrderStatus(order: CustomOrderRequest, event: Event): Promise<void> {
+    const status = (event.target as HTMLSelectElement).value as CustomOrderRequest['status'];
+    this.saving.set(true);
+    this.error.set('');
+    try {
+      await this.accountData.updateCustomOrderStatus(order.id, status);
+      this.customOrders.update(current => current.map(item =>
+        item.id === order.id ? { ...item, status } : item
+      ));
+      this.store.toast.set('Custom cake request status updated.');
+    } catch (error) {
+      this.error.set(this.errorMessage(error));
+      (event.target as HTMLSelectElement).value = order.status;
+    } finally {
+      this.saving.set(false);
+    }
+  }
+
+  formatInquiryDetails(details: Record<string, unknown>): string {
+    return JSON.stringify(details, null, 2);
+  }
+
+  editReview(review: AdminReview): void {
+    this.reviewDraft = { ...review };
+  }
+
+  async saveReview(): Promise<void> {
+    await this.runSave(async () => {
+      await this.reviewData.saveReview({
+        ...this.reviewDraft,
+        rating: Number(this.reviewDraft.rating)
+      });
+      this.reviewDraft = this.emptyReview();
+      this.reviews.set(await this.reviewData.getAdminReviews());
+    }, 'Review saved.');
+  }
+
+  async deleteReview(id: string): Promise<void> {
+    await this.runSave(async () => {
+      await this.reviewData.deleteReview(id);
+      this.reviews.set(await this.reviewData.getAdminReviews());
+    }, 'Review deleted.');
   }
 
   async load(): Promise<boolean> {
     this.loading.set(true);
     this.error.set('');
     try {
-      const [products, categories, subcategories, addons, banners] = [
-        this.data.listProducts(),
-        this.data.listCategories(),
-        this.data.listSubcategories(),
-        this.data.listAddons(),
-        this.data.listBanners()
-      ];
-      this.products.set(products);
-      this.categories.set(categories);
-      this.subcategories.set(subcategories);
-      this.addons.set(addons);
-      this.banners.set(banners);
+      const catalog = await this.data.getAdminCatalog();
+      this.products.set(catalog.products);
+      this.categories.set(catalog.categories);
+      this.subcategories.set(catalog.subcategories);
+      this.addons.set(catalog.addons);
+      this.banners.set(catalog.banners);
       return true;
     } catch (error) {
       this.error.set(this.errorMessage(error));
@@ -75,7 +172,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async saveProduct(): Promise<void> {
     await this.runSave(async () => {
-      this.data.saveProduct({
+      await this.data.saveProduct({
         ...this.productDraft,
         subcategory: this.productDraft.subcategory || '',
         old_price: Number(this.productDraft.old_price),
@@ -102,7 +199,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async saveCategory(): Promise<void> {
     await this.runSave(async () => {
-      this.data.saveCategory(this.categoryDraft);
+      await this.data.saveCategory(this.categoryDraft);
       this.categoryDraft = this.emptyCategory();
       if (!await this.load()) throw new Error('Category was saved, but the list could not be refreshed.');
       await this.store.refreshCatalog();
@@ -111,7 +208,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async deleteCategory(id: string): Promise<void> {
     await this.runSave(async () => {
-      this.data.deleteCategory(id);
+      await this.data.deleteCategory(id);
       if (!await this.load()) throw new Error('Category was deleted, but the list could not be refreshed.');
       await this.store.refreshCatalog();
     }, 'Category deleted.');
@@ -125,7 +222,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async saveSubcategory(): Promise<void> {
     await this.runSave(async () => {
-      this.data.saveSubcategory(this.subcategoryDraft);
+      await this.data.saveSubcategory(this.subcategoryDraft);
       this.subcategoryDraft = this.emptySubcategory();
       if (!await this.load()) throw new Error('Subcategory was saved, but the list could not be refreshed.');
       await this.store.refreshCatalog();
@@ -134,7 +231,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async deleteSubcategory(id: string): Promise<void> {
     await this.runSave(async () => {
-      this.data.deleteSubcategory(id);
+      await this.data.deleteSubcategory(id);
       if (!await this.load()) throw new Error('Subcategory was deleted, but the list could not be refreshed.');
       await this.store.refreshCatalog();
     }, 'Subcategory deleted.');
@@ -147,7 +244,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async saveAddon(): Promise<void> {
     await this.runSave(async () => {
-      this.data.saveAddon({
+      await this.data.saveAddon({
         ...this.addonDraft,
         product_id: this.addonDraft.product_id ? Number(this.addonDraft.product_id) : null,
         price: Number(this.addonDraft.price)
@@ -165,7 +262,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async saveBanner(): Promise<void> {
     await this.runSave(async () => {
-      this.data.saveBanner(this.bannerDraft);
+      await this.data.saveBanner(this.bannerDraft);
       this.bannerDraft = this.emptyBanner();
       if (!await this.load()) throw new Error('Banner was saved, but the list could not be refreshed.');
       await this.store.refreshCatalog();
@@ -174,7 +271,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async deleteProduct(id: number): Promise<void> {
     await this.runSave(async () => {
-      this.data.deleteProduct(id);
+      await this.data.deleteProduct(id);
       if (!await this.load()) throw new Error('Product was deleted, but the list could not be refreshed.');
       await this.store.refreshProducts();
     }, 'Product deleted.');
@@ -182,7 +279,7 @@ export class AdminDashboardComponent implements OnInit {
 
   async deleteAddon(id: string): Promise<void> {
     await this.runSave(async () => {
-      this.data.deleteAddon(id);
+      await this.data.deleteAddon(id);
       if (!await this.load()) throw new Error('Add-on was deleted, but the list could not be refreshed.');
       await this.store.refreshCatalog();
     }, 'Add-on deleted.');
@@ -190,13 +287,13 @@ export class AdminDashboardComponent implements OnInit {
 
   async deleteBanner(id: string): Promise<void> {
     await this.runSave(async () => {
-      this.data.deleteBanner(id);
+      await this.data.deleteBanner(id);
       if (!await this.load()) throw new Error('Banner was deleted, but the list could not be refreshed.');
       await this.store.refreshCatalog();
     }, 'Banner deleted.');
   }
 
-  async uploadImage(event: Event, target: 'product' | 'category' | 'subcategory' | 'addon' | 'banner'): Promise<void> {
+  async uploadImage(event: Event, target: 'product' | 'category' | 'subcategory' | 'addon' | 'banner' | 'review'): Promise<void> {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
@@ -220,7 +317,8 @@ export class AdminDashboardComponent implements OnInit {
       if (target === 'subcategory') this.subcategoryDraft.image = image;
       if (target === 'addon') this.addonDraft.image = image;
       if (target === 'banner') this.bannerDraft.image = image;
-      this.store.toast.set('Demo image ready. Save the form to use it.');
+      if (target === 'review') this.reviewDraft.avatar = image;
+      this.store.toast.set('Image ready. Save the form to upload it.');
     } catch (error) {
       this.error.set(this.errorMessage(error));
     } finally {
@@ -242,7 +340,7 @@ export class AdminDashboardComponent implements OnInit {
     this.error.set('');
     try {
       await action();
-      this.store.toast.set(`${success} Demo changes are saved in this browser only.`);
+      this.store.toast.set(success);
     } catch (error) {
       this.error.set(this.errorMessage(error));
     } finally {
@@ -286,5 +384,9 @@ export class AdminDashboardComponent implements OnInit {
 
   emptyBanner(): BannerDraft {
     return { title: '', subtitle: '', image: '', link: '/', active: true };
+  }
+
+  emptyReview(): ReviewDraft {
+    return { name: '', quote: '', avatar: '', rating: 5, active: true };
   }
 }

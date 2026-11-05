@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { LucideMessageCircle, LucideX } from '@lucide/angular';
 import { StoreService } from '../../core/services/store.service';
+import { AccountDataService } from '../../core/services/account-data.service';
 
 @Component({
   selector: 'app-whatsapp-order',
@@ -12,6 +13,9 @@ import { StoreService } from '../../core/services/store.service';
 })
 export class WhatsAppOrderComponent {
   readonly store = inject(StoreService);
+  private readonly accountData = inject(AccountDataService);
+  readonly submitting = signal(false);
+  readonly submitError = signal('');
   readonly products = this.store.products;
   readonly weights = ['500 g', '1 kg', '1.5 kg', '2 kg', '3 kg', '4 kg'];
   readonly designs = ['As shown in the photo', 'Heart shape', 'Custom design'];
@@ -34,7 +38,8 @@ export class WhatsAppOrderComponent {
     this.store.whatsappOpen.set(false);
   }
 
-  openWhatsApp(): void {
+  async openWhatsApp(): Promise<void> {
+    if (this.submitting()) return;
     const product = this.selectedProduct();
     const details = [
       `Name: ${this.customerName.trim()}`,
@@ -56,8 +61,36 @@ export class WhatsAppOrderComponent {
       'Please confirm availability, final price and delivery details.'
     ].join('\n');
 
-    const url = `https://wa.me/919131138005?text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-    this.close();
+    const checkoutWindow = window.open('about:blank', '_blank');
+    if (!checkoutWindow) {
+      this.submitError.set('Allow pop-ups to continue to WhatsApp.');
+      return;
+    }
+    checkoutWindow.opener = null;
+    this.submitting.set(true);
+    this.submitError.set('');
+    try {
+      await this.accountData.createOrderInquiry({
+        kind: 'enquiry',
+        customer_name: this.customerName.trim(),
+        details: {
+          product_id: product?.id ?? null,
+          weight: this.weight,
+          design: this.design,
+          design_details: this.designDetails.trim() || undefined,
+          cake_message: this.cakeMessage.trim() || undefined,
+          pincode: this.pincode.trim(),
+          needed_on: this.deliveryDate,
+          query: this.query.trim() || undefined
+        }
+      });
+      checkoutWindow.location.href = `https://wa.me/919131138005?text=${encodeURIComponent(message)}`;
+      this.close();
+    } catch (error) {
+      checkoutWindow.close();
+      this.submitError.set(error instanceof Error ? error.message : 'Your enquiry could not be saved.');
+    } finally {
+      this.submitting.set(false);
+    }
   }
 }

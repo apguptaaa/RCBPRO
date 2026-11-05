@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { StoreService } from '../../core/services/store.service';
+import { ApiClientService } from '../../core/services/api-client.service';
 import { LucideX, LucideArrowRight } from '@lucide/angular';
 
 @Component({
@@ -10,10 +11,19 @@ import { LucideX, LucideArrowRight } from '@lucide/angular';
 })
 export class CustomOrderModalComponent {
   readonly store = inject(StoreService);
+  private readonly api = inject(ApiClientService);
 
-  onSubmit(event: Event): void {
+  async onSubmit(event: Event): Promise<void> {
     event.preventDefault();
-    this.store.customOpen.set(false);
-    this.store.toast.set('Your custom cake request has been received');
+    const form = event.currentTarget as HTMLFormElement;
+    const data = new FormData(form);
+    try {
+      await this.api.post('/custom-orders', Object.fromEntries(data.entries()));
+      form.reset();
+      this.store.customOpen.set(false);
+      this.store.toast.set('Your custom cake request has been received');
+    } catch (error) {
+      this.store.toast.set(error instanceof Error ? error.message : 'Your request could not be submitted.');
+    }
   }
 }

@@ -1,18 +1,23 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { CartItem, Category, Product } from '../models/product.model';
-import { CATEGORY_DATA, PRODUCTS } from '../data/catalog.data';
 import { AdminAddon, AdminBanner } from '../data/admin-catalog.models';
 import { AdminDataService } from './admin-data.service';
+import { AdminAuthService } from './admin-auth.service';
+import { AccountDataService } from './account-data.service';
 
 @Injectable({ providedIn: 'root' })
 export class StoreService {
   private readonly adminData = inject(AdminDataService);
-  // ── Static catalog ───────────────────────────────────────────────────────
-  readonly categoryData = CATEGORY_DATA;
-  readonly products     = signal<Product[]>(PRODUCTS);
-  readonly categories = signal<Category[]>(CATEGORY_DATA);
+  private readonly auth = inject(AdminAuthService);
+  private readonly accountData = inject(AccountDataService);
+  private cartSync: Promise<void> = Promise.resolve();
+  private favoritesSync: Promise<void> = Promise.resolve();
+  private connectedAccount = '';
+  readonly products     = signal<Product[]>([]);
+  readonly categories = signal<Category[]>([]);
   readonly addons = signal<AdminAddon[]>([]);
   readonly banners = signal<AdminBanner[]>([]);
+  readonly catalogError = signal('');
 
   // ── Overlay state ────────────────────────────────────────────────────────
   readonly mobileOpen = signal(false);
@@ -76,26 +81,46 @@ export class StoreService {
       if (!msg) return;
       toastTimer = setTimeout(() => this.toast.set(''), 2400);
     });
+
+    effect(() => {
+      if (!this.auth.ready()) return;
+      const email = this.auth.user()?.email ?? '';
+      if (email && email !== this.connectedAccount) {
+        this.connectedAccount = email;
+        void this.loadAccountData();
+      } else if (!email && this.connectedAccount) {
+        this.connectedAccount = '';
+        this.cart.set([]);
+        this.wishlist.set([]);
+      }
+    });
   }
 
   async refreshCatalog(): Promise<void> {
-    const categories = this.adminData.listCategories().filter(category => category.active);
-    const subcategories = this.adminData.listSubcategories().filter(subcategory => subcategory.active);
-    this.products.set(this.adminData.listProducts()
-      .filter(product => product.active)
-      .map(({ old_price, active: _active, ...product }) => ({ ...product, oldPrice: old_price })));
-    this.categories.set([
-      ...categories.map(({ name, image }) => ({ name, image })),
-      ...subcategories
-        .filter(subcategory => categories.some(category => category.id === subcategory.categoryId))
-        .map(subcategory => ({
-          name: subcategory.name,
-          image: subcategory.image || categories.find(category => category.id === subcategory.categoryId)?.image || '',
-          parentName: categories.find(category => category.id === subcategory.categoryId)?.name
-        }))
-    ]);
-    this.addons.set(this.adminData.listAddons().filter(addon => addon.active));
-    this.banners.set(this.adminData.listBanners().filter(banner => banner.active));
+    try {
+      const { products, categories, subcategories, addons, banners } = await this.adminData.getPublicCatalog();
+      this.products.set(products.map(({ old_price, active: _active, ...product }) => ({
+        ...product,
+        oldPrice: old_price
+      })));
+      this.categories.set([
+        ...categories.map(({ name, image }) => ({ name, image })),
+        ...subcategories
+          .filter(subcategory => categories.some(category => category.id === subcategory.categoryId))
+          .map(subcategory => ({
+            name: subcategory.name,
+            image: subcategory.image || categories.find(category => category.id === subcategory.categoryId)?.image || '',
+            parentName: categories.find(category => category.id === subcategory.categoryId)?.name
+          }))
+      ]);
+      this.addons.set(addons);
+      this.banners.set(banners);
+      this.catalogError.set('');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'The product catalog could not be loaded.';
+      this.catalogError.set(message);
+      console.error('Could not load catalog data:', error);
+    }
   }
 
   async refreshProducts(): Promise<void> {
@@ -123,6 +148,7 @@ export class StoreService {
     });
     this.toast.set(`${product.name} added to your bag`);
     this.cartOpen.set(true);
+    this.persistCart();
   }
 
   updateQuantity(id: number, amount: number, variant?: string, message?: string): void {
@@ -135,6 +161,7 @@ export class StoreService {
         )
         .filter(item => item.quantity > 0)
     );
+    this.persistCart();
   }
 
   // ── Wishlist ─────────────────────────────────────────────────────────────
@@ -142,10 +169,62 @@ export class StoreService {
     this.wishlist.update(current =>
       current.includes(id) ? current.filter(i => i !== id) : [...current, id]
     );
+    this.persistFavorites();
   }
 
   isWishlisted(id: number): boolean {
     return this.wishlist().includes(id);
+  }
+
+  private async loadAccountData(): Promise<void> {
+    try {
+      const [savedCart, savedFavorites] = await Promise.all([
+        this.accountData.getCart(),
+        this.accountData.getFavorites()
+      ]);
+      const mergedCart = [...savedCart.items];
+      for (const guestItem of this.cart()) {
+        const existing = mergedCart.find(item =>
+          item.id === guestItem.id &&
+          item.variant === guestItem.variant &&
+          item.message === guestItem.message
+        );
+        if (existing) {
+          existing.quantity = Math.min(99, existing.quantity + guestItem.quantity);
+        } else {
+          mergedCart.push(guestItem);
+        }
+      }
+      this.cart.set(mergedCart);
+      this.wishlist.set([...new Set([...savedFavorites.product_ids, ...this.wishlist()])]);
+      this.persistCart();
+      this.persistFavorites();
+    } catch (error) {
+      this.toast.set(error instanceof Error ? error.message : 'Your saved bag and favorites could not be loaded.');
+      console.error('Could not load account data:', error);
+    }
+  }
+
+  private persistCart(): void {
+    if (!this.auth.user()) return;
+    const items = this.cart().map(item => ({ ...item }));
+    this.cartSync = this.cartSync
+      .then(() => this.accountData.saveCart(items).then(() => undefined))
+      .catch(error => {
+        this.toast.set(error instanceof Error ? error.message : 'Your bag could not be saved.');
+        console.error('Could not save account cart:', error);
+      });
+  }
+
+  private persistFavorites(): void {
+    if (!this.auth.user()) return;
+    const productIds = [...this.wishlist()];
+    this.favoritesSync = this.favoritesSync
+      .then(() => this.accountData.saveFavorites(productIds).then(() => undefined))
+      .catch(error => {
+        this.toast.set(error instanceof Error ? error.message : 'Your favorites could not be saved.');
+        console.error('Could not save account favorites:', error);
+      });
   }
 
   // ── Navigation ───────────────────────────────────────────────────────────

@@ -54,15 +54,9 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
-## Demo admin dashboard
+## Backend API
 
-Open `/admin/login` after starting the development server and use:
-
-- Email: `admin@crumbandbloom.com`
-- Password: `admin123`
-- Customer demo: `customer@crumbandbloom.com` / `user123`
-
-The demo dashboard supports adding, editing, and deleting products, categories, subcategories, add-ons, and banners. Categories and subcategories appear in the storefront's **Shop by category** strip. Changes and uploaded demo images are stored in the current browser's local storage and update the storefront, but are not sent to an API or backend. The Admin panel navbar item appears only for the demo admin account. This client-side demo login is not suitable for production; replace it with backend authentication and persistence before deployment.
+The TypeScript/Express backend, PostgreSQL schema, environment setup, migration command, and API route list are documented in [RCBBACKEND/README.md](../RCBBACKEND/README.md). Start the backend and apply its migration before running the storefront; the Angular dev server proxies `/api` requests to `http://localhost:3000`.
 
 ## Additional Resources
 

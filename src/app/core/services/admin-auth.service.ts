@@ -1,75 +1,87 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { ApiClientService } from './api-client.service';
 
-const DEMO_EMAIL = 'admin@crumbandbloom.com';
-const DEMO_PASSWORD = 'admin123';
-const DEMO_CUSTOMER_EMAIL = 'customer@crumbandbloom.com';
-const DEMO_CUSTOMER_PASSWORD = 'user123';
-const SESSION_KEY = 'crumb-bloom-demo-admin';
+type UserRole = 'customer' | 'admin' | 'super_admin';
+
+interface AuthResponse {
+  token: string;
+  user: { id: string; name: string; email: string; role: UserRole };
+}
 
 @Injectable({ providedIn: 'root' })
 export class AdminAuthService {
   private readonly router = inject(Router);
-  private readonly restoredSession = this.restoreSession();
-  readonly user = signal<{ email: string } | null>(this.restoredSession?.user ?? null);
-  readonly role = signal<'customer' | 'admin' | 'super_admin' | null>(this.restoredSession?.role ?? null);
-  readonly ready = signal(true);
+  private readonly api = inject(ApiClientService);
+  private readonly sessionReady: Promise<void>;
+  readonly user = signal<{ email: string; name?: string } | null>(null);
+  readonly role = signal<UserRole | null>(null);
+  readonly ready = signal(false);
+
+  constructor() {
+    this.sessionReady = this.restoreSession();
+  }
 
   async signIn(email: string, password: string): Promise<string | null> {
-    const normalizedEmail = email.trim().toLowerCase();
-    const role = normalizedEmail === DEMO_EMAIL && password === DEMO_PASSWORD
-      ? 'super_admin'
-      : normalizedEmail === DEMO_CUSTOMER_EMAIL && password === DEMO_CUSTOMER_PASSWORD
-        ? 'customer'
-        : null;
-    if (!role) {
-      return 'Demo login details are incorrect. Use one of the demo accounts shown below.';
-    }
-
-    const user = { email: normalizedEmail };
     try {
-      sessionStorage.setItem(SESSION_KEY, JSON.stringify({ user, role }));
-    } catch {
-      return 'Login could not be saved in this browser. Enable site storage and try again.';
+      const response = await this.api.post<AuthResponse>('/auth/login', { email, password });
+      this.api.setToken(response.token);
+      this.setUser(response.user);
+      const destination = response.user.role === 'admin' || response.user.role === 'super_admin' ? '/admin' : '/';
+      if (!await this.router.navigateByUrl(destination)) {
+        return 'Login succeeded, but the page could not be opened. Please try again.';
+      }
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Login failed. Please try again.';
     }
+  }
 
-    this.user.set(user);
-    this.role.set(role);
-    const navigated = await this.router.navigateByUrl(role === 'super_admin' ? '/admin' : '/');
-    if (!navigated) {
-      return 'Login was accepted, but the page could not be opened. Please try again.';
+  async signUp(name: string, email: string, password: string): Promise<string | null> {
+    try {
+      const response = await this.api.post<AuthResponse>('/auth/register', { name, email, password });
+      this.api.setToken(response.token);
+      this.setUser(response.user);
+      if (!await this.router.navigateByUrl('/')) {
+        return 'Account created, but the page could not be opened. Please try again.';
+      }
+      return null;
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Account creation failed. Please try again.';
     }
-    return null;
   }
 
   async signOut(): Promise<void> {
-    sessionStorage.removeItem(SESSION_KEY);
+    this.api.clearToken();
     this.user.set(null);
     this.role.set(null);
-    await this.router.navigateByUrl('/admin/login');
+    await this.router.navigateByUrl('/login');
   }
 
   async hasAdminAccess(): Promise<boolean> {
+    await this.sessionReady;
     return this.role() === 'admin' || this.role() === 'super_admin';
   }
 
-  private restoreSession(): { user: { email: string }; role: 'customer' | 'super_admin' } | null {
-    const savedUser = sessionStorage.getItem(SESSION_KEY);
-    if (!savedUser) return null;
-
+  private async restoreSession(): Promise<void> {
     try {
-      const session = JSON.parse(savedUser) as { user?: { email?: unknown }; role?: unknown };
-      if (session.role === 'super_admin' && session.user?.email === DEMO_EMAIL) {
-        return { user: { email: DEMO_EMAIL }, role: 'super_admin' };
+      const token = this.api.getToken();
+      if (token) {
+        const response = await this.api.get<{ user: AuthResponse['user'] }>('/auth/me');
+        this.setUser(response.user);
       }
-      if (session.role === 'customer' && session.user?.email === DEMO_CUSTOMER_EMAIL) {
-        return { user: { email: DEMO_CUSTOMER_EMAIL }, role: 'customer' };
+    } catch (error) {
+      this.api.clearToken();
+      if (!(error instanceof Error) || error.message !== 'Authentication required.') {
+        console.error('Could not restore the signed-in user:', error);
       }
-      sessionStorage.removeItem(SESSION_KEY);
-      return null;
-    } catch {
-      sessionStorage.removeItem(SESSION_KEY);
-      return null;
+    } finally {
+      this.ready.set(true);
     }
+  }
+
+  private setUser(user: AuthResponse['user']): void {
+    this.user.set({ email: user.email, name: user.name });
+    this.role.set(user.role);
   }
 }

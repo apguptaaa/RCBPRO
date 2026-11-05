@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AnnouncementBarComponent } from './layout/announcement-bar/announcement-bar.component';
 import { HeaderComponent } from './layout/header/header.component';
@@ -10,6 +10,7 @@ import { CustomOrderModalComponent } from './overlays/custom-order-modal/custom-
 import { WhatsAppOrderComponent } from './overlays/whatsapp-order/whatsapp-order.component';
 import { ToastComponent } from './shared/toast/toast.component';
 import { ScrollToTopComponent } from './shared/scroll-to-top/scroll-to-top.component';
+import { StoreService } from './core/services/store.service';
 
 @Component({
   selector: 'app-root',
@@ -32,4 +33,6 @@ import { ScrollToTopComponent } from './shared/scroll-to-top/scroll-to-top.compo
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {}
+export class App {
+  readonly store = inject(StoreService);
+}

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
+import { AdminAuthService } from '../../core/services/admin-auth.service';
 import {
   LucideX,
   LucideChevronRight,
@@ -20,6 +21,7 @@ interface NavLink {
 })
 export class MobileNavComponent {
   readonly store = inject(StoreService);
+  readonly adminAuth = inject(AdminAuthService);
 
   readonly navLinks: NavLink[] = [
     { label: 'Home',         path: '/' },

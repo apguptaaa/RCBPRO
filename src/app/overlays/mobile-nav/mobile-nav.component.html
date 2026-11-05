@@ -31,6 +31,12 @@
             <svg lucideChevronRight [size]="18"></svg>
           </a>
         }
+        @if (adminAuth.role() === 'admin' || adminAuth.role() === 'super_admin') {
+          <a routerLink="/admin" (click)="close()" class="flex items-center justify-between rounded-xl px-3 py-4 font-bold hover:bg-sand/50">
+            Admin panel
+            <svg lucideChevronRight [size]="18"></svg>
+          </a>
+        }
       </nav>
 
       <!-- Help card -->

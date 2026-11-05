@@ -6,16 +6,16 @@
       <div>
         <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">From our customers</span>
         <h2 class="mt-3 font-display text-4xl font-bold text-espresso sm:text-5xl">Celebrations made sweeter.</h2>
-        <p class="mt-4 leading-7 text-cocoa/65">Thousands of thoughtful gifts delivered with freshness, care and a little bit of magic.</p>
+        <p class="mt-4 leading-7 text-cocoa/65">Thoughtful gifts delivered with freshness, care and a little bit of magic.</p>
         <div class="mt-7 flex items-center gap-4">
-          <strong class="font-display text-5xl">4.9</strong>
+          <strong class="font-display text-5xl">{{ averageRating() }}</strong>
           <div>
             <div class="flex gap-1 text-caramel">
               @for (s of stars; track s) {
-                <svg lucideStar [size]="16" [class]="'fill-caramel'"></svg>
+                <svg lucideStar [size]="16" [class]="s <= averageStars() ? 'fill-caramel' : 'text-cocoa/20'"></svg>
               }
             </div>
-            <p class="mt-1 text-xs text-cocoa/55">Based on 2,500+ verified reviews</p>
+            <p class="mt-1 text-xs text-cocoa/55">Based on {{ reviews().length }} customer {{ reviews().length === 1 ? 'review' : 'reviews' }}</p>
           </div>
         </div>
       </div>
@@ -29,34 +29,40 @@
         role="region"
         aria-roledescription="carousel"
         aria-label="Customer testimonials">
-        @for (review of reviews; track review.name; let index = $index) {
+        @if (error()) {
+          <p class="rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-800" role="alert">{{ error() }}</p>
+        } @else if (loading()) {
+          <p class="rounded-xl bg-cream p-6 text-sm text-cocoa/60">Loading customer reviews…</p>
+        } @else if (reviews().length === 0) {
+          <p class="rounded-xl bg-cream p-6 text-sm text-cocoa/60">Customer reviews will appear here soon.</p>
+        } @else {
+        @for (review of reviews(); track review.id; let index = $index) {
           @if (activeReview() === index) {
             <article
               class="review-slide min-h-64 rounded-3xl border border-cocoa/10 bg-cream p-6 shadow-card sm:p-9"
               aria-live="polite">
-              <div class="flex gap-1 text-caramel" aria-label="5 out of 5 stars">
+              <div class="flex gap-1 text-caramel" [attr.aria-label]="review.rating + ' out of 5 stars'">
                 @for (s of stars; track s) {
-                  <svg lucideStar [size]="16" [class]="'fill-caramel'"></svg>
+                  <svg lucideStar [size]="16" [class]="s <= review.rating ? 'fill-caramel' : 'text-cocoa/20'"></svg>
                 }
               </div>
               <p class="mt-6 font-display text-xl leading-8 text-espresso sm:text-2xl">“{{ review.quote }}”</p>
               <div class="mt-7 flex items-center gap-3 border-t border-cocoa/10 pt-5">
-                <img
-                  [ngSrc]="review.avatar"
-                  [alt]="review.name + ' profile photo'"
-                  class="h-12 w-12 rounded-full object-cover ring-2 ring-sand"
-                  width="48"
-                  height="48"
-                  loading="lazy" />
+                @if (review.avatar) {
+                  <img [src]="review.avatar" [alt]="review.name + ' profile photo'" class="h-12 w-12 rounded-full object-cover ring-2 ring-sand" width="48" height="48" />
+                } @else {
+                  <span class="grid h-12 w-12 place-items-center rounded-full bg-sand text-sm font-bold text-cocoa">{{ review.name.slice(0, 1) }}</span>
+                }
                 <div>
                   <strong class="block text-sm text-espresso">{{ review.name }}</strong>
-                  <span class="text-xs text-cocoa/55">Happy customer</span>
+                  <span class="text-xs text-cocoa/55">Customer</span>
                 </div>
               </div>
             </article>
           }
         }
 
+        @if (reviews().length > 1) {
         <div class="mt-5 flex items-center justify-between gap-4">
           <button
             type="button"
@@ -66,7 +72,7 @@
             ‹
           </button>
           <div class="flex items-center gap-2" role="group" aria-label="Choose a review">
-            @for (item of reviews; track item.name; let index = $index) {
+            @for (item of reviews(); track item.id; let index = $index) {
               <button
                 type="button"
                 (click)="goTo(index)"
@@ -84,6 +90,8 @@
             ›
           </button>
         </div>
+        }
+        }
       </div>
 
     </div>

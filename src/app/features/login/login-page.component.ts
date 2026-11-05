@@ -23,18 +23,23 @@ export class LoginPageComponent {
   async submit(): Promise<void> {
     this.feedback.set('');
     if (this.mode() === 'signup') {
-      this.feedback.set('Customer sign-up is a demo only and is not connected to a backend yet.');
-      return;
+      const error = await this.auth.signUp(this.customerName, this.identity, this.password);
+      if (error) {
+        this.feedback.set(error);
+        this.store.toast.set(error);
+        return;
+      }
+      this.store.toast.set('Your account has been created.');
+    } else {
+      const error = await this.auth.signIn(this.identity, this.password);
+      if (error) {
+        this.feedback.set(error);
+        this.store.toast.set(error);
+        return;
+      }
+      this.store.toast.set(this.auth.role() === 'super_admin' || this.auth.role() === 'admin'
+        ? 'Admin login successful.'
+        : 'Login successful.');
     }
-
-    const error = await this.auth.signIn(this.identity, this.password);
-    if (error) {
-      this.feedback.set(error);
-      this.store.toast.set(error);
-      return;
-    }
-    this.store.toast.set(this.auth.role() === 'super_admin'
-      ? 'Admin login successful.'
-      : 'Customer demo login successful.');
   }
 }

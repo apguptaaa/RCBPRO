@@ -4,37 +4,49 @@
       <div>
         <span class="text-[10px] font-bold uppercase tracking-[.2em] text-caramel">Crumb &amp; Bloom control panel</span>
         <h1 class="mt-1 font-display text-3xl font-bold text-espresso">Admin dashboard</h1>
-        <p class="mt-1 text-xs text-cocoa/55">{{ auth.user()?.email }} · demo super admin</p>
+        <p class="mt-1 text-xs text-cocoa/55">{{ auth.user()?.email }} · administrator</p>
       </div>
       <button (click)="signOut()" class="flex items-center justify-center gap-2 rounded-xl border border-cocoa/15 px-4 py-2.5 text-sm font-bold text-cocoa transition hover:bg-sand/50">
         <svg lucideLogOut [size]="17"></svg> Sign out
       </button>
     </header>
 
-    <nav class="mt-5 grid grid-cols-2 gap-2 rounded-2xl border border-cocoa/10 bg-white/65 p-2 sm:grid-cols-4" aria-label="Admin sections">
+    <nav class="mt-5 grid grid-cols-2 gap-2 rounded-2xl border border-cocoa/10 bg-white/65 p-2 sm:grid-cols-3 xl:grid-cols-6" aria-label="Admin sections">
       <button
-        (click)="section.set('products')"
+        (click)="openSection('products')"
         [attr.aria-current]="section() === 'products' ? 'page' : null"
         [class]="section() === 'products' ? 'flex items-center justify-center gap-2 rounded-xl bg-cocoa px-2 py-3 text-xs font-bold text-cream sm:text-sm' : 'flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold text-cocoa/65 hover:bg-sand/40 sm:text-sm'">
         <svg lucideCakeSlice [size]="17"></svg> Products
       </button>
       <button
-        (click)="section.set('categories')"
+        (click)="openSection('categories')"
         [attr.aria-current]="section() === 'categories' ? 'page' : null"
         [class]="section() === 'categories' ? 'flex items-center justify-center gap-2 rounded-xl bg-cocoa px-2 py-3 text-xs font-bold text-cream sm:text-sm' : 'flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold text-cocoa/65 hover:bg-sand/40 sm:text-sm'">
         <svg lucideCakeSlice [size]="17"></svg> Categories
       </button>
       <button
-        (click)="section.set('addons')"
+        (click)="openSection('addons')"
         [attr.aria-current]="section() === 'addons' ? 'page' : null"
         [class]="section() === 'addons' ? 'flex items-center justify-center gap-2 rounded-xl bg-cocoa px-2 py-3 text-xs font-bold text-cream sm:text-sm' : 'flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold text-cocoa/65 hover:bg-sand/40 sm:text-sm'">
         <svg lucideTags [size]="17"></svg> Add-ons
       </button>
       <button
-        (click)="section.set('banners')"
+        (click)="openSection('banners')"
         [attr.aria-current]="section() === 'banners' ? 'page' : null"
         [class]="section() === 'banners' ? 'flex items-center justify-center gap-2 rounded-xl bg-cocoa px-2 py-3 text-xs font-bold text-cream sm:text-sm' : 'flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold text-cocoa/65 hover:bg-sand/40 sm:text-sm'">
         <svg lucideImage [size]="17"></svg> Banners
+      </button>
+      <button
+        (click)="openSection('orders')"
+        [attr.aria-current]="section() === 'orders' ? 'page' : null"
+        [class]="section() === 'orders' ? 'flex items-center justify-center gap-2 rounded-xl bg-cocoa px-2 py-3 text-xs font-bold text-cream sm:text-sm' : 'flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold text-cocoa/65 hover:bg-sand/40 sm:text-sm'">
+        <svg lucideClipboardList [size]="17"></svg> Requests
+      </button>
+      <button
+        (click)="openSection('reviews')"
+        [attr.aria-current]="section() === 'reviews' ? 'page' : null"
+        [class]="section() === 'reviews' ? 'flex items-center justify-center gap-2 rounded-xl bg-cocoa px-2 py-3 text-xs font-bold text-cream sm:text-sm' : 'flex items-center justify-center gap-2 rounded-xl px-2 py-3 text-xs font-semibold text-cocoa/65 hover:bg-sand/40 sm:text-sm'">
+        <svg lucideStar [size]="17"></svg> Reviews
       </button>
     </nav>
 
@@ -42,14 +54,150 @@
       <p class="mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">{{ error() }}</p>
     }
     @if (loading()) {
-      <div class="mt-8 rounded-2xl bg-white/70 p-10 text-center text-sm text-cocoa/60">Loading demo dashboard data…</div>
+      <div class="mt-8 rounded-2xl bg-white/70 p-10 text-center text-sm text-cocoa/60">Loading dashboard data…</div>
     } @else {
+      @if (section() === 'reviews') {
+        <div class="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(300px,.7fr)]">
+          <section class="rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <h2 class="font-display text-xl font-bold text-espresso">Customer reviews</h2>
+              <button (click)="openSection('reviews')" [disabled]="inquiriesLoading()" class="rounded-xl border border-cocoa/15 px-3 py-2 text-xs font-bold text-cocoa disabled:opacity-50">Refresh</button>
+            </div>
+            @if (inquiriesLoading()) {
+              <p class="mt-4 rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">Loading reviews…</p>
+            } @else {
+              <div class="mt-4 space-y-3">
+                @for (review of reviews(); track review.id) {
+                  <article class="flex items-start gap-3 rounded-xl border border-cocoa/10 bg-cream/70 p-3">
+                    @if (review.avatar) {
+                      <img [src]="review.avatar" [alt]="review.name" class="h-12 w-12 rounded-full object-cover" />
+                    }
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <h3 class="text-sm font-bold text-espresso">{{ review.name }}</h3>
+                        <span class="text-xs text-caramel">★ {{ review.rating }}/5</span>
+                        <span [class]="review.active ? 'text-[10px] font-bold text-sage' : 'text-[10px] font-bold text-cocoa/40'">{{ review.active ? 'Published' : 'Hidden' }}</span>
+                      </div>
+                      <p class="mt-1 text-xs leading-5 text-cocoa/65">{{ review.quote }}</p>
+                    </div>
+                    <button (click)="editReview(review)" class="rounded-lg px-3 py-2 text-xs font-bold text-cocoa hover:bg-sand">Edit</button>
+                    <button (click)="deleteReview(review.id)" class="grid h-9 w-9 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete review by ' + review.name"><svg lucideTrash2 [size]="16"></svg></button>
+                  </article>
+                } @empty {
+                  <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No reviews saved yet.</p>
+                }
+              </div>
+            }
+          </section>
+
+          <form (ngSubmit)="saveReview()" class="space-y-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:p-5">
+            <div>
+              <h2 class="font-display text-xl font-bold text-espresso">{{ reviewDraft.id ? 'Edit review' : 'Add review' }}</h2>
+              <p class="mt-1 text-xs text-cocoa/50">Only published reviews appear on the storefront.</p>
+            </div>
+            <label class="block text-xs font-bold text-cocoa">Customer name
+              <input [(ngModel)]="reviewDraft.name" name="reviewName" required maxlength="80" class="admin-field" />
+            </label>
+            <label class="block text-xs font-bold text-cocoa">Review
+              <textarea [(ngModel)]="reviewDraft.quote" name="reviewQuote" required rows="4" maxlength="1000" class="admin-field"></textarea>
+            </label>
+            <label class="block text-xs font-bold text-cocoa">Rating
+              <select [(ngModel)]="reviewDraft.rating" name="reviewRating" required class="admin-field">
+                @for (rating of [5, 4, 3, 2, 1]; track rating) { <option [ngValue]="rating">{{ rating }} / 5</option> }
+              </select>
+            </label>
+            <label class="block text-xs font-bold text-cocoa">Avatar URL
+              <input [(ngModel)]="reviewDraft.avatar" name="reviewAvatar" maxlength="7000000" class="admin-field" />
+            </label>
+            <label class="block text-xs font-bold text-cocoa">Upload avatar
+              <input (change)="uploadImage($event, 'review')" type="file" accept="image/*" class="admin-field file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
+            </label>
+            <label class="flex items-center gap-2 text-sm font-semibold text-cocoa"><input [(ngModel)]="reviewDraft.active" name="reviewActive" type="checkbox" class="h-4 w-4 accent-cocoa" /> Published</label>
+            <div class="flex gap-2">
+              <button [disabled]="saving()" class="flex-1 rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream disabled:opacity-50">Save review</button>
+              <button type="button" (click)="reviewDraft = emptyReview()" class="rounded-xl border border-cocoa/15 px-4 py-3 text-sm font-semibold text-cocoa">Clear</button>
+            </div>
+          </form>
+        </div>
+      }
+
+      @if (section() === 'orders') {
+        <section class="mt-5 rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <h2 class="font-display text-xl font-bold text-espresso">Customer requests</h2>
+              <p class="mt-1 text-xs text-cocoa/55">WhatsApp cart orders and cake enquiries saved for follow-up.</p>
+            </div>
+            <button (click)="openSection('orders')" [disabled]="inquiriesLoading()" class="rounded-xl border border-cocoa/15 px-3 py-2 text-xs font-bold text-cocoa disabled:opacity-50">Refresh</button>
+          </div>
+          @if (inquiriesLoading()) {
+            <p class="mt-4 rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">Loading requests…</p>
+          } @else {
+            <div class="mt-4 space-y-3">
+              @for (inquiry of inquiries(); track inquiry.id) {
+                <article class="rounded-xl border border-cocoa/10 bg-cream/70 p-4">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h3 class="text-sm font-bold text-espresso">{{ inquiry.customer_name || 'Customer' }} · {{ inquiry.kind === 'cart' ? 'Cart order' : 'Cake enquiry' }}</h3>
+                      <p class="mt-1 text-xs text-cocoa/50">{{ inquiry.created_at | date:'medium' }} · {{ inquiry.id }}</p>
+                    </div>
+                    <label class="flex items-center gap-2 text-xs font-semibold text-cocoa">
+                      Status
+                      <select [value]="inquiry.status" (change)="updateInquiryStatus(inquiry, $event)" [disabled]="saving()" class="rounded-lg border border-cocoa/15 bg-white px-2 py-2">
+                        <option value="pending">Pending</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </label>
+                  </div>
+                  <pre class="mt-3 overflow-x-auto whitespace-pre-wrap rounded-lg bg-white/70 p-3 text-xs text-cocoa">{{ formatInquiryDetails(inquiry.details) }}</pre>
+                </article>
+              } @empty {
+                <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No customer requests yet.</p>
+              }
+            </div>
+          }
+        </section>
+        <section class="mt-5 rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
+          <div>
+            <h2 class="font-display text-xl font-bold text-espresso">Custom cake requests</h2>
+            <p class="mt-1 text-xs text-cocoa/55">Consultation requests submitted from the custom cake form.</p>
+          </div>
+          <div class="mt-4 space-y-3">
+            @for (order of customOrders(); track order.id) {
+              <article class="rounded-xl border border-cocoa/10 bg-cream/70 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 class="text-sm font-bold text-espresso">{{ order.customer_name }} · {{ order.occasion }}</h3>
+                    <p class="mt-1 text-xs text-cocoa/55">{{ order.email }} · {{ order.phone }}</p>
+                    <p class="mt-1 text-xs text-cocoa/55">{{ order.flavour }} · {{ order.serving_size }} · {{ order.celebration_date | date:'mediumDate' }}</p>
+                  </div>
+                  <label class="flex items-center gap-2 text-xs font-semibold text-cocoa">
+                    Status
+                    <select [value]="order.status" (change)="updateCustomOrderStatus(order, $event)" [disabled]="saving()" class="rounded-lg border border-cocoa/15 bg-white px-2 py-2">
+                      <option value="pending">Pending</option>
+                      <option value="contacted">Contacted</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </label>
+                </div>
+                <p class="mt-3 whitespace-pre-wrap rounded-lg bg-white/70 p-3 text-xs text-cocoa">{{ order.design_idea }}</p>
+              </article>
+            } @empty {
+              <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No custom cake requests yet.</p>
+            }
+          </div>
+        </section>
+      }
+
       @if (section() === 'products') {
         <div class="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(300px,.7fr)]">
           <section class="rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
             <div class="flex items-center justify-between gap-3">
               <h2 class="font-display text-xl font-bold text-espresso">Products</h2>
-              <span class="text-xs text-cocoa/50">{{ products().length }} demo products</span>
+              <span class="text-xs text-cocoa/50">{{ products().length }} products</span>
             </div>
             <div class="mt-4 space-y-3">
               @for (product of products(); track product.id) {
@@ -68,7 +216,7 @@
                   </button>
                 </article>
               } @empty {
-                <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No demo products. Add one using the form.</p>
+                <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No products yet. Add one using the form.</p>
               }
             </div>
           </section>
@@ -76,7 +224,7 @@
           <form (ngSubmit)="saveProduct()" class="space-y-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:p-5">
             <div>
               <h2 class="font-display text-xl font-bold text-espresso">{{ productDraft.id ? 'Edit product' : 'Add product' }}</h2>
-              <p class="mt-1 text-xs text-cocoa/50">Demo changes appear on the shop and stay in this browser.</p>
+              <p class="mt-1 text-xs text-cocoa/50">Changes are saved to the store catalog.</p>
             </div>
             <label class="block text-xs font-bold text-cocoa">Product name
               <input [(ngModel)]="productDraft.name" name="productName" required maxlength="120" class="admin-field" />

@@ -107,8 +107,9 @@
           </div>
           <button
             (click)="checkout()"
-            class="mt-5 w-full rounded-xl bg-[#25D366] py-4 text-sm font-bold text-white transition hover:bg-[#1fb95a]">
-            Send bill on WhatsApp
+            [disabled]="submitting()"
+            class="mt-5 w-full rounded-xl bg-[#25D366] py-4 text-sm font-bold text-white transition hover:bg-[#1fb95a] disabled:cursor-wait disabled:opacity-60">
+            {{ submitting() ? 'Saving order request…' : 'Send bill on WhatsApp' }}
           </button>
           <p class="mt-2 text-center text-[11px] text-cocoa/50">Your itemized order and total will be sent to us for confirmation.</p>
         </div>

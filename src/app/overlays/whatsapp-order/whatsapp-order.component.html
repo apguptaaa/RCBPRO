@@ -152,11 +152,15 @@
           </textarea>
         </label>
 
+        @if (submitError()) {
+          <p class="rounded-lg border border-red-300 bg-red-50 p-3 text-xs text-red-800" role="alert">{{ submitError() }}</p>
+        }
         <button
           type="submit"
-          class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-4 text-sm font-bold text-white transition hover:bg-[#1fb95a]">
+          [disabled]="submitting()"
+          class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-4 text-sm font-bold text-white transition hover:bg-[#1fb95a] disabled:cursor-wait disabled:opacity-60">
           <svg lucideMessageCircle [size]="19"></svg>
-          Continue to WhatsApp
+          {{ submitting() ? 'Saving your request…' : 'Continue to WhatsApp' }}
         </button>
         <p class="text-center text-[11px] leading-5 text-cocoa/50">
           Your message will open in WhatsApp addressed to +91 91311 38005. We’ll confirm price and availability there.

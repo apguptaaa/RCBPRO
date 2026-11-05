@@ -5,19 +5,58 @@ import { routes } from './app.routes';
 import { StoreService } from './core/services/store.service';
 import { AdminAuthService } from './core/services/admin-auth.service';
 import { AdminDataService } from './core/services/admin-data.service';
+import { ApiClientService } from './core/services/api-client.service';
 import { PRODUCTS } from './core/data/catalog.data';
+import { vi } from 'vitest';
 
 describe('App', () => {
+  let apiMock: {
+    getToken: ReturnType<typeof vi.fn>;
+    setToken: ReturnType<typeof vi.fn>;
+    clearToken: ReturnType<typeof vi.fn>;
+    get: ReturnType<typeof vi.fn>;
+    post: ReturnType<typeof vi.fn>;
+    put: ReturnType<typeof vi.fn>;
+    delete: ReturnType<typeof vi.fn>;
+  };
+
   beforeEach(async () => {
     sessionStorage.clear();
-    localStorage.removeItem('crumb-bloom-demo-products');
-    localStorage.removeItem('crumb-bloom-demo-categories');
-    localStorage.removeItem('crumb-bloom-demo-subcategories');
-    localStorage.removeItem('crumb-bloom-demo-addons');
-    localStorage.removeItem('crumb-bloom-demo-banners');
+    const catalog = {
+      products: PRODUCTS.map(product => ({ ...product, old_price: product.oldPrice, active: true })),
+      categories: [{ id: 'birthday-cakes', name: 'Birthday Cakes', image: '', active: true }],
+      subcategories: [],
+      addons: [],
+      banners: []
+    };
+    apiMock = {
+      getToken: vi.fn(() => sessionStorage.getItem('crumb-bloom-access-token')),
+      setToken: vi.fn((token: string) => sessionStorage.setItem('crumb-bloom-access-token', token)),
+      clearToken: vi.fn(() => sessionStorage.removeItem('crumb-bloom-access-token')),
+      get: vi.fn(async (path: string) => {
+        if (path === '/reviews') return [];
+        if (path === '/account/cart') return { items: [] };
+        if (path === '/account/favorites') return { product_ids: [] };
+        if (path === '/admin/custom-orders' || path === '/order-inquiries') return [];
+        return catalog;
+      }),
+      post: vi.fn(async (_path: string, body: unknown) => {
+        const credentials = body as { email?: string; name?: string };
+        const role = credentials.email?.startsWith('admin') ? 'super_admin' : 'customer';
+        return {
+          token: 'test-token',
+          user: { id: 'test-user', email: credentials.email ?? '', name: credentials.name ?? '', role }
+        };
+      }),
+      put: vi.fn(async (_path: string, body: unknown) => body),
+      delete: vi.fn(async () => undefined)
+    };
     await TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideRouter(routes)]
+      providers: [
+        provideRouter(routes),
+        { provide: ApiClientService, useValue: apiMock }
+      ]
     }).compileComponents();
   });
 
@@ -137,9 +176,9 @@ describe('App', () => {
     expect(router.url).toBe('/login');
   });
 
-  it('should allow the documented demo admin credentials', async () => {
+  it('should grant administrator access from the API role', async () => {
     const auth = TestBed.inject(AdminAuthService);
-    const error = await auth.signIn('admin@crumbandbloom.com', 'admin123');
+    const error = await auth.signIn('admin@example.com', 'secure-password');
     expect(error).toBeNull();
     expect(await auth.hasAdminAccess()).toBe(true);
     expect(TestBed.inject(Router).url).toBe('/admin');
@@ -148,7 +187,7 @@ describe('App', () => {
 
   it('should show an active Admin panel navbar item only after admin login', async () => {
     const auth = TestBed.inject(AdminAuthService);
-    await auth.signIn('admin@crumbandbloom.com', 'admin123');
+    await auth.signIn('admin@example.com', 'secure-password');
 
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
@@ -160,9 +199,9 @@ describe('App', () => {
     await auth.signOut();
   });
 
-  it('should not grant admin access or show an admin menu to the demo customer', async () => {
+  it('should not grant admin access or show an admin menu to a customer', async () => {
     const auth = TestBed.inject(AdminAuthService);
-    await auth.signIn('customer@crumbandbloom.com', 'user123');
+    await auth.signIn('customer@example.com', 'secure-password');
     expect(auth.role()).toBe('customer');
     expect(await auth.hasAdminAccess()).toBe(false);
 
@@ -171,10 +210,9 @@ describe('App', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).not.toContain('Admin panel');
   });
 
-  it('should save demo products, add-ons, and banners in browser storage', () => {
+  it('should send catalog updates to the backend API', async () => {
     const data = TestBed.inject(AdminDataService);
-    const initialProductCount = data.listProducts().length;
-    data.saveProduct({
+    const product = {
       name: 'Demo test cake',
       category: 'Test Cakes',
       price: 500,
@@ -187,34 +225,16 @@ describe('App', () => {
       image: 'https://example.com/cake.jpg',
       description: 'A test cake',
       active: true
-    });
-    expect(data.listProducts()).toHaveLength(initialProductCount + 1);
-    expect(data.listProducts().at(-1)?.name).toBe('Demo test cake');
-
-    data.saveAddon({ name: 'Demo candle', description: '', price: 30, image: '', active: true, product_id: null });
-    expect(data.listAddons().map(addon => addon.name)).toContain('Demo candle');
-
-    data.saveBanner({ title: 'Demo banner', subtitle: '', image: 'https://example.com/banner.jpg', link: '/', active: true });
-    expect(data.listBanners().map(banner => banner.title)).toContain('Demo banner');
+    };
+    await data.saveProduct(product);
+    expect(apiMock.post).toHaveBeenCalledWith('/admin/products', product);
   });
 
-  it('should add categories and subcategories for the storefront category strip', async () => {
+  it('should load server categories for the storefront category strip', async () => {
     const data = TestBed.inject(AdminDataService);
-    const category = { name: 'Wedding Cakes', image: 'data:image/jpeg;base64,demo', active: true };
-    data.saveCategory(category);
-    const savedCategory = data.listCategories().find(item => item.name === category.name);
-    expect(savedCategory).toBeTruthy();
-
-    data.saveSubcategory({
-      categoryId: savedCategory!.id,
-      name: 'Floral Wedding Cakes',
-      image: '',
-      active: true
-    });
-    expect(data.listSubcategories().map(item => item.name)).toContain('Floral Wedding Cakes');
-
+    await data.getPublicCatalog();
     await TestBed.inject(StoreService).refreshCatalog();
     expect(TestBed.inject(StoreService).categories().map(item => item.name))
-      .toContain('Floral Wedding Cakes');
+      .toContain('Birthday Cakes');
   });
 });

@@ -1,29 +1,28 @@
-import { Component, OnDestroy, afterNextRender, signal } from '@angular/core';
-import { NgOptimizedImage } from '@angular/common';
+import { Component, OnDestroy, OnInit, afterNextRender, computed, inject, signal } from '@angular/core';
 import { LucideStar } from '@lucide/angular';
-
-interface Review {
-  quote: string;
-  name: string;
-  avatar: string;
-}
+import { Review } from '../../core/data/review.models';
+import { ReviewDataService } from '../../core/services/review-data.service';
 
 @Component({
   selector: 'app-reviews',
   standalone: true,
-  imports: [NgOptimizedImage, LucideStar],
+  imports: [LucideStar],
   templateUrl: './reviews.component.html'
 })
-export class ReviewsComponent implements OnDestroy {
+export class ReviewsComponent implements OnInit, OnDestroy {
+  private readonly reviewData = inject(ReviewDataService);
   readonly stars = [1, 2, 3, 4, 5];
   readonly activeReview = signal(0);
-
-  readonly reviews: Review[] = [
-    { quote: 'The vintage bento cake looked exactly like the photo and tasted even better. Beautiful packaging too!', name: 'Aarohi S.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&h=160&q=80' },
-    { quote: 'The custom design process was seamless. Everyone at the anniversary dinner loved the cake.', name: 'Meera K.', avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=160&h=160&q=80' },
-    { quote: 'Fresh roses, rich brownies and delivery right on time. A genuinely premium experience.', name: 'Rohan M.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&h=160&q=80' },
-    { quote: 'Not overly sweet, wonderfully soft and elegant. This is now our family celebration bakery.', name: 'Naina P.', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=160&h=160&q=80' },
-  ];
+  readonly reviews = signal<Review[]>([]);
+  readonly loading = signal(true);
+  readonly error = signal('');
+  readonly averageRating = computed(() => {
+    const reviews = this.reviews();
+    return reviews.length
+      ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+      : '0.0';
+  });
+  readonly averageStars = computed(() => Math.round(Number(this.averageRating())));
 
   private timer?: number;
 
@@ -31,12 +30,32 @@ export class ReviewsComponent implements OnDestroy {
     afterNextRender(() => this.resume());
   }
 
+  ngOnInit(): void {
+    void this.load();
+  }
+
+  async load(): Promise<void> {
+    this.loading.set(true);
+    this.error.set('');
+    try {
+      this.reviews.set(await this.reviewData.getPublicReviews());
+      this.activeReview.set(0);
+      this.resume();
+    } catch (error) {
+      this.error.set(error instanceof Error ? error.message : 'Customer reviews could not be loaded.');
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
   next(): void {
-    this.activeReview.update(index => (index + 1) % this.reviews.length);
+    const count = this.reviews().length;
+    if (count > 1) this.activeReview.update(index => (index + 1) % count);
   }
 
   previous(): void {
-    this.activeReview.update(index => (index - 1 + this.reviews.length) % this.reviews.length);
+    const count = this.reviews().length;
+    if (count > 1) this.activeReview.update(index => (index - 1 + count) % count);
   }
 
   goTo(index: number): void {
@@ -52,7 +71,7 @@ export class ReviewsComponent implements OnDestroy {
 
   resume(): void {
     this.pause();
-    this.timer = window.setInterval(() => this.next(), 5500);
+    if (this.reviews().length > 1) this.timer = window.setInterval(() => this.next(), 5500);
   }
 
   onFocusOut(event: FocusEvent): void {
