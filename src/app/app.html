@@ -1,85 +1,39 @@
-<div class="app-shell min-h-screen">
-  <div class="bakery-texture" aria-hidden="true">
-    <svg class="bakery-motif bakery-motif--whisk" viewBox="0 0 140 140" fill="none" focusable="false">
-      <path d="M25 81c13 17 77 17 90 0l-10 29c-4 12-66 12-70 0L25 81Z" />
-      <path d="M25 81c15-12 75-12 90 0M37 106c19 10 47 10 66 0" />
-      <path d="m101 14 8 4-36 62M103 15l13-10 7 4-14 12" />
-      <path d="M73 80c-9-17-20-26-31-26-7 0-10 5-7 10 6 12 22 17 38 16ZM73 80c-3-18 0-33 10-40 6-4 11-2 11 4 0 13-9 25-21 36ZM73 80c8-16 20-26 31-25 7 1 9 6 5 11-8 10-22 14-36 14Z" />
-      <path d="M46 35c2-5 8-5 10 0 2 5-5 9-5 9s-7-4-5-9Zm53 37c2-5 8-5 10 0 2 5-5 9-5 9s-7-4-5-9Z" />
-    </svg>
+<!-- ── Health-check loader ─────────────────────────────────────────────── -->
+@if (loading()) {
+  <app-loader />
+}
 
-    <svg class="bakery-motif bakery-motif--rolling-pin" viewBox="0 0 180 100" fill="none" focusable="false">
-      <path d="M13 50h26m102 0h26M21 39v22m138-22v22" />
-      <path d="M39 36c24-8 78-8 102 0v28c-24 8-78 8-102 0V36Z" />
-      <path d="M49 39v22m82-22v22M61 35v30m58-30v30" />
-      <path d="m55 19 3-5m34 0 3 5m31-2 3 5M68 76l-3 6m46-6 3 6" />
-    </svg>
+<!-- ── App shell — rendered once health check passes ─────────────────── -->
+@if (!loading()) {
+  <div class="min-h-screen">
 
-    <svg class="bakery-motif bakery-motif--cupcake" viewBox="0 0 120 140" fill="none" focusable="false">
-      <path d="M32 77c-9-7-8-20 1-25-3-13 9-22 20-18 7-16 31-15 37 2 14-2 23 14 15 25 10 7 7 21-4 25l-8 39H39l-7-39Z" />
-      <path d="M31 82c17 9 42 9 66 0M42 96l5 27m14-28 1 28m15-29-2 29" />
-      <path d="M56 19c-4-7 6-8 2-15m17 18c-4-7 6-8 2-15" />
-      <path d="M57 53c1-5 7-5 9 0 2 5-5 9-5 9s-7-4-4-9Z" />
-    </svg>
-
-    <svg class="bakery-motif bakery-motif--drip" viewBox="0 0 260 90" fill="none" focusable="false">
-      <path d="M0 12h260v15c-16 2-14 30-28 30-15 0-11-25-26-25s-10 43-27 43c-15 0-13-34-27-34s-13 22-27 22-14-31-28-31-12 40-28 40-13-29-28-29-12 17-28 17C7 60 15 31 0 29V12Z" />
-      <path d="M10 15h240" />
-    </svg>
-
-    <svg class="bakery-motif bakery-motif--heart" viewBox="0 0 100 100" fill="none" focusable="false">
-      <path d="M50 83 17 51C-2 30 25 7 43 26l7 8 7-8c18-19 45 4 26 25L50 83Z" />
-      <path d="M30 43c4-7 10-9 16-8m19-8c5 1 9 4 12 8" />
-    </svg>
-  </div>
-
-  <div class="app-shell-content">
     <!-- Layout chrome -->
     <app-announcement-bar />
     <app-header />
 
-    @if (store.catalogError()) {
-      <div
-        class="fixed right-4 top-4 z-[80] flex w-[min(22rem,calc(100vw-2rem))] items-start gap-3 rounded-2xl border border-rosebeige/70 bg-white/95 p-4 text-cocoa shadow-[0_18px_50px_rgba(36,21,15,0.2)] backdrop-blur-md sm:right-6 sm:top-6"
-        role="alert"
-        aria-live="assertive"
-      >
-        <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-red-50 text-red-700">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-5 w-5" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.9 1.8 18.6A1.6 1.6 0 0 0 3.2 21h17.6a1.6 1.6 0 0 0 1.4-2.4L13.7 3.9a2 2 0 0 0-3.4 0Z" />
-          </svg>
-        </span>
-        <div class="min-w-0 flex-1">
-          <p class="font-display text-sm font-semibold">Menu temporarily unavailable</p>
-          <p class="mt-1 break-words text-xs leading-relaxed text-cocoa/65">{{ store.catalogError() }}</p>
-          <button
-            type="button"
-            class="mt-3 inline-flex min-h-9 items-center gap-2 rounded-full bg-espresso px-4 text-xs font-semibold text-cream transition hover:bg-cocoa focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel"
-            (click)="store.refreshCatalog()"
-          >
-            Try again
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7v5h-5M4.9 9a7.5 7.5 0 0 1 12.4-2L20 12m-.9 3a7.5 7.5 0 0 1-12.4 2L4 12" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    }
-
-    <router-outlet />
+    <!-- Page sections -->
+    <main>
+      <app-hero />
+      <app-marquee />
+      <app-categories />
+      <app-promo-banner />
+      <app-shop />
+      <app-custom-order-banner />
+      <app-occasions />
+      <app-reviews />
+      <app-newsletter />
+    </main>
 
     <app-footer />
 
-    <!-- Overlays — rendered outside main so they sit above all content -->
+    <!-- Overlays -->
     <app-mobile-nav />
     <app-cart />
     <app-quick-view />
     <app-custom-order-modal />
-    <app-whatsapp-order />
 
-    <!-- Global toast notification -->
+    <!-- Global toast -->
     <app-toast />
-    <app-scroll-to-top />
-  </div>
 
-</div>
+  </div>
+}
