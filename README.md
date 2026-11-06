@@ -56,7 +56,7 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 
 ## Backend API
 
-The TypeScript/Express backend, PostgreSQL schema, environment setup, migration command, and API route list are documented in [RCBBACKEND/README.md](../RCBBACKEND/README.md). Start the backend and apply its migration before running the storefront; the Angular dev server proxies `/api` requests to `http://localhost:3000`.
+The TypeScript/Express backend, PostgreSQL schema, environment setup, migration command, and API route list are documented in [RCBBACKEND/README.md](../RCBBACKEND/README.md). Start the backend and apply its migration before running the storefront; the Angular dev server proxies `/api` requests to `https://rcbbackend.onrender.com`.
 
 ## Additional Resources
 
