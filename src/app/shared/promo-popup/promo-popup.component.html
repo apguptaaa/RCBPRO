@@ -1,0 +1,131 @@
+@if (visible()) {
+  <!-- Backdrop -->
+  <div
+    class="promo-backdrop fixed inset-0 z-[80] flex items-end justify-center bg-espresso/60 p-4 backdrop-blur-sm sm:items-center"
+    (mousedown)="close()">
+
+    <!-- Card -->
+    <div
+      class="promo-card relative w-full max-w-md overflow-hidden rounded-3xl bg-cream shadow-2xl"
+      (mousedown)="$event.stopPropagation()">
+
+      <!-- Top espresso bar with confetti dots -->
+      <div class="relative overflow-hidden bg-espresso px-6 py-8 text-center text-cream">
+        <!-- Decorative circles -->
+        <span class="absolute -left-8 -top-8 h-28 w-28 rounded-full bg-caramel/20"></span>
+        <span class="absolute -bottom-6 -right-6 h-20 w-20 rounded-full bg-rosebeige/15"></span>
+
+        <!-- Gift icon -->
+        <div class="relative mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full bg-caramel/25">
+          <svg lucideGift [size]="28" [class]="'text-cream'"></svg>
+        </div>
+
+        <!-- Eyebrow -->
+        <p class="text-xs font-bold uppercase tracking-[.22em] text-rosebeige">Today only · First order</p>
+
+        <!-- Headline -->
+        <h2 class="mt-2 font-display text-5xl font-extrabold leading-none">
+          Flat <span class="text-caramel">50%</span> OFF
+        </h2>
+        <p class="mt-2 text-sm font-semibold text-cream/75">
+          On your first cake, dessert or bouquet order
+        </p>
+
+        <!-- Divider with cake icons -->
+        <div class="mt-4 flex items-center gap-2 text-cream/30">
+          <span class="flex-1 border-t border-current"></span>
+          <span class="text-xs">🎂</span>
+          <span class="flex-1 border-t border-current"></span>
+        </div>
+
+        <!-- Pills row -->
+        <div class="mt-4 flex flex-wrap justify-center gap-2 text-xs font-semibold">
+          <span class="rounded-full bg-cream/15 px-3 py-1">Eggless cakes</span>
+          <span class="rounded-full bg-cream/15 px-3 py-1">Custom designs</span>
+          <span class="rounded-full bg-cream/15 px-3 py-1">Same-day delivery</span>
+        </div>
+      </div>
+
+      <!-- Bottom cream section -->
+      <div class="px-6 py-6">
+
+        @if (!claimed()) {
+          <!-- Offer copy -->
+          <p class="text-center text-sm leading-5 text-cocoa/65">
+            Enter your mobile number to receive your exclusive
+            <strong class="text-cocoa">50% OFF</strong> coupon code instantly.
+          </p>
+
+          <!-- Phone input -->
+          <div class="mt-5">
+            <label class="sr-only" for="promo-phone">Mobile number</label>
+            <div class="flex overflow-hidden rounded-xl border border-cocoa/20 bg-white focus-within:border-caramel focus-within:ring-2 focus-within:ring-caramel/20">
+              <div class="flex items-center gap-1.5 border-r border-cocoa/10 px-3 py-3 text-sm font-semibold text-cocoa/60">
+                <svg lucidePhone [size]="15"></svg>
+                +91
+              </div>
+              <input
+                id="promo-phone"
+                type="tel"
+                inputmode="numeric"
+                maxlength="10"
+                placeholder="Enter 10-digit number"
+                [value]="phone()"
+                (input)="onPhoneInput($event)"
+                class="flex-1 bg-transparent px-3 py-3 text-sm outline-none placeholder:text-cocoa/35" />
+            </div>
+
+            @if (error()) {
+              <p class="mt-2 text-xs text-red-500">{{ error() }}</p>
+            }
+          </div>
+
+          <!-- CTA button -->
+          <button
+            (click)="claim()"
+            [disabled]="loading()"
+            class="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-cocoa py-4 text-sm font-bold text-cream transition hover:bg-espresso disabled:opacity-60">
+            @if (loading()) {
+              <span class="h-4 w-4 animate-spin rounded-full border-2 border-cream/30 border-t-cream"></span>
+              Claiming…
+            } @else {
+              🎉 Claim My 50% OFF
+            }
+          </button>
+
+          <!-- Terms -->
+          <p class="mt-3 text-center text-[10px] text-cocoa/40">
+            Valid on orders above ₹499. One use per customer. No spam — we promise.
+          </p>
+
+        } @else {
+          <!-- Success state -->
+          <div class="py-4 text-center">
+            <div class="mx-auto mb-3 grid h-16 w-16 place-items-center rounded-full bg-sage/15 text-3xl">
+              🎂
+            </div>
+            <h3 class="font-display text-2xl font-bold text-espresso">You're all set!</h3>
+            <p class="mt-2 text-sm text-cocoa/65">
+              We've sent your <strong class="text-cocoa">50% OFF</strong> coupon to <strong class="text-cocoa">+91 {{ phone() }}</strong>.
+            </p>
+            <div class="mt-4 rounded-xl bg-sand/50 px-4 py-3">
+              <p class="text-[11px] uppercase tracking-[.18em] text-cocoa/50">Your code</p>
+              <p class="mt-1 font-display text-2xl font-bold tracking-widest text-espresso">FIRST50</p>
+            </div>
+            <p class="mt-3 text-xs text-cocoa/45">This window will close in a moment…</p>
+          </div>
+        }
+
+      </div>
+
+      <!-- Close button -->
+      <button
+        (click)="close()"
+        class="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-cream/20 text-cream transition hover:bg-cream/30"
+        aria-label="Close offer">
+        <svg lucideX [size]="16"></svg>
+      </button>
+
+    </div>
+  </div>
+}

@@ -1,8 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { StoreService } from '../../core/services/store.service';
 import { AccountDataService } from '../../core/services/account-data.service';
 import { AdminAuthService } from '../../core/services/admin-auth.service';
 import { FormatPricePipe } from '../../core/pipes/format-price.pipe';
+import { CartItem } from '../../core/models/product.model';
 import {
   LucideX,
   LucideShoppingBag,
@@ -13,14 +15,77 @@ import {
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [FormatPricePipe, LucideX, LucideShoppingBag, LucideMinus, LucidePlus],
+  imports: [RouterLink, FormatPricePipe, LucideX, LucideShoppingBag, LucideMinus, LucidePlus],
+  styles: [`
+    .cart-item {
+      max-height: 12rem;
+      opacity: 1;
+      transform: translateX(0);
+      transition: max-height .4s cubic-bezier(.22, 1, .36, 1),
+        opacity .32s ease, transform .4s cubic-bezier(.22, 1, .36, 1),
+        margin .4s ease, padding .4s ease, border-color .32s ease;
+    }
+
+    .cart-item--removing {
+      max-height: 0;
+      margin: 0;
+      overflow: hidden;
+      border-color: transparent;
+      opacity: 0;
+      padding-bottom: 0;
+      transform: translateX(1.5rem);
+    }
+
+    .cart-remove-button {
+      transition: color .18s ease, transform .18s ease, opacity .18s ease;
+    }
+
+    .cart-remove-button:hover {
+      transform: rotate(90deg) scale(1.08);
+    }
+
+    .cart-remove-button:active {
+      transform: scale(.9);
+    }
+  `],
   templateUrl: './cart.component.html'
 })
-export class CartComponent {
+export class CartComponent implements OnDestroy {
   readonly store = inject(StoreService);
   private readonly accountData = inject(AccountDataService);
   private readonly auth = inject(AdminAuthService);
   readonly submitting = signal(false);
+  readonly removingItems = signal<Set<string>>(new Set());
+  private readonly removalTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  ngOnDestroy(): void {
+    for (const timer of this.removalTimers.values()) clearTimeout(timer);
+  }
+
+  isRemoving(item: CartItem): boolean {
+    return this.removingItems().has(this.itemKey(item));
+  }
+
+  removeItem(item: CartItem): void {
+    const key = this.itemKey(item);
+    if (this.removingItems().has(key)) return;
+
+    this.removingItems.update(current => new Set(current).add(key));
+    const timer = setTimeout(() => {
+      this.store.removeFromCart(item.id, item.variant, item.message);
+      this.removingItems.update(current => {
+        const next = new Set(current);
+        next.delete(key);
+        return next;
+      });
+      this.removalTimers.delete(key);
+    }, 400);
+    this.removalTimers.set(key, timer);
+  }
+
+  private itemKey(item: CartItem): string {
+    return JSON.stringify([item.id, item.variant?.trim() || '', item.message?.trim() || '']);
+  }
 
   browseTreats(): void {
     this.store.cartOpen.set(false);

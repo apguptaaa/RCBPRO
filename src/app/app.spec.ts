@@ -124,6 +124,36 @@ describe('App', () => {
     expect(store.cartCount()).toBe(1);
   });
 
+  it('should increase quantity instead of adding a duplicate cart line', () => {
+    const store = TestBed.inject(StoreService);
+    store.addToCart(PRODUCTS[0]);
+    store.addToCart(PRODUCTS[0]);
+
+    expect(store.cart()).toHaveLength(1);
+    expect(store.cart()[0].quantity).toBe(2);
+    expect(store.cartCount()).toBe(1);
+  });
+
+  it('should keep separate cart lines for different product options', () => {
+    const store = TestBed.inject(StoreService);
+    store.addToCart(PRODUCTS[0], { variant: '500 g' });
+    store.addToCart(PRODUCTS[0], { variant: '1 kg' });
+
+    expect(store.cart()).toHaveLength(2);
+    expect(store.cartCount()).toBe(2);
+  });
+
+  it('should remove only the selected product option from the cart', () => {
+    const store = TestBed.inject(StoreService);
+    store.addToCart(PRODUCTS[0], { variant: '500 g' });
+    store.addToCart(PRODUCTS[0], { variant: '1 kg' });
+
+    store.removeFromCart(PRODUCTS[0].id, '500 g');
+
+    expect(store.cart()).toHaveLength(1);
+    expect(store.cart()[0].variant).toBe('1 kg');
+  });
+
   it('should open the WhatsApp enquiry form from the floating button', async () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();

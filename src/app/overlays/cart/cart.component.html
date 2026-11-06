@@ -46,14 +46,37 @@
         } @else {
           <!-- Items -->
           <div class="space-y-5">
-            @for (item of store.cart(); track item.id + (item.variant ?? '') + (item.message ?? '')) {
-              <div class="flex gap-4 border-b border-cocoa/10 pb-5">
-                <img
-                  [src]="item.image"
-                  [alt]="item.name"
-                  class="h-24 w-24 rounded-xl object-cover" />
+            @for (item of store.cart(); track item) {
+              <div
+                [class]="'cart-item relative flex gap-4 border-b border-cocoa/10 pb-5 ' +
+                  (isRemoving(item) ? 'cart-item--removing' : '')">
+                <button
+                  type="button"
+                  (click)="removeItem(item)"
+                  [disabled]="isRemoving(item)"
+                  [attr.aria-label]="'Remove ' + item.name + ' from bag'"
+                  class="cart-remove-button absolute right-0 top-0 z-10 grid h-8 w-8 place-items-center rounded-full border border-cocoa/10 bg-cream text-cocoa/65 shadow-sm hover:border-sand hover:bg-sand hover:text-cocoa disabled:cursor-wait disabled:opacity-50">
+                  <svg lucideX [size]="16"></svg>
+                </button>
+                <a
+                  [routerLink]="['/products', item.id]"
+                  (click)="store.cartOpen.set(false)"
+                  [attr.aria-label]="'View ' + item.name"
+                  class="h-24 w-24 shrink-0 overflow-hidden rounded-xl">
+                  <img
+                    [src]="item.image"
+                    [alt]="item.name"
+                    class="h-full w-full object-cover" />
+                </a>
                 <div class="min-w-0 flex-1">
-                  <h3 class="font-display font-bold leading-tight">{{ item.name }}</h3>
+                  <h3 class="font-display font-bold leading-tight">
+                    <a
+                      [routerLink]="['/products', item.id]"
+                      (click)="store.cartOpen.set(false)"
+                      class="transition hover:text-caramel">
+                      {{ item.name }}
+                    </a>
+                  </h3>
                   <p class="mt-1 text-xs text-cocoa/50">{{ item.category }}</p>
                   @if (item.variant || item.message) {
                     <p class="mt-1 text-xs text-cocoa/60">

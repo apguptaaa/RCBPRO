@@ -5,6 +5,32 @@ import { AdminDataService } from './admin-data.service';
 import { AdminAuthService } from './admin-auth.service';
 import { AccountDataService } from './account-data.service';
 
+type CartLineKey = Pick<CartItem, 'id' | 'variant' | 'message'>;
+
+function cartLineKey(item: CartLineKey): string {
+  return JSON.stringify([
+    item.id,
+    item.variant?.trim() || '',
+    item.message?.trim() || ''
+  ]);
+}
+
+function mergeCartItems(items: CartItem[]): CartItem[] {
+  const merged = new Map<string, CartItem>();
+
+  for (const item of items) {
+    const key = cartLineKey(item);
+    const existing = merged.get(key);
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      merged.set(key, { ...item });
+    }
+  }
+
+  return [...merged.values()];
+}
+
 @Injectable({ providedIn: 'root' })
 export class StoreService {
   private readonly adminData = inject(AdminDataService);
@@ -54,9 +80,7 @@ export class StoreService {
     return list;
   });
 
-  readonly cartCount = computed(() =>
-    this.cart().reduce((sum, item) => sum + item.quantity, 0)
-  );
+  readonly cartCount = computed(() => this.cart().length);
 
   readonly subtotal = computed(() =>
     this.cart().reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -129,22 +153,23 @@ export class StoreService {
 
   // ── Cart ─────────────────────────────────────────────────────────────────
   addToCart(product: Product, options: { variant?: string; message?: string } = {}): void {
+    const item = {
+      ...product,
+      variant: options.variant?.trim() || undefined,
+      message: options.message?.trim() || undefined
+    };
     this.cart.update(current => {
-      const exists = current.find(item =>
-        item.id === product.id &&
-        item.variant === options.variant &&
-        item.message === options.message
-      );
-      if (exists) {
-        return current.map(item =>
-          item.id === product.id &&
-          item.variant === options.variant &&
-          item.message === options.message
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+      const merged = mergeCartItems(current);
+      const key = cartLineKey(item);
+      const existing = merged.find(cartItem => cartLineKey(cartItem) === key);
+      if (existing) {
+        return merged.map(cartItem =>
+          cartLineKey(cartItem) === key
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem
         );
       }
-      return [...current, { ...product, ...options, quantity: 1 }];
+      return [...merged, { ...item, quantity: 1 }];
     });
     this.toast.set(`${product.name} added to your bag`);
     this.cartOpen.set(true);
@@ -152,15 +177,22 @@ export class StoreService {
   }
 
   updateQuantity(id: number, amount: number, variant?: string, message?: string): void {
+    const key = cartLineKey({ id, variant, message });
     this.cart.update(current =>
-      current
+      mergeCartItems(current)
         .map(item =>
-          item.id === id && item.variant === variant && item.message === message
+          cartLineKey(item) === key
             ? { ...item, quantity: item.quantity + amount }
             : item
         )
         .filter(item => item.quantity > 0)
     );
+    this.persistCart();
+  }
+
+  removeFromCart(id: number, variant?: string, message?: string): void {
+    const key = cartLineKey({ id, variant, message });
+    this.cart.update(current => current.filter(item => cartLineKey(item) !== key));
     this.persistCart();
   }
 
@@ -184,18 +216,14 @@ export class StoreService {
       ]);
       const mergedCart = [...savedCart.items];
       for (const guestItem of this.cart()) {
-        const existing = mergedCart.find(item =>
-          item.id === guestItem.id &&
-          item.variant === guestItem.variant &&
-          item.message === guestItem.message
-        );
+        const existing = mergedCart.find(item => cartLineKey(item) === cartLineKey(guestItem));
         if (existing) {
           existing.quantity = Math.min(99, existing.quantity + guestItem.quantity);
         } else {
           mergedCart.push(guestItem);
         }
       }
-      this.cart.set(mergedCart);
+      this.cart.set(mergeCartItems(mergedCart));
       this.wishlist.set([...new Set([...savedFavorites.product_ids, ...this.wishlist()])]);
       this.persistCart();
       this.persistFavorites();

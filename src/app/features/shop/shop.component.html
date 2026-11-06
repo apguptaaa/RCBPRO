@@ -1,11 +1,11 @@
-<section id="shop" class="bg-[#f1e6d7]/75 py-20">
+<section id="shop" class="bg-[#f1e6d7]/75 py-12 sm:py-20">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
     <!-- Section header + sort -->
     <div class="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
       <div>
         <span class="text-xs font-bold uppercase tracking-[.22em] text-caramel">Fresh from the kitchen</span>
-        <h2 class="mt-2 font-display text-4xl font-bold text-espresso sm:text-5xl">Our most-loved treats</h2>
+        <h2 class="mt-2 font-display text-3xl font-bold text-espresso sm:text-5xl">Our most-loved treats</h2>
         <p class="mt-3 max-w-2xl text-sm leading-6 text-cocoa/60 sm:text-base">
           Every cake is 100% eggless, freshly made to order and available for delivery in Gwalior.
         </p>
@@ -43,7 +43,7 @@
 
     <!-- Product grid -->
     @if (featuredProducts().length > 0) {
-      <div class="mt-9 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-5">
+      <div class="mt-7 grid grid-cols-2 gap-3 min-[400px]:gap-4 sm:mt-9 sm:grid-cols-4 sm:gap-5">
         @for (product of featuredProducts(); track product.id; let i = $index) {
           <article
             class="product-card reveal group overflow-hidden rounded-[1.4rem] border border-cocoa/10 bg-cream shadow-card"
@@ -72,22 +72,22 @@
             </div>
 
             <!-- Card body -->
-            <div class="p-4">
-              <div class="mb-2 flex items-center justify-between gap-2">
-                <span class="text-[10px] font-bold uppercase tracking-[.14em] text-caramel">{{ product.category }}</span>
-                <span class="flex items-center gap-1 text-xs font-bold">
+            <div class="p-3 sm:p-4">
+              <div class="mb-2 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                <span class="text-[9px] font-bold uppercase tracking-[.08em] text-caramel sm:text-[10px] sm:tracking-[.14em]">{{ product.category }}</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold sm:text-xs">
                   <svg lucideStar [size]="13" [class]="'fill-caramel text-caramel'"></svg>
                   {{ product.rating }}
                   <span class="font-normal text-cocoa/40">({{ product.reviews }})</span>
                 </span>
               </div>
-              <h3 class="line-clamp-1 font-display text-lg font-bold text-espresso">
+              <h3 class="line-clamp-1 font-display text-base font-bold text-espresso sm:text-lg">
                 <a [routerLink]="['/products', product.id]" class="transition hover:text-caramel">
                   {{ product.name }}
                 </a>
               </h3>
               <div class="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <strong class="text-lg text-cocoa">{{ product.price | formatPrice }}</strong>
+                <strong class="text-base text-cocoa sm:text-lg">{{ product.price | formatPrice }}</strong>
                 <span class="text-xs text-cocoa/40 line-through">{{ product.oldPrice | formatPrice }}</span>
                 <span class="text-[10px] font-bold text-sage">
                   {{ 100 - (product.price / product.oldPrice * 100) | number:'1.0-0' }}% off
