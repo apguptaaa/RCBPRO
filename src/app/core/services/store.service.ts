@@ -1,5 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { CartItem, Category, Product } from '../models/product.model';
+import { CATEGORY_DATA } from '../data/catalog.data';
 import { AdminAddon, AdminBanner } from '../data/admin-catalog.models';
 import { AdminDataService } from './admin-data.service';
 import { AdminAuthService } from './admin-auth.service';
@@ -40,7 +41,7 @@ export class StoreService {
   private favoritesSync: Promise<void> = Promise.resolve();
   private connectedAccount = '';
   readonly products     = signal<Product[]>([]);
-  readonly categories = signal<Category[]>([]);
+  readonly categories = signal<Category[]>(CATEGORY_DATA.map(category => ({ ...category })));
   readonly addons = signal<AdminAddon[]>([]);
   readonly banners = signal<AdminBanner[]>([]);
   readonly catalogError = signal('');
@@ -127,7 +128,7 @@ export class StoreService {
         ...product,
         oldPrice: old_price
       })));
-      this.categories.set([
+      const categoriesFromApi = [
         ...categories.map(({ name, image }) => ({ name, image })),
         ...subcategories
           .filter(subcategory => categories.some(category => category.id === subcategory.categoryId))
@@ -136,7 +137,15 @@ export class StoreService {
             image: subcategory.image || categories.find(category => category.id === subcategory.categoryId)?.image || '',
             parentName: categories.find(category => category.id === subcategory.categoryId)?.name
           }))
-      ]);
+      ];
+      this.categories.set(
+        categoriesFromApi.length
+          ? categoriesFromApi.map(category => ({
+            ...category,
+            image: category.image || CATEGORY_DATA.find(item => item.name === category.name)?.image || ''
+          }))
+          : CATEGORY_DATA.map(category => ({ ...category }))
+      );
       this.addons.set(addons);
       this.banners.set(banners);
       this.catalogError.set('');

@@ -6,7 +6,7 @@ import { StoreService } from './core/services/store.service';
 import { AdminAuthService } from './core/services/admin-auth.service';
 import { AdminDataService } from './core/services/admin-data.service';
 import { ApiClientService } from './core/services/api-client.service';
-import { PRODUCTS } from './core/data/catalog.data';
+import { CATEGORY_DATA, PRODUCTS } from './core/data/catalog.data';
 import { vi } from 'vitest';
 
 describe('App', () => {
@@ -66,6 +66,15 @@ describe('App', () => {
     fixture.detectChanges();
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Fresh cakes for');
+  });
+
+  it('should render the app without a startup loader', () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const root = fixture.nativeElement as HTMLElement;
+    expect(root.querySelector('app-loader')).toBeNull();
+    expect(root.querySelector('.min-h-screen')).not.toBeNull();
   });
 
   it('should replace the promo banner with a five-slide Diwali carousel below the marquee', async () => {
@@ -262,9 +271,15 @@ describe('App', () => {
 
   it('should load server categories for the storefront category strip', async () => {
     const data = TestBed.inject(AdminDataService);
+    const store = TestBed.inject(StoreService);
+
+    expect(store.categories().map(item => item.name)).toEqual(CATEGORY_DATA.map(item => item.name));
+
     await data.getPublicCatalog();
-    await TestBed.inject(StoreService).refreshCatalog();
-    expect(TestBed.inject(StoreService).categories().map(item => item.name))
+    await store.refreshCatalog();
+    expect(store.categories().map(item => item.name))
       .toContain('Birthday Cakes');
+    expect(store.categories().map(item => item.name))
+      .not.toContain('Chocolate Drip Cakes');
   });
 });

@@ -15,6 +15,19 @@ import { ReviewDataService } from '../../core/services/review-data.service';
 
 type AdminSection = 'products' | 'categories' | 'addons' | 'banners' | 'orders' | 'reviews';
 
+interface InquiryItemView {
+  name: string;
+  quantity: number;
+  variant?: string;
+  message?: string;
+  unitPrice?: number;
+}
+
+interface InquiryFieldView {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -28,6 +41,9 @@ export class AdminDashboardComponent implements OnInit {
   private readonly reviewData = inject(ReviewDataService);
   readonly store = inject(StoreService);
   readonly section = signal<AdminSection>('products');
+  readonly productFormOpen = signal(false);
+  readonly categoryFormOpen = signal(false);
+  readonly subcategoryFormOpen = signal(false);
   readonly products = signal<AdminProduct[]>([]);
   readonly categories = signal<AdminCategory[]>([]);
   readonly subcategories = signal<AdminSubcategory[]>([]);
@@ -54,6 +70,9 @@ export class AdminDashboardComponent implements OnInit {
 
   async openSection(section: AdminSection): Promise<void> {
     this.section.set(section);
+    this.productFormOpen.set(false);
+    this.categoryFormOpen.set(false);
+    this.subcategoryFormOpen.set(false);
     if (section === 'reviews') {
       this.inquiriesLoading.set(true);
       this.error.set('');
@@ -119,8 +138,55 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  formatInquiryDetails(details: Record<string, unknown>): string {
-    return JSON.stringify(details, null, 2);
+  inquiryItems(details: Record<string, unknown>): InquiryItemView[] {
+    const items = details['items'];
+    if (!Array.isArray(items)) return [];
+
+    return items.flatMap(item => {
+      if (!item || typeof item !== 'object' || Array.isArray(item)) return [];
+      const record = item as Record<string, unknown>;
+      return [{
+        name: typeof record['name'] === 'string' ? record['name'] : 'Cake',
+        quantity: typeof record['quantity'] === 'number' ? record['quantity'] : 1,
+        variant: typeof record['variant'] === 'string' ? record['variant'] : undefined,
+        message: typeof record['message'] === 'string' ? record['message'] : undefined,
+        unitPrice: typeof record['unit_price'] === 'number' ? record['unit_price'] : undefined
+      }];
+    });
+  }
+
+  inquiryFields(details: Record<string, unknown>): InquiryFieldView[] {
+    const labels: Record<string, string> = {
+      subtotal: 'Subtotal',
+      delivery: 'Delivery',
+      total: 'Total',
+      product_id: 'Cake',
+      weight: 'Cake size',
+      design: 'Design',
+      design_details: 'Design details',
+      cake_message: 'Cake message',
+      pincode: 'Delivery pincode',
+      needed_on: 'Needed on',
+      query: 'Enquiry'
+    };
+
+    return Object.entries(details)
+      .filter(([key, value]) => key !== 'items' && value !== null && value !== undefined && value !== '')
+      .flatMap(([key, value]) => {
+        if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') return [];
+        const label = labels[key] ?? key.replaceAll('_', ' ').replace(/\b\w/g, character => character.toUpperCase());
+        let displayValue = String(value);
+
+        if (key === 'product_id' && typeof value === 'number') {
+          displayValue = this.products().find(product => product.id === value)?.name ?? `Cake #${value}`;
+        } else if (['subtotal', 'delivery', 'total'].includes(key) && typeof value === 'number') {
+          displayValue = key === 'delivery' && value === 0
+            ? 'Free'
+            : new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
+        }
+
+        return [{ label, value: displayValue }];
+      });
   }
 
   editReview(review: AdminReview): void {
@@ -167,7 +233,20 @@ export class AdminDashboardComponent implements OnInit {
   editProduct(product: AdminProduct): void {
     this.section.set('products');
     this.productDraft = { ...product };
+    this.productFormOpen.set(true);
     this.store.toast.set(`Editing ${product.name}`);
+  }
+
+  addProduct(): void {
+    this.productDraft = this.emptyProduct();
+    this.error.set('');
+    this.productFormOpen.set(true);
+  }
+
+  closeProductForm(): void {
+    this.productFormOpen.set(false);
+    this.productDraft = this.emptyProduct();
+    this.error.set('');
   }
 
   async saveProduct(): Promise<void> {
@@ -181,6 +260,7 @@ export class AdminDashboardComponent implements OnInit {
       this.productDraft = this.emptyProduct();
       if (!await this.load()) throw new Error('Product was saved, but the list could not be refreshed.');
       await this.store.refreshProducts();
+      this.productFormOpen.set(false);
     }, 'Product saved.');
   }
 
@@ -194,7 +274,20 @@ export class AdminDashboardComponent implements OnInit {
   editCategory(category: AdminCategory): void {
     this.section.set('categories');
     this.categoryDraft = { ...category };
+    this.categoryFormOpen.set(true);
     this.store.toast.set(`Editing ${category.name}`);
+  }
+
+  addCategory(): void {
+    this.categoryDraft = this.emptyCategory();
+    this.error.set('');
+    this.categoryFormOpen.set(true);
+  }
+
+  closeCategoryForm(): void {
+    this.categoryFormOpen.set(false);
+    this.categoryDraft = this.emptyCategory();
+    this.error.set('');
   }
 
   async saveCategory(): Promise<void> {
@@ -203,6 +296,7 @@ export class AdminDashboardComponent implements OnInit {
       this.categoryDraft = this.emptyCategory();
       if (!await this.load()) throw new Error('Category was saved, but the list could not be refreshed.');
       await this.store.refreshCatalog();
+      this.categoryFormOpen.set(false);
     }, 'Category saved and shown in Shop by category.');
   }
 
@@ -217,7 +311,20 @@ export class AdminDashboardComponent implements OnInit {
   editSubcategory(subcategory: AdminSubcategory): void {
     this.section.set('categories');
     this.subcategoryDraft = { ...subcategory };
+    this.subcategoryFormOpen.set(true);
     this.store.toast.set(`Editing ${subcategory.name}`);
+  }
+
+  addSubcategory(): void {
+    this.subcategoryDraft = this.emptySubcategory();
+    this.error.set('');
+    this.subcategoryFormOpen.set(true);
+  }
+
+  closeSubcategoryForm(): void {
+    this.subcategoryFormOpen.set(false);
+    this.subcategoryDraft = this.emptySubcategory();
+    this.error.set('');
   }
 
   async saveSubcategory(): Promise<void> {
@@ -226,6 +333,7 @@ export class AdminDashboardComponent implements OnInit {
       this.subcategoryDraft = this.emptySubcategory();
       if (!await this.load()) throw new Error('Subcategory was saved, but the list could not be refreshed.');
       await this.store.refreshCatalog();
+      this.subcategoryFormOpen.set(false);
     }, 'Subcategory saved and shown in Shop by category.');
   }
 

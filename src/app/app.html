@@ -1,32 +1,24 @@
-<!-- ── Health-check loader ─────────────────────────────────────────────── -->
-@if (loading()) {
-  <app-loader />
-}
+<div class="min-h-screen">
 
-<!-- ── App shell — rendered once health check passes ─────────────────── -->
-@if (!loading()) {
-  <div class="min-h-screen">
+  <!-- Persistent layout chrome -->
+  <app-announcement-bar />
+  <app-header />
 
-    <!-- Persistent layout chrome -->
-    <app-announcement-bar />
-    <app-header />
+  <!-- Router outlet — swaps page content on navigation -->
+  <router-outlet />
 
-    <!-- Router outlet — swaps page content on navigation -->
-    <router-outlet />
+  <app-footer />
 
-    <app-footer />
+  <!-- Persistent overlays -->
+  <app-mobile-nav />
+  <app-cart />
+  <app-quick-view />
+  <app-custom-order-modal />
 
-    <!-- Persistent overlays -->
-    <app-mobile-nav />
-    <app-cart />
-    <app-quick-view />
-    <app-custom-order-modal />
+  <!-- Global toast -->
+  <app-toast />
 
-    <!-- Global toast -->
-    <app-toast />
+  <!-- Promo popup — appears after 10 s on first visit -->
+  <app-promo-popup />
 
-    <!-- Promo popup — appears after 10 s on first visit -->
-    <app-promo-popup />
-
-  </div>
-}
+</div>

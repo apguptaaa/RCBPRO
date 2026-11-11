@@ -339,7 +339,7 @@ body.no-scroll::-webkit-scrollbar {
 .admin-dashboard-background {
   background-color: var(--cream);
   background-image:
-    linear-gradient(rgba(247, 240, 229, .48), rgba(247, 240, 229, .48)),
+    linear-gradient(rgba(247, 240, 229, .88), rgba(247, 240, 229, .88)),
     url("/images/dashboard-background.png");
   background-position: center;
   background-repeat: no-repeat;
@@ -353,7 +353,7 @@ body.no-scroll::-webkit-scrollbar {
   margin-top: .375rem;
   border: 1px solid rgba(58, 36, 27, .15);
   border-radius: .75rem;
-  background: rgba(247, 240, 229, .7);
+  background: #fff;
   padding: .75rem;
   color: var(--cocoa);
   font-size: .875rem;
