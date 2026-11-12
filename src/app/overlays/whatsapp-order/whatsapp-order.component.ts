@@ -18,11 +18,13 @@ export class WhatsAppOrderComponent {
   readonly submitError = signal('');
   readonly products = this.store.products;
   readonly weights = ['500 g', '1 kg', '1.5 kg', '2 kg', '3 kg', '4 kg'];
+  readonly cupcakeCounts = [6, 12, 24];
   readonly designs = ['As shown in the photo', 'Heart shape', 'Custom design'];
 
   customerName = '';
   productId = '';
   weight = '500 g';
+  cupcakeCount = 6;
   design = this.designs[0];
   designDetails = '';
   cakeMessage = '';
@@ -41,10 +43,12 @@ export class WhatsAppOrderComponent {
   async openWhatsApp(): Promise<void> {
     if (this.submitting()) return;
     const product = this.selectedProduct();
+    const size = product?.unit_type === 'count' ? `${this.cupcakeCount} cupcakes` : this.weight;
+    const sizeLabel = product?.unit_type === 'count' ? 'Cupcake count' : 'Weight';
     const details = [
       `Name: ${this.customerName.trim()}`,
       `Cake: ${product?.name ?? 'Please help me choose a cake'}`,
-      `Weight: ${this.weight}`,
+      `${sizeLabel}: ${size}`,
       `Design: ${this.design}`,
       this.designDetails.trim() ? `Design details: ${this.designDetails.trim()}` : '',
       this.cakeMessage.trim() ? `Message on cake: ${this.cakeMessage.trim()}` : '',
@@ -75,7 +79,7 @@ export class WhatsAppOrderComponent {
         customer_name: this.customerName.trim(),
         details: {
           product_id: product?.id ?? null,
-          weight: this.weight,
+          weight: size,
           design: this.design,
           design_details: this.designDetails.trim() || undefined,
           cake_message: this.cakeMessage.trim() || undefined,

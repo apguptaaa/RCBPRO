@@ -24,7 +24,11 @@ describe('App', () => {
     sessionStorage.clear();
     const catalog = {
       products: PRODUCTS.map(product => ({ ...product, old_price: product.oldPrice, active: true })),
-      categories: [{ id: 'birthday-cakes', name: 'Birthday Cakes', image: '', active: true }],
+      categories: CATEGORY_DATA.map((category, index) => ({
+        id: `category-${index}`,
+        ...category,
+        active: true
+      })),
       subcategories: [],
       addons: [],
       banners: []
@@ -103,12 +107,12 @@ describe('App', () => {
   it('should render a cake detail route without a hash URL', async () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/products/1');
+    await router.navigateByUrl(`/products/${PRODUCTS[0].id}`);
     fixture.detectChanges();
     await fixture.whenStable();
-    expect(router.url).toBe('/products/1');
+    expect(router.url).toBe(`/products/${PRODUCTS[0].id}`);
     const pageText = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(pageText).toContain('Royal Chocolate Berry Drip');
+    expect(pageText).toContain(PRODUCTS[0].name);
     expect(pageText).toContain('Similar cakes');
     expect(pageText).toContain('Product description');
     expect(pageText).toContain('Ratings & reviews');
@@ -118,12 +122,66 @@ describe('App', () => {
   it('should show products for a selected cake category route', async () => {
     const fixture = TestBed.createComponent(App);
     const router = TestBed.inject(Router);
-    await router.navigateByUrl('/cakes/Birthday%20Cakes');
+    await router.navigateByUrl(`/cakes/${encodeURIComponent(CATEGORY_DATA[0].name)}`);
     fixture.detectChanges();
     await fixture.whenStable();
     const pageText = (fixture.nativeElement as HTMLElement).textContent ?? '';
-    expect(pageText).toContain('Birthday Cakes');
-    expect(pageText).toContain('Belgian Choco Strawberry');
+    expect(pageText).toContain(CATEGORY_DATA[0].name);
+    expect(pageText).toContain(PRODUCTS.find(product => product.category === CATEGORY_DATA[0].name)!.name);
+  });
+
+  it('should keep five static cakes per category and merge API catalog products', async () => {
+    const store = TestBed.inject(StoreService);
+    const liveProduct = {
+      ...PRODUCTS[0],
+      id: 900,
+      name: 'Live catalog cake',
+      category: 'API Exclusive Cakes',
+      old_price: PRODUCTS[0].oldPrice,
+      active: true
+    };
+    apiMock.get.mockResolvedValue({
+      products: [liveProduct],
+      categories: CATEGORY_DATA.map((category, index) => ({
+        id: `category-${index}`,
+        ...category,
+        active: true
+      })),
+      subcategories: [],
+      addons: [],
+      banners: []
+    });
+
+    await store.refreshCatalog();
+
+    for (const category of CATEGORY_DATA) {
+      expect(store.products().filter(product => product.category === category.name)).toHaveLength(5);
+    }
+    expect(store.products().some(product => product.id === liveProduct.id)).toBe(true);
+  });
+
+  it('should keep static cakes available when the catalog API is offline', async () => {
+    const store = TestBed.inject(StoreService);
+    apiMock.get.mockRejectedValue(new Error('Catalog offline'));
+
+    await store.refreshCatalog();
+
+    for (const category of CATEGORY_DATA) {
+      expect(store.products().filter(product => product.category === category.name)).toHaveLength(5);
+    }
+    expect(store.categories().map(category => category.name)).toEqual(CATEGORY_DATA.map(category => category.name));
+  });
+
+  it('should show cupcake counts instead of cake weights', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/products/-5');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const pageText = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(pageText).toContain('Cupcake quantity');
+    expect(pageText).toContain('12 cupcakes');
+    expect(pageText).not.toContain('500 g');
   });
 
   it('should open the bill when a product is added to the cart', () => {
@@ -263,6 +321,8 @@ describe('App', () => {
       veg: true,
       image: 'https://example.com/cake.jpg',
       description: 'A test cake',
+      flavours: ['Vanilla'],
+      unit_type: 'weight' as const,
       active: true
     };
     await data.saveProduct(product);
@@ -278,7 +338,7 @@ describe('App', () => {
     await data.getPublicCatalog();
     await store.refreshCatalog();
     expect(store.categories().map(item => item.name))
-      .toContain('Birthday Cakes');
+      .toContain('Simple Cakes');
     expect(store.categories().map(item => item.name))
       .not.toContain('Chocolate Drip Cakes');
   });

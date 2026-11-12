@@ -18,7 +18,10 @@ import {
 })
 export class ShopComponent {
   readonly store = inject(StoreService);
-  readonly featuredProducts = computed(() => this.store.filteredProducts().slice(0, 4));
+  readonly featuredProducts = computed(() => {
+    const products = this.store.filteredProducts();
+    return this.store.activeCategory() === 'All' ? products.slice(0, 4) : products;
+  });
 
   readonly filterChips = computed(() => ['All', ...this.store.categories().map(category => category.name)]);
 

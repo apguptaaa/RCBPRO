@@ -103,7 +103,7 @@ export class CartComponent implements OnDestroy {
     this.submitting.set(true);
     const lines = this.store.cart().map((item, index) => {
       const details = [
-        item.variant ? `Weight/design: ${item.variant}` : '',
+        item.variant ? `Options: ${item.variant}` : '',
         item.message ? `Cake message: ${item.message}` : ''
       ].filter(Boolean);
       return [

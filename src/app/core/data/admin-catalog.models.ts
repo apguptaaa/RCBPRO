@@ -3,6 +3,8 @@ import { Product } from '../models/product.model';
 export interface AdminProduct extends Product {
   old_price: number;
   active: boolean;
+  flavours: string[];
+  unit_type: 'weight' | 'count';
   subcategory?: string;
 }
 

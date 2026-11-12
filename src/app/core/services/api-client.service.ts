@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
-const API_BASE = '/api/v1';
+const API_BASE = `${environment.apiUrl}/api/v1`;
 const TOKEN_KEY = 'crumb-bloom-access-token';
 
 interface ApiErrorBody {

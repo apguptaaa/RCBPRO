@@ -58,17 +58,31 @@
               }
             </select>
           </label>
-          <label class="block">
-            <span class="mb-1.5 block text-xs font-bold text-cocoa">Weight</span>
-            <select
-              [(ngModel)]="weight"
-              name="weight"
-              class="w-full rounded-xl border border-cocoa/15 bg-white/70 px-3 py-3 text-sm outline-none focus:border-caramel">
-              @for (option of weights; track option) {
-                <option [value]="option">{{ option }}</option>
-              }
-            </select>
-          </label>
+          @if (selectedProduct()?.unit_type === 'count') {
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-bold text-cocoa">Cupcake count</span>
+              <select
+                [(ngModel)]="cupcakeCount"
+                name="cupcakeCount"
+                class="w-full rounded-xl border border-cocoa/15 bg-white/70 px-3 py-3 text-sm outline-none focus:border-caramel">
+                @for (count of cupcakeCounts; track count) {
+                  <option [ngValue]="count">{{ count }} cupcakes</option>
+                }
+              </select>
+            </label>
+          } @else {
+            <label class="block">
+              <span class="mb-1.5 block text-xs font-bold text-cocoa">Weight</span>
+              <select
+                [(ngModel)]="weight"
+                name="weight"
+                class="w-full rounded-xl border border-cocoa/15 bg-white/70 px-3 py-3 text-sm outline-none focus:border-caramel">
+                @for (option of weights; track option) {
+                  <option [value]="option">{{ option }}</option>
+                }
+              </select>
+            </label>
+          }
         </div>
 
         @if (selectedProduct(); as cake) {

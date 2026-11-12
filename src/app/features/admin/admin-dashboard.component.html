@@ -1,14 +1,14 @@
-<main class="admin-dashboard-background min-h-[75vh] px-3 py-4 sm:px-5 sm:py-6 lg:px-8">
+<main class="admin-dashboard-background min-h-[75vh] px-3 py-4 pb-24 sm:px-5 sm:py-6 lg:px-8 lg:pb-6">
   <div class="mx-auto flex max-w-[1600px] flex-col gap-4 lg:flex-row lg:items-start lg:gap-6">
     <aside class="rounded-2xl border border-cocoa/10 bg-white p-3 shadow-soft lg:sticky lg:top-6 lg:w-64 lg:shrink-0 lg:p-5">
       <div class="mb-3 flex items-center gap-3 px-2 py-2 lg:mb-6">
         <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-cocoa text-cream"><svg lucideCakeSlice [size]="21"></svg></span>
         <div>
-          <p class="font-display text-base font-bold leading-tight text-espresso">Crumb &amp; Bloom</p>
-          <p class="mt-1 text-[10px] font-bold uppercase tracking-[.14em] text-caramel">Admin panel</p>
+          <p class="font-display text-base font-bold leading-tight text-espresso"><span class="hidden lg:inline">Crumb &amp; Bloom</span><span class="lg:hidden">Admin panel</span></p>
+          <p class="mt-1 hidden text-[10px] font-bold uppercase tracking-[.14em] text-caramel lg:block">Admin panel</p>
         </div>
       </div>
-      <nav class="grid grid-cols-3 gap-2 sm:grid-cols-6 lg:grid-cols-1" aria-label="Admin sections">
+      <nav class="admin-sidebar-sections grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-1" aria-label="Admin sections">
         <button (click)="openSection('products')" [attr.aria-current]="section() === 'products' ? 'page' : null"
           [class]="section() === 'products' ? 'flex items-center gap-2 rounded-xl bg-cocoa px-3 py-3 text-left text-xs font-bold text-white shadow-sm sm:text-sm' : 'flex items-center gap-2 rounded-xl px-3 py-3 text-left text-xs font-semibold text-cocoa hover:bg-sand sm:text-sm'">
           <svg lucideCakeSlice [size]="18"></svg><span>Products</span>
@@ -32,6 +32,10 @@
         <button (click)="openSection('reviews')" [attr.aria-current]="section() === 'reviews' ? 'page' : null"
           [class]="section() === 'reviews' ? 'flex items-center gap-2 rounded-xl bg-cocoa px-3 py-3 text-left text-xs font-bold text-white shadow-sm sm:text-sm' : 'flex items-center gap-2 rounded-xl px-3 py-3 text-left text-xs font-semibold text-cocoa hover:bg-sand sm:text-sm'">
           <svg lucideStar [size]="18"></svg><span>Reviews</span>
+        </button>
+        <button (click)="openSection('trash')" [attr.aria-current]="section() === 'trash' ? 'page' : null"
+          [class]="section() === 'trash' ? 'flex items-center gap-2 rounded-xl bg-cocoa px-3 py-3 text-left text-xs font-bold text-white shadow-sm sm:text-sm' : 'flex items-center gap-2 rounded-xl px-3 py-3 text-left text-xs font-semibold text-cocoa hover:bg-sand sm:text-sm'">
+          <svg lucideTrash2 [size]="18"></svg><span>Trash</span>
         </button>
       </nav>
       <div class="mt-5 hidden border-t border-cocoa/10 pt-4 lg:block">
@@ -84,8 +88,8 @@
                       </div>
                       <p class="mt-1 text-xs leading-5 text-cocoa/65">{{ review.quote }}</p>
                     </div>
-                    <button (click)="editReview(review)" class="rounded-lg px-3 py-2 text-xs font-bold text-cocoa hover:bg-sand">Edit</button>
-                    <button (click)="deleteReview(review.id)" class="grid h-9 w-9 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete review by ' + review.name"><svg lucideTrash2 [size]="16"></svg></button>
+                    <button type="button" (click)="editReview(review)" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-cocoa transition hover:bg-sand" [attr.aria-label]="'Edit review by ' + review.name" [attr.title]="'Edit review by ' + review.name"><svg lucidePencil [size]="16"></svg></button>
+                    <button type="button" (click)="deleteReview(review.id, review.name)" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete review by ' + review.name"><svg lucideTrash2 [size]="16"></svg></button>
                   </article>
                 } @empty {
                   <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No reviews saved yet.</p>
@@ -123,6 +127,57 @@
             </div>
           </form>
         </div>
+      }
+
+      @if (section() === 'trash') {
+        <section class="mt-5 rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="font-display text-xl font-bold text-espresso">Trash</h2>
+              <p class="mt-1 text-xs text-cocoa/55">Restore items or permanently remove them from the database.</p>
+            </div>
+            <button type="button" (click)="openSection('trash')" [disabled]="trashLoading()" class="rounded-xl border border-cocoa/15 px-3 py-2 text-xs font-bold text-cocoa disabled:opacity-50">Refresh</button>
+          </div>
+          <div class="mt-4 flex gap-2 overflow-x-auto pb-1">
+            @for (filter of trashFilters; track filter.value) {
+              <button
+                type="button"
+                (click)="trashFilter.set(filter.value)"
+                [class]="trashFilter() === filter.value
+                  ? 'shrink-0 rounded-full bg-cocoa px-3 py-2 text-xs font-bold text-cream'
+                  : 'shrink-0 rounded-full border border-cocoa/15 bg-white px-3 py-2 text-xs font-bold text-cocoa transition hover:bg-sand/50'">
+                {{ filter.label }} <span class="ml-1 opacity-70">{{ trashCount(filter.value) }}</span>
+              </button>
+            }
+          </div>
+          @if (trashLoading()) {
+            <p class="mt-4 rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">Loading trash…</p>
+          } @else {
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              @for (item of filteredTrashItems(); track item.key) {
+                <article class="overflow-hidden rounded-2xl border border-cocoa/10 bg-cream/70">
+                  @if (item.image) {
+                    <img [src]="item.image" [alt]="item.name" class="aspect-square w-full bg-sand object-cover" />
+                  } @else {
+                    <div class="grid aspect-square w-full place-items-center bg-sand/50 text-cocoa/50"><svg lucideTrash2 [size]="32"></svg></div>
+                  }
+                  <div class="p-3">
+                    <h3 class="truncate text-sm font-bold text-espresso">{{ item.name }}</h3>
+                    <p class="mt-1 text-xs capitalize text-cocoa/55">{{ item.type }} · deleted {{ item.deletedAt | date:'mediumDate' }}</p>
+                    <div class="mt-3 grid grid-cols-2 gap-2">
+                      <button type="button" (click)="restoreTrashItem(item)" [disabled]="saving()" class="rounded-lg border border-cocoa/15 px-2 py-2 text-xs font-bold text-cocoa transition hover:bg-sand/50 disabled:opacity-50">Restore</button>
+                      <button type="button" (click)="requestPermanentDelete(item)" class="rounded-lg border border-red-200 px-2 py-2 text-xs font-bold text-red-700 transition hover:bg-red-50">Delete permanently</button>
+                    </div>
+                  </div>
+                </article>
+              } @empty {
+                <p class="col-span-full rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">
+                  {{ trashFilter() === 'all' ? 'Trash is empty.' : 'No ' + trashFilter() + ' items in trash.' }}
+                </p>
+              }
+            </div>
+          }
+        </section>
       }
 
       @if (section() === 'orders') {
@@ -223,60 +278,91 @@
 
       @if (section() === 'products') {
         @if (productFormOpen()) {
-          <div class="mx-auto mt-5 max-w-3xl">
-            <button type="button" (click)="closeProductForm()" class="mb-4 rounded-lg px-3 py-2 text-sm font-bold text-cocoa hover:bg-white/70">← Back to cakes</button>
-            <form (ngSubmit)="saveProduct()" class="grid gap-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:grid-cols-2 sm:p-6">
-              <div class="sm:col-span-2">
-                <h2 class="font-display text-2xl font-bold text-espresso">{{ productDraft.id ? 'Edit cake' : 'Add cake' }}</h2>
-                <p class="mt-1 text-xs text-cocoa/50">Cake details are saved to the store catalog.</p>
-              </div>
-              <label class="block text-xs font-bold text-cocoa">Product name
-                <input [(ngModel)]="productDraft.name" name="productName" required maxlength="120" class="admin-field" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Category
-                <select [(ngModel)]="productDraft.category" (ngModelChange)="productDraft.subcategory = ''" name="productCategory" required class="admin-field">
-                  <option value="" disabled>Select a category</option>
-                  @for (category of categories(); track category.id) {
-                    @if (category.active) { <option [value]="category.name">{{ category.name }}</option> }
-                  }
-                </select>
-              </label>
-              @if (subcategoriesForProduct().length) {
-                <label class="block text-xs font-bold text-cocoa">Subcategory (optional)
-                  <select [(ngModel)]="productDraft.subcategory" name="productSubcategory" class="admin-field">
-                    <option value="">No subcategory</option>
-                    @for (subcategory of subcategoriesForProduct(); track subcategory.id) {
-                      <option [value]="subcategory.name">{{ subcategory.name }}</option>
-                    }
-                  </select>
-                </label>
-              }
-              <div class="grid grid-cols-2 gap-3">
-                <label class="block text-xs font-bold text-cocoa">Price (₹)
-                  <input [(ngModel)]="productDraft.price" name="productPrice" type="number" min="0" step="1" required class="admin-field" />
-                </label>
-                <label class="block text-xs font-bold text-cocoa">Old price (₹)
-                  <input [(ngModel)]="productDraft.old_price" name="productOldPrice" type="number" min="0" step="1" class="admin-field" />
-                </label>
-              </div>
-              <label class="block text-xs font-bold text-cocoa">Image URL
-                <input [(ngModel)]="productDraft.image" name="productImage" type="text" required placeholder="https://… or upload an image" class="admin-field" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Upload image
-                <input (change)="uploadImage($event, 'product')" type="file" accept="image/*" class="admin-field file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa sm:col-span-2">Description
-                <textarea [(ngModel)]="productDraft.description" name="productDescription" rows="3" required maxlength="1000" class="admin-field"></textarea>
-              </label>
-              <label class="flex items-center gap-2 text-sm font-semibold text-cocoa sm:col-span-2">
-                <input [(ngModel)]="productDraft.active" name="productActive" type="checkbox" class="h-4 w-4 accent-cocoa" />
-                Show this cake on the website
-              </label>
-              <div class="flex gap-2 sm:col-span-2">
-                <button [disabled]="saving()" class="flex-1 rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream hover:bg-espresso disabled:opacity-50">
-                  {{ saving() ? 'Saving…' : 'Save cake' }}
+          <div class="mt-5 w-full">
+            <form (ngSubmit)="saveProduct()" class="overflow-hidden rounded-2xl border border-cocoa/10 bg-white/90 shadow-soft">
+              <div class="flex items-center gap-4 border-b border-cocoa/10 bg-white/70 px-4 py-5 sm:px-7">
+                <button type="button" (click)="closeProductForm()" aria-label="Back to cakes" title="Back to cakes" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-lg font-bold text-cocoa transition hover:bg-sand/50">
+                  <span aria-hidden="true">←</span>
                 </button>
-                <button type="button" (click)="productDraft = emptyProduct()" class="rounded-xl border border-cocoa/15 px-4 py-3 text-sm font-semibold text-cocoa">Clear</button>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold uppercase tracking-[.16em] text-caramel">{{ productDraft.id ? 'Catalog · Edit' : 'Catalog · New cake' }}</p>
+                  <h2 class="mt-1 font-display text-2xl font-bold text-espresso sm:text-3xl">{{ productDraft.id ? 'Edit cake' : 'Add cake' }}</h2>
+                  <p class="mt-1 text-sm text-cocoa/55">Update the details and image customers see in your shop.</p>
+                </div>
+              </div>
+              <div class="grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,.72fr)]">
+                <div class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Cake name
+                    <input [(ngModel)]="productDraft.name" name="productName" required maxlength="120" placeholder="e.g. Belgian chocolate truffle" class="admin-field" />
+                  </label>
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <label class="block text-xs font-bold text-cocoa">Category
+                      <select [(ngModel)]="productDraft.category" (ngModelChange)="productDraft.subcategory = ''" name="productCategory" required class="admin-field">
+                        <option value="" disabled>Select a category</option>
+                        @for (category of categories(); track category.id) {
+                          @if (category.active) { <option [value]="category.name">{{ category.name }}</option> }
+                        }
+                      </select>
+                    </label>
+                    <label class="block text-xs font-bold text-cocoa">Selling format
+                      <select [(ngModel)]="productDraft.unit_type" name="productUnitType" required class="admin-field">
+                        <option value="weight">Cake by weight</option>
+                        <option value="count">Cupcakes by count</option>
+                      </select>
+                    </label>
+                    @if (subcategoriesForProduct().length) {
+                      <label class="block text-xs font-bold text-cocoa">Subcategory <span class="font-normal text-cocoa/50">(optional)</span>
+                        <select [(ngModel)]="productDraft.subcategory" name="productSubcategory" class="admin-field">
+                          <option value="">No subcategory</option>
+                          @for (subcategory of subcategoriesForProduct(); track subcategory.id) {
+                            <option [value]="subcategory.name">{{ subcategory.name }}</option>
+                          }
+                        </select>
+                      </label>
+                    }
+                  </div>
+                  <div class="grid grid-cols-2 gap-4">
+                    <label class="block text-xs font-bold text-cocoa">{{ productDraft.unit_type === 'count' ? 'Price per 6 cupcakes (₹)' : 'Price per 500 g (₹)' }}
+                      <input [(ngModel)]="productDraft.price" name="productPrice" type="number" min="0" step="1" required class="admin-field" />
+                    </label>
+                    <label class="block text-xs font-bold text-cocoa">{{ productDraft.unit_type === 'count' ? 'Compare-at price per 6 cupcakes (₹)' : 'Compare-at price per 500 g (₹)' }} <span class="font-normal text-cocoa/50">(optional)</span>
+                      <input [(ngModel)]="productDraft.old_price" name="productOldPrice" type="number" min="0" step="1" class="admin-field" />
+                    </label>
+                  </div>
+                  <label class="block text-xs font-bold text-cocoa">Description
+                    <textarea [(ngModel)]="productDraft.description" name="productDescription" rows="5" required maxlength="1000" placeholder="Describe the flavour, finish, and what makes this cake special…" class="admin-field resize-y"></textarea>
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Available flavours
+                    <textarea [(ngModel)]="productFlavoursInput" name="productFlavours" rows="2" required maxlength="2000" placeholder="Belgian chocolate, Vanilla berry, Red velvet" class="admin-field resize-y"></textarea>
+                    <span class="mt-1 block text-xs font-normal text-cocoa/55">Enter comma-separated choices customers can select for this cake.</span>
+                  </label>
+                  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-cocoa/10 bg-cream/60 p-4 text-sm font-semibold text-cocoa">
+                    <input [(ngModel)]="productDraft.active" name="productActive" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-cocoa" />
+                    <span>
+                      <span class="block">Show this cake on the website</span>
+                      <span class="mt-1 block text-xs font-normal text-cocoa/55">Hidden cakes remain in your catalog but won’t appear in the shop.</span>
+                    </span>
+                  </label>
+                </div>
+                <aside class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Image URL
+                    <input [(ngModel)]="productDraft.image" name="productImage" type="text" required placeholder="Paste an image URL or upload below" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Upload image
+                    <span class="mt-1 flex items-center gap-2">
+                      <input (change)="uploadImage($event, 'product')" type="file" accept="image/*" class="admin-field min-w-0 flex-1 file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
+                      <button type="button" (click)="showImagePreview(productDraft.image, productDraft.name || 'Cake image preview')" [disabled]="!productDraft.image" aria-label="Preview cake image" title="Preview image" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-cocoa transition hover:bg-sand/50 disabled:cursor-not-allowed disabled:opacity-40">
+                        <svg lucideEye [size]="18"></svg>
+                      </button>
+                    </span>
+                  </label>
+                </aside>
+              </div>
+              <div class="flex flex-col-reverse gap-3 border-t border-cocoa/10 bg-white/70 p-4 sm:flex-row sm:justify-end sm:px-7">
+                <button type="button" (click)="closeProductForm()" class="rounded-xl border border-cocoa/15 px-5 py-3 text-sm font-bold text-cocoa transition hover:bg-sand/40">Cancel</button>
+                <button [disabled]="saving()" class="rounded-xl bg-cocoa px-6 py-3 text-sm font-bold text-cream transition hover:bg-espresso disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ saving() ? 'Saving…' : productDraft.id ? 'Save changes' : 'Add cake' }}
+                </button>
               </div>
             </form>
           </div>
@@ -306,8 +392,10 @@
                         {{ product.active ? 'Visible on shop' : 'Hidden from shop' }}
                       </span>
                       <div class="flex gap-1">
-                        <button (click)="editProduct(product)" class="rounded-lg px-3 py-1.5 text-xs font-bold text-cocoa hover:bg-sand">Edit</button>
-                        <button (click)="deleteProduct(product.id)" class="grid h-8 w-8 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + product.name">
+                        <button type="button" (click)="editProduct(product)" class="grid h-8 w-8 place-items-center rounded-lg text-cocoa transition hover:bg-sand" [attr.aria-label]="'Edit ' + product.name" [attr.title]="'Edit ' + product.name">
+                          <svg lucidePencil [size]="15"></svg>
+                        </button>
+                        <button type="button" (click)="deleteProduct(product.id, product.name)" class="grid h-8 w-8 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + product.name">
                           <svg lucideTrash2 [size]="15"></svg>
                         </button>
                       </div>
@@ -324,62 +412,103 @@
 
       @if (section() === 'categories') {
         @if (categoryFormOpen()) {
-          <div class="mx-auto mt-5 max-w-2xl">
-            <button type="button" (click)="closeCategoryForm()" class="mb-4 rounded-lg px-3 py-2 text-sm font-bold text-cocoa hover:bg-white/70">← Back to categories</button>
-            <form (ngSubmit)="saveCategory()" class="space-y-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:p-6">
-              <div>
-                <h2 class="font-display text-2xl font-bold text-espresso">{{ categoryDraft.id ? 'Edit category' : 'Add category' }}</h2>
-                <p class="mt-1 text-xs text-cocoa/50">Give the category a name and image for the home page strip.</p>
+          <div class="mt-5 w-full">
+            <form (ngSubmit)="saveCategory()" class="overflow-hidden rounded-2xl border border-cocoa/10 bg-white/90 shadow-soft">
+              <div class="flex items-center gap-4 border-b border-cocoa/10 bg-white/70 px-4 py-5 sm:px-7">
+                <button type="button" (click)="closeCategoryForm()" aria-label="Back to categories" title="Back to categories" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-lg font-bold text-cocoa transition hover:bg-sand/50"><span aria-hidden="true">←</span></button>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold uppercase tracking-[.16em] text-caramel">Catalog · {{ categoryDraft.id ? 'Edit category' : 'New category' }}</p>
+                  <h2 class="mt-1 font-display text-2xl font-bold text-espresso sm:text-3xl">{{ categoryDraft.id ? 'Edit category' : 'Add category' }}</h2>
+                  <p class="mt-1 text-sm text-cocoa/55">Manage the category name and storefront image.</p>
+                </div>
               </div>
-              <label class="block text-xs font-bold text-cocoa">Category name
-                <input [(ngModel)]="categoryDraft.name" name="categoryName" required maxlength="80" placeholder="e.g. Wedding Cakes" class="admin-field" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Image URL
-                <input [(ngModel)]="categoryDraft.image" name="categoryImage" type="text" required placeholder="https://… or upload an image" class="admin-field" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Upload image
-                <input (change)="uploadImage($event, 'category')" type="file" accept="image/*" class="admin-field file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
-              </label>
-              <label class="flex items-center gap-2 text-sm font-semibold text-cocoa">
-                <input [(ngModel)]="categoryDraft.active" name="categoryActive" type="checkbox" class="h-4 w-4 accent-cocoa" />
-                Show in Shop by category
-              </label>
-              <div class="flex gap-2">
-                <button [disabled]="saving()" class="flex-1 rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream disabled:opacity-50">
-                  {{ saving() ? 'Saving…' : categoryDraft.id ? 'Save category' : 'Add category' }}
+              <div class="grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,.72fr)]">
+                <div class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Category name
+                    <input [(ngModel)]="categoryDraft.name" name="categoryName" required maxlength="80" placeholder="e.g. Wedding Cakes" class="admin-field" />
+                  </label>
+                  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-cocoa/10 bg-cream/60 p-4 text-sm font-semibold text-cocoa">
+                    <input [(ngModel)]="categoryDraft.active" name="categoryActive" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-cocoa" />
+                    <span>
+                      <span class="block">Show in Shop by category</span>
+                      <span class="mt-1 block text-xs font-normal text-cocoa/55">Visible categories can be selected by customers.</span>
+                    </span>
+                  </label>
+                </div>
+                <aside class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Image URL
+                    <input [(ngModel)]="categoryDraft.image" name="categoryImage" type="text" required placeholder="Paste an image URL or upload below" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Upload image
+                    <span class="mt-1 flex items-center gap-2">
+                      <input (change)="uploadImage($event, 'category')" type="file" accept="image/*" class="admin-field min-w-0 flex-1 file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
+                      <button type="button" (click)="showImagePreview(categoryDraft.image, categoryDraft.name || 'Category image preview')" [disabled]="!categoryDraft.image" aria-label="Preview category image" title="Preview image" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-cocoa transition hover:bg-sand/50 disabled:cursor-not-allowed disabled:opacity-40">
+                        <svg lucideEye [size]="18"></svg>
+                      </button>
+                    </span>
+                  </label>
+                </aside>
+              </div>
+              <div class="flex flex-col-reverse gap-3 border-t border-cocoa/10 bg-white/70 p-4 sm:flex-row sm:justify-end sm:px-7">
+                <button type="button" (click)="closeCategoryForm()" class="rounded-xl border border-cocoa/15 px-5 py-3 text-sm font-bold text-cocoa transition hover:bg-sand/40">Cancel</button>
+                <button [disabled]="saving()" class="rounded-xl bg-cocoa px-6 py-3 text-sm font-bold text-cream transition hover:bg-espresso disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ saving() ? 'Saving…' : categoryDraft.id ? 'Save changes' : 'Add category' }}
                 </button>
               </div>
             </form>
           </div>
         } @else if (subcategoryFormOpen()) {
-          <div class="mx-auto mt-5 max-w-2xl">
-            <button type="button" (click)="closeSubcategoryForm()" class="mb-4 rounded-lg px-3 py-2 text-sm font-bold text-cocoa hover:bg-white/70">← Back to categories</button>
-            <form (ngSubmit)="saveSubcategory()" class="space-y-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:p-6">
-              <h2 class="font-display text-2xl font-bold text-espresso">{{ subcategoryDraft.id ? 'Edit subcategory' : 'Add subcategory' }}</h2>
-              <label class="block text-xs font-bold text-cocoa">Parent category
-                <select [(ngModel)]="subcategoryDraft.categoryId" name="subcategoryParent" required class="admin-field">
-                  <option value="" disabled>Select a category</option>
-                  @for (category of categories(); track category.id) {
-                    @if (category.active) { <option [value]="category.id">{{ category.name }}</option> }
-                  }
-                </select>
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Subcategory name
-                <input [(ngModel)]="subcategoryDraft.name" name="subcategoryName" required maxlength="80" placeholder="e.g. Black Forest" class="admin-field" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Image URL (optional)
-                <input [(ngModel)]="subcategoryDraft.image" name="subcategoryImage" type="text" placeholder="Uses parent image if blank" class="admin-field" />
-              </label>
-              <label class="block text-xs font-bold text-cocoa">Upload image
-                <input (change)="uploadImage($event, 'subcategory')" type="file" accept="image/*" class="admin-field file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
-              </label>
-              <label class="flex items-center gap-2 text-sm font-semibold text-cocoa">
-                <input [(ngModel)]="subcategoryDraft.active" name="subcategoryActive" type="checkbox" class="h-4 w-4 accent-cocoa" />
-                Show in Shop by category
-              </label>
-              <button [disabled]="saving() || !categories().length" class="w-full rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream disabled:opacity-50">
-                {{ saving() ? 'Saving…' : subcategoryDraft.id ? 'Save subcategory' : 'Add subcategory' }}
-              </button>
+          <div class="mt-5 w-full">
+            <form (ngSubmit)="saveSubcategory()" class="overflow-hidden rounded-2xl border border-cocoa/10 bg-white/90 shadow-soft">
+              <div class="flex items-center gap-4 border-b border-cocoa/10 bg-white/70 px-4 py-5 sm:px-7">
+                <button type="button" (click)="closeSubcategoryForm()" aria-label="Back to categories" title="Back to categories" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-lg font-bold text-cocoa transition hover:bg-sand/50"><span aria-hidden="true">←</span></button>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold uppercase tracking-[.16em] text-caramel">Catalog · {{ subcategoryDraft.id ? 'Edit subcategory' : 'New subcategory' }}</p>
+                  <h2 class="mt-1 font-display text-2xl font-bold text-espresso sm:text-3xl">{{ subcategoryDraft.id ? 'Edit subcategory' : 'Add subcategory' }}</h2>
+                  <p class="mt-1 text-sm text-cocoa/55">Organize products within a parent category.</p>
+                </div>
+              </div>
+              <div class="grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,.72fr)]">
+                <div class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Parent category
+                    <select [(ngModel)]="subcategoryDraft.categoryId" name="subcategoryParent" required class="admin-field">
+                      <option value="" disabled>Select a category</option>
+                      @for (category of categories(); track category.id) {
+                        @if (category.active) { <option [value]="category.id">{{ category.name }}</option> }
+                      }
+                    </select>
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Subcategory name
+                    <input [(ngModel)]="subcategoryDraft.name" name="subcategoryName" required maxlength="80" placeholder="e.g. Black Forest" class="admin-field" />
+                  </label>
+                  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-cocoa/10 bg-cream/60 p-4 text-sm font-semibold text-cocoa">
+                    <input [(ngModel)]="subcategoryDraft.active" name="subcategoryActive" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-cocoa" />
+                    <span>
+                      <span class="block">Show in Shop by category</span>
+                      <span class="mt-1 block text-xs font-normal text-cocoa/55">Visible subcategories can be selected by customers.</span>
+                    </span>
+                  </label>
+                </div>
+                <aside class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Image URL <span class="font-normal text-cocoa/50">(optional)</span>
+                    <input [(ngModel)]="subcategoryDraft.image" name="subcategoryImage" type="text" placeholder="Uses parent image if blank" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Upload image
+                    <span class="mt-1 flex items-center gap-2">
+                      <input (change)="uploadImage($event, 'subcategory')" type="file" accept="image/*" class="admin-field min-w-0 flex-1 file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
+                      <button type="button" (click)="showImagePreview(subcategoryDraft.image || categories().find(item => item.id === subcategoryDraft.categoryId)?.image, subcategoryDraft.name || 'Subcategory image preview')" [disabled]="!subcategoryDraft.image && !categories().find(item => item.id === subcategoryDraft.categoryId)?.image" aria-label="Preview subcategory image" title="Preview image" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-cocoa transition hover:bg-sand/50 disabled:cursor-not-allowed disabled:opacity-40">
+                        <svg lucideEye [size]="18"></svg>
+                      </button>
+                    </span>
+                  </label>
+                </aside>
+              </div>
+              <div class="flex flex-col-reverse gap-3 border-t border-cocoa/10 bg-white/70 p-4 sm:flex-row sm:justify-end sm:px-7">
+                <button type="button" (click)="closeSubcategoryForm()" class="rounded-xl border border-cocoa/15 px-5 py-3 text-sm font-bold text-cocoa transition hover:bg-sand/40">Cancel</button>
+                <button [disabled]="saving() || !categories().length" class="rounded-xl bg-cocoa px-6 py-3 text-sm font-bold text-cream transition hover:bg-espresso disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ saving() ? 'Saving…' : subcategoryDraft.id ? 'Save changes' : 'Add subcategory' }}
+                </button>
+              </div>
             </form>
           </div>
         } @else {
@@ -401,8 +530,8 @@
                       <div class="mt-2 flex items-center justify-between gap-2">
                         <span [class]="category.active ? 'text-[10px] font-bold text-sage' : 'text-[10px] font-bold text-cocoa/40'">{{ category.active ? 'Visible on home page' : 'Hidden from home page' }}</span>
                         <div class="flex gap-1">
-                          <button (click)="editCategory(category)" class="rounded-lg px-3 py-1.5 text-xs font-bold text-cocoa hover:bg-sand">Edit</button>
-                          <button (click)="deleteCategory(category.id)" class="grid h-8 w-8 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + category.name"><svg lucideTrash2 [size]="15"></svg></button>
+                          <button type="button" (click)="editCategory(category)" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-cocoa transition hover:bg-sand" [attr.aria-label]="'Edit ' + category.name" [attr.title]="'Edit ' + category.name"><svg lucidePencil [size]="15"></svg></button>
+                          <button type="button" (click)="deleteCategory(category.id, category.name)" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + category.name"><svg lucideTrash2 [size]="15"></svg></button>
                         </div>
                       </div>
                     </div>
@@ -429,8 +558,8 @@
                       <h3 class="truncate text-sm font-bold text-espresso">{{ subcategory.name }}</h3>
                       <p class="mt-1 truncate text-xs text-cocoa/55">{{ categories().find(item => item.id === subcategory.categoryId)?.name }}</p>
                       <div class="mt-2 flex justify-end gap-1">
-                        <button (click)="editSubcategory(subcategory)" class="rounded-lg px-3 py-1.5 text-xs font-bold text-cocoa hover:bg-sand">Edit</button>
-                        <button (click)="deleteSubcategory(subcategory.id)" class="grid h-8 w-8 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + subcategory.name"><svg lucideTrash2 [size]="15"></svg></button>
+                        <button type="button" (click)="editSubcategory(subcategory)" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-cocoa transition hover:bg-sand" [attr.aria-label]="'Edit ' + subcategory.name" [attr.title]="'Edit ' + subcategory.name"><svg lucidePencil [size]="15"></svg></button>
+                        <button type="button" (click)="deleteSubcategory(subcategory.id, subcategory.name)" class="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + subcategory.name"><svg lucideTrash2 [size]="15"></svg></button>
                       </div>
                     </div>
                   </article>
@@ -444,104 +573,234 @@
       }
 
       @if (section() === 'addons') {
-        <div class="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(300px,.7fr)]">
-          <section class="rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
-            <h2 class="font-display text-xl font-bold text-espresso">Cake add-ons</h2>
-            <div class="mt-4 space-y-3">
-              @for (addon of addons(); track addon.id) {
-                <article class="flex items-center gap-3 rounded-xl border border-cocoa/10 bg-cream/70 p-3">
-                  @if (addon.image) { <img [src]="addon.image" [alt]="addon.name" class="h-12 w-12 rounded-lg object-cover" /> }
-                  <div class="min-w-0 flex-1">
-                    <h3 class="truncate text-sm font-bold text-espresso">{{ addon.name }}</h3>
-                    <p class="text-xs text-cocoa/55">{{ addon.price | currency:'INR':'symbol':'1.0-0' }} · {{ addon.product_id ? 'Product #' + addon.product_id : 'All cakes' }}</p>
+        @if (addonFormOpen()) {
+          <div class="mt-5 w-full">
+            <form (ngSubmit)="saveAddon()" class="overflow-hidden rounded-2xl border border-cocoa/10 bg-white/90 shadow-soft">
+              <div class="flex items-center gap-4 border-b border-cocoa/10 bg-white/70 px-4 py-5 sm:px-7">
+                <button type="button" (click)="closeAddonForm()" aria-label="Back to add-ons" title="Back to add-ons" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-lg font-bold text-cocoa transition hover:bg-sand/50"><span aria-hidden="true">←</span></button>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold uppercase tracking-[.16em] text-caramel">Catalog · {{ addonDraft.id ? 'Edit add-on' : 'New add-on' }}</p>
+                  <h2 class="mt-1 font-display text-2xl font-bold text-espresso sm:text-3xl">{{ addonDraft.id ? 'Edit add-on' : 'Add an add-on' }}</h2>
+                  <p class="mt-1 text-sm text-cocoa/55">Set up an optional extra customers can add to a cake order.</p>
+                </div>
+              </div>
+              <div class="grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,.72fr)]">
+                <div class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Name
+                    <input [(ngModel)]="addonDraft.name" name="addonName" required maxlength="100" placeholder="Candles, topper…" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Description
+                    <textarea [(ngModel)]="addonDraft.description" name="addonDescription" rows="3" maxlength="300" placeholder="Optional details about this add-on" class="admin-field resize-y"></textarea>
+                  </label>
+                  <div class="grid gap-4 sm:grid-cols-2">
+                    <label class="block text-xs font-bold text-cocoa">Price (₹)
+                      <input [(ngModel)]="addonDraft.price" name="addonPrice" type="number" min="0" step="1" required class="admin-field" />
+                    </label>
+                    <label class="block text-xs font-bold text-cocoa">For product
+                      <select [(ngModel)]="addonDraft.product_id" name="addonProduct" class="admin-field">
+                        <option [ngValue]="null">All cakes</option>
+                        @for (product of store.products(); track product.id) {
+                          <option [ngValue]="product.id">{{ product.name }}</option>
+                        }
+                      </select>
+                    </label>
                   </div>
-                  <button (click)="editAddon(addon)" class="rounded-lg px-3 py-2 text-xs font-bold hover:bg-sand">Edit</button>
-                  <button (click)="deleteAddon(addon.id)" class="grid h-9 w-9 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + addon.name"><svg lucideTrash2 [size]="16"></svg></button>
+                  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-cocoa/10 bg-cream/60 p-4 text-sm font-semibold text-cocoa">
+                    <input [(ngModel)]="addonDraft.active" name="addonActive" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-cocoa" />
+                    <span><span class="block">Active</span><span class="mt-1 block text-xs font-normal text-cocoa/55">Active add-ons are available with eligible cakes.</span></span>
+                  </label>
+                </div>
+                <aside class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Image URL <span class="font-normal text-cocoa/50">(optional)</span>
+                    <input [(ngModel)]="addonDraft.image" name="addonImage" type="text" placeholder="Paste an image URL or upload below" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Upload image
+                    <span class="mt-1 flex items-center gap-2">
+                      <input (change)="uploadImage($event, 'addon')" type="file" accept="image/*" class="admin-field min-w-0 flex-1 file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
+                      <button type="button" (click)="showImagePreview(addonDraft.image, addonDraft.name || 'Add-on image preview')" [disabled]="!addonDraft.image" aria-label="Preview add-on image" title="Preview image" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-cocoa transition hover:bg-sand/50 disabled:cursor-not-allowed disabled:opacity-40">
+                        <svg lucideEye [size]="18"></svg>
+                      </button>
+                    </span>
+                  </label>
+                </aside>
+              </div>
+              <div class="flex flex-col-reverse gap-3 border-t border-cocoa/10 bg-white/70 p-4 sm:flex-row sm:justify-end sm:px-7">
+                <button type="button" (click)="closeAddonForm()" class="rounded-xl border border-cocoa/15 px-5 py-3 text-sm font-bold text-cocoa transition hover:bg-sand/40">Cancel</button>
+                <button [disabled]="saving()" class="rounded-xl bg-cocoa px-6 py-3 text-sm font-bold text-cream transition hover:bg-espresso disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ saving() ? 'Saving…' : addonDraft.id ? 'Save changes' : 'Add add-on' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        } @else {
+          <section class="mt-5 rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 class="font-display text-xl font-bold text-espresso">Cake add-ons</h2>
+                <p class="mt-1 text-xs text-cocoa/55">{{ addons().length }} add-ons in your catalog</p>
+              </div>
+              <button type="button" (click)="addAddon()" class="rounded-xl bg-cocoa px-4 py-2.5 text-sm font-bold text-cream transition hover:bg-espresso">+ Add add-on</button>
+            </div>
+            <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              @for (addon of addons(); track addon.id) {
+                <article class="overflow-hidden rounded-2xl border border-cocoa/10 bg-cream/70 transition hover:shadow-card">
+                  <img [src]="addon.image || '/images/apcake.png'" [alt]="addon.name" class="aspect-square w-full bg-sand object-cover" />
+                  <div class="p-3">
+                    <h3 class="truncate text-sm font-bold text-espresso">{{ addon.name }}</h3>
+                    @if (addon.description) { <p class="mt-1 line-clamp-2 text-xs text-cocoa/55">{{ addon.description }}</p> }
+                    <div class="mt-2 flex items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <p class="text-sm font-bold text-cocoa">{{ addon.price | currency:'INR':'symbol':'1.0-0' }}</p>
+                        <p class="truncate text-[11px] text-cocoa/55">{{ addon.product_id ? 'Product #' + addon.product_id : 'All cakes' }}</p>
+                      </div>
+                      <span [class]="addon.active ? 'shrink-0 text-[10px] font-bold text-sage' : 'shrink-0 text-[10px] font-bold text-cocoa/40'">{{ addon.active ? 'Active' : 'Hidden' }}</span>
+                    </div>
+                    <div class="mt-3 flex justify-end gap-1 border-t border-cocoa/10 pt-2">
+                      <button type="button" (click)="editAddon(addon)" class="grid h-9 w-9 place-items-center rounded-lg text-cocoa transition hover:bg-sand" [attr.aria-label]="'Edit ' + addon.name" [attr.title]="'Edit ' + addon.name"><svg lucidePencil [size]="16"></svg></button>
+                      <button type="button" (click)="deleteAddon(addon.id, addon.name)" class="grid h-9 w-9 place-items-center rounded-lg text-red-700 transition hover:bg-red-50" [attr.aria-label]="'Delete ' + addon.name"><svg lucideTrash2 [size]="16"></svg></button>
+                    </div>
+                  </div>
                 </article>
               } @empty {
-                <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No add-ons saved yet.</p>
+                <p class="col-span-full rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No add-ons saved yet. Add your first add-on to the catalog.</p>
               }
             </div>
           </section>
-          <form (ngSubmit)="saveAddon()" class="space-y-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:p-5">
-            <h2 class="font-display text-xl font-bold text-espresso">{{ addonDraft.id ? 'Edit add-on' : 'Add an add-on' }}</h2>
-            <label class="block text-xs font-bold text-cocoa">Name
-              <input [(ngModel)]="addonDraft.name" name="addonName" required maxlength="100" placeholder="Candles, topper…" class="admin-field" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Description
-              <input [(ngModel)]="addonDraft.description" name="addonDescription" maxlength="300" class="admin-field" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Price (₹)
-              <input [(ngModel)]="addonDraft.price" name="addonPrice" type="number" min="0" step="1" required class="admin-field" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">For product
-              <select [(ngModel)]="addonDraft.product_id" name="addonProduct" class="admin-field">
-                <option [ngValue]="null">All cakes</option>
-                @for (product of store.products(); track product.id) {
-                  <option [ngValue]="product.id">{{ product.name }}</option>
-                }
-              </select>
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Image URL (optional)
-              <input [(ngModel)]="addonDraft.image" name="addonImage" type="text" class="admin-field" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Upload image
-              <input (change)="uploadImage($event, 'addon')" type="file" accept="image/*" class="admin-field file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
-            </label>
-            <label class="flex items-center gap-2 text-sm font-semibold text-cocoa"><input [(ngModel)]="addonDraft.active" name="addonActive" type="checkbox" class="h-4 w-4 accent-cocoa" /> Active</label>
-            <div class="flex gap-2">
-              <button [disabled]="saving()" class="flex-1 rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream disabled:opacity-50">Save add-on</button>
-              <button type="button" (click)="addonDraft = emptyAddon()" class="rounded-xl border border-cocoa/15 px-4 py-3 text-sm font-semibold text-cocoa">Clear</button>
-            </div>
-          </form>
-        </div>
+        }
       }
 
       @if (section() === 'banners') {
-        <div class="mt-5 grid items-start gap-5 lg:grid-cols-[minmax(0,1.3fr)_minmax(300px,.7fr)]">
-          <section class="rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
-            <h2 class="font-display text-xl font-bold text-espresso">Promotional banners</h2>
+        @if (bannerFormOpen()) {
+          <div class="mt-5 w-full">
+            <form (ngSubmit)="saveBanner()" class="overflow-hidden rounded-2xl border border-cocoa/10 bg-white/90 shadow-soft">
+              <div class="flex items-center gap-4 border-b border-cocoa/10 bg-white/70 px-4 py-5 sm:px-7">
+                <button type="button" (click)="closeBannerForm()" aria-label="Back to banners" title="Back to banners" class="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-lg font-bold text-cocoa transition hover:bg-sand/50"><span aria-hidden="true">←</span></button>
+                <div class="min-w-0">
+                  <p class="text-[11px] font-bold uppercase tracking-[.16em] text-caramel">Storefront · {{ bannerDraft.id ? 'Edit banner' : 'New banner' }}</p>
+                  <h2 class="mt-1 font-display text-2xl font-bold text-espresso sm:text-3xl">{{ bannerDraft.id ? 'Edit banner' : 'Add a banner' }}</h2>
+                  <p class="mt-1 text-sm text-cocoa/55">Manage the promotional banner shown on your storefront.</p>
+                </div>
+              </div>
+              <div class="grid gap-6 p-4 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(17rem,.72fr)]">
+                <div class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Title
+                    <input [(ngModel)]="bannerDraft.title" name="bannerTitle" required maxlength="120" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Subtitle
+                    <textarea [(ngModel)]="bannerDraft.subtitle" name="bannerSubtitle" rows="3" maxlength="300" class="admin-field resize-y"></textarea>
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Link
+                    <input [(ngModel)]="bannerDraft.link" name="bannerLink" type="text" maxlength="300" placeholder="Optional destination URL" class="admin-field" />
+                  </label>
+                  <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-cocoa/10 bg-cream/60 p-4 text-sm font-semibold text-cocoa">
+                    <input [(ngModel)]="bannerDraft.active" name="bannerActive" type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-cocoa" />
+                    <span><span class="block">Active</span><span class="mt-1 block text-xs font-normal text-cocoa/55">Only active banners appear on the storefront.</span></span>
+                  </label>
+                </div>
+                <aside class="space-y-4">
+                  <label class="block text-xs font-bold text-cocoa">Image URL
+                    <input [(ngModel)]="bannerDraft.image" name="bannerImage" type="text" required placeholder="Paste an image URL or upload below" class="admin-field" />
+                  </label>
+                  <label class="block text-xs font-bold text-cocoa">Upload image
+                    <span class="mt-1 flex items-center gap-2">
+                      <input (change)="uploadImage($event, 'banner')" type="file" accept="image/*" class="admin-field min-w-0 flex-1 file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
+                      <button type="button" (click)="showImagePreview(bannerDraft.image, bannerDraft.title || 'Banner image preview')" [disabled]="!bannerDraft.image" aria-label="Preview banner image" title="Preview image" class="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-cocoa/15 text-cocoa transition hover:bg-sand/50 disabled:cursor-not-allowed disabled:opacity-40">
+                        <svg lucideEye [size]="18"></svg>
+                      </button>
+                    </span>
+                  </label>
+                </aside>
+              </div>
+              <div class="flex flex-col-reverse gap-3 border-t border-cocoa/10 bg-white/70 p-4 sm:flex-row sm:justify-end sm:px-7">
+                <button type="button" (click)="closeBannerForm()" class="rounded-xl border border-cocoa/15 px-5 py-3 text-sm font-bold text-cocoa transition hover:bg-sand/40">Cancel</button>
+                <button [disabled]="saving()" class="rounded-xl bg-cocoa px-6 py-3 text-sm font-bold text-cream transition hover:bg-espresso disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ saving() ? 'Saving…' : bannerDraft.id ? 'Save changes' : 'Add banner' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        } @else {
+          <section class="mt-5 rounded-2xl border border-cocoa/10 bg-white/70 p-4 shadow-soft sm:p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 class="font-display text-xl font-bold text-espresso">Promotional banners</h2>
+                <p class="mt-1 text-xs text-cocoa/55">{{ banners().length }} banners in your catalog</p>
+              </div>
+              <button type="button" (click)="addBanner()" class="rounded-xl bg-cocoa px-4 py-2.5 text-sm font-bold text-cream transition hover:bg-espresso">+ Add banner</button>
+            </div>
             <div class="mt-4 space-y-3">
               @for (banner of banners(); track banner.id) {
                 <article class="flex items-center gap-3 rounded-xl border border-cocoa/10 bg-cream/70 p-3">
-                  <img [src]="banner.image" [alt]="banner.title" class="h-14 w-20 rounded-lg object-cover" />
+                  <img [src]="banner.image" [alt]="banner.title" class="h-14 w-20 shrink-0 rounded-lg object-cover" />
                   <div class="min-w-0 flex-1">
                     <h3 class="truncate text-sm font-bold text-espresso">{{ banner.title }}</h3>
                     <p class="truncate text-xs text-cocoa/55">{{ banner.subtitle }}</p>
                   </div>
-                  <button (click)="editBanner(banner)" class="rounded-lg px-3 py-2 text-xs font-bold hover:bg-sand">Edit</button>
-                  <button (click)="deleteBanner(banner.id)" class="grid h-9 w-9 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + banner.title"><svg lucideTrash2 [size]="16"></svg></button>
+                  <button type="button" (click)="editBanner(banner)" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-cocoa transition hover:bg-sand" [attr.aria-label]="'Edit ' + banner.title" [attr.title]="'Edit ' + banner.title"><svg lucidePencil [size]="16"></svg></button>
+                  <button type="button" (click)="deleteBanner(banner.id, banner.title)" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-red-700 hover:bg-red-50" [attr.aria-label]="'Delete ' + banner.title"><svg lucideTrash2 [size]="16"></svg></button>
                 </article>
               } @empty {
-                <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No banners saved yet.</p>
+                <p class="rounded-xl bg-sand/30 p-5 text-sm text-cocoa/60">No banners saved yet. Add your first promotional banner.</p>
               }
             </div>
           </section>
-          <form (ngSubmit)="saveBanner()" class="space-y-4 rounded-2xl border border-cocoa/10 bg-white/75 p-4 shadow-soft sm:p-5">
-            <h2 class="font-display text-xl font-bold text-espresso">{{ bannerDraft.id ? 'Edit banner' : 'Add a banner' }}</h2>
-            <label class="block text-xs font-bold text-cocoa">Title
-              <input [(ngModel)]="bannerDraft.title" name="bannerTitle" required maxlength="120" class="admin-field" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Subtitle
-              <textarea [(ngModel)]="bannerDraft.subtitle" name="bannerSubtitle" rows="2" maxlength="300" class="admin-field"></textarea>
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Image URL
-              <input [(ngModel)]="bannerDraft.image" name="bannerImage" type="text" required class="admin-field" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Upload image
-              <input (change)="uploadImage($event, 'banner')" type="file" accept="image/*" class="admin-field file:mr-3 file:rounded-lg file:border-0 file:bg-sand file:px-3 file:py-1.5" />
-            </label>
-            <label class="block text-xs font-bold text-cocoa">Link
-              <input [(ngModel)]="bannerDraft.link" name="bannerLink" type="text" maxlength="300" class="admin-field" />
-            </label>
-            <label class="flex items-center gap-2 text-sm font-semibold text-cocoa"><input [(ngModel)]="bannerDraft.active" name="bannerActive" type="checkbox" class="h-4 w-4 accent-cocoa" /> Active</label>
-            <div class="flex gap-2">
-              <button [disabled]="saving()" class="flex-1 rounded-xl bg-cocoa px-4 py-3 text-sm font-bold text-cream disabled:opacity-50">Save banner</button>
-              <button type="button" (click)="bannerDraft = emptyBanner()" class="rounded-xl border border-cocoa/15 px-4 py-3 text-sm font-semibold text-cocoa">Clear</button>
-            </div>
-          </form>
-        </div>
+        }
       }
+    }
+    @if (imagePreviewOpen()) {
+      <div class="fixed inset-0 z-[100] grid place-items-center bg-espresso/70 p-4 backdrop-blur-sm" (click)="closeImagePreview()" (keydown.escape)="closeImagePreview()">
+        <section role="dialog" aria-modal="true" aria-labelledby="image-preview-title" class="w-full max-w-3xl overflow-hidden rounded-2xl border border-white/20 bg-white shadow-soft" (click)="$event.stopPropagation()">
+          <div class="flex items-center justify-between gap-3 border-b border-cocoa/10 px-4 py-3 sm:px-5">
+            <h2 id="image-preview-title" class="truncate font-display text-lg font-bold text-espresso">{{ previewTitle() }}</h2>
+            <button type="button" (click)="closeImagePreview()" aria-label="Close preview" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-cocoa transition hover:bg-sand/50">
+              <span aria-hidden="true" class="text-xl leading-none">×</span>
+            </button>
+          </div>
+          <div class="grid max-h-[82vh] place-items-center bg-espresso/5 p-3 sm:p-5">
+            <img [src]="previewImage()" [alt]="previewTitle()" class="max-h-[72vh] max-w-full rounded-xl object-contain" />
+          </div>
+        </section>
+      </div>
+    }
+    @if (mobileMenuOpen()) {
+      <div class="fixed inset-0 z-[70] bg-espresso/20 backdrop-blur-[1px] lg:hidden" (click)="mobileMenuOpen.set(false)">
+        <nav id="mobile-admin-menu" aria-label="Admin sections" class="fixed bottom-24 right-4 z-[71] grid w-64 gap-1 rounded-2xl border border-cocoa/10 bg-white p-3 shadow-soft" (click)="$event.stopPropagation()">
+          <p class="px-3 pb-2 pt-1 text-[10px] font-bold uppercase tracking-[.16em] text-caramel">Admin menu</p>
+          <button type="button" (click)="openSection('products')" [class]="section() === 'products' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideCakeSlice [size]="18"></svg>Products</button>
+          <button type="button" (click)="openSection('categories')" [class]="section() === 'categories' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideCakeSlice [size]="18"></svg>Categories</button>
+          <button type="button" (click)="openSection('addons')" [class]="section() === 'addons' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideTags [size]="18"></svg>Add-ons</button>
+          <button type="button" (click)="openSection('banners')" [class]="section() === 'banners' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideImage [size]="18"></svg>Banners</button>
+          <button type="button" (click)="openSection('orders')" [class]="section() === 'orders' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideClipboardList [size]="18"></svg>Requests</button>
+          <button type="button" (click)="openSection('reviews')" [class]="section() === 'reviews' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideStar [size]="18"></svg>Reviews</button>
+          <button type="button" (click)="openSection('trash')" [class]="section() === 'trash' ? 'flex items-center gap-3 rounded-xl bg-cocoa px-3 py-3 text-left text-sm font-bold text-white' : 'flex items-center gap-3 rounded-xl px-3 py-3 text-left text-sm font-semibold text-cocoa transition hover:bg-sand/50'"><svg lucideTrash2 [size]="18"></svg>Trash</button>
+        </nav>
+      </div>
+    }
+    <button type="button" (click)="mobileMenuOpen.update(open => !open)" [attr.aria-expanded]="mobileMenuOpen()" aria-controls="mobile-admin-menu" [attr.aria-label]="mobileMenuOpen() ? 'Close admin menu' : 'Open admin menu'" class="fixed bottom-5 right-5 z-[72] grid h-14 w-14 place-items-center rounded-full bg-cocoa text-3xl font-light text-cream shadow-card transition hover:bg-espresso focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-caramel lg:hidden">
+      <span class="transition-transform duration-200" [class.rotate-45]="mobileMenuOpen()" aria-hidden="true">+</span>
+    </button>
+    @if (pendingDelete(); as pending) {
+      <div class="fixed inset-0 z-[110] grid place-items-center bg-espresso/60 p-4 backdrop-blur-sm" (click)="cancelDelete()" (keydown.escape)="cancelDelete()">
+        <section role="alertdialog" aria-modal="true" aria-labelledby="delete-confirm-title" aria-describedby="delete-confirm-description" class="w-full max-w-md rounded-2xl border border-cocoa/10 bg-white p-5 shadow-soft sm:p-6" (click)="$event.stopPropagation()">
+          <div class="grid h-11 w-11 place-items-center rounded-full bg-red-50 text-red-700"><svg lucideTrash2 [size]="20"></svg></div>
+          <h2 id="delete-confirm-title" class="mt-4 font-display text-xl font-bold text-espresso">
+            {{ pending.permanent ? 'Permanently delete this item?' : 'Are you sure you want to delete this item?' }}
+          </h2>
+          <p id="delete-confirm-description" class="mt-2 break-words text-sm text-cocoa/65">
+            <strong>{{ pending.name }}</strong>
+            {{ pending.permanent ? 'will be permanently removed from the database. This cannot be undone.' : 'will be moved to Trash, where it can be restored later.' }}
+          </p>
+          @if (error()) {
+            <p class="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800" role="alert">{{ error() }}</p>
+          }
+          <div class="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+            <button type="button" (click)="$event.stopPropagation(); cancelDelete()" [disabled]="saving()" class="rounded-xl border border-cocoa/15 px-4 py-2.5 text-sm font-bold text-cocoa transition hover:bg-sand/40 disabled:opacity-50">Cancel</button>
+            <button type="button" (click)="$event.stopPropagation(); confirmDelete()" [disabled]="saving()" class="rounded-xl bg-red-700 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50">
+              {{ saving() ? 'Deleting…' : pending.permanent ? 'Delete permanently' : 'Move to Trash' }}
+            </button>
+          </div>
+        </section>
+      </div>
     }
     </div>
   </div>

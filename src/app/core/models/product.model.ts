@@ -11,6 +11,8 @@ export interface Product {
   veg: boolean;
   image: string;
   description: string;
+  flavours?: string[];
+  unit_type?: 'weight' | 'count';
 }
 
 export interface CartItem extends Product {

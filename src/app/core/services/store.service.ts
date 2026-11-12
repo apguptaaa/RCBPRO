@@ -1,6 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { CartItem, Category, Product } from '../models/product.model';
-import { CATEGORY_DATA } from '../data/catalog.data';
+import { CATEGORY_DATA, PRODUCTS } from '../data/catalog.data';
 import { AdminAddon, AdminBanner } from '../data/admin-catalog.models';
 import { AdminDataService } from './admin-data.service';
 import { AdminAuthService } from './admin-auth.service';
@@ -40,7 +40,7 @@ export class StoreService {
   private cartSync: Promise<void> = Promise.resolve();
   private favoritesSync: Promise<void> = Promise.resolve();
   private connectedAccount = '';
-  readonly products     = signal<Product[]>([]);
+  readonly products     = signal<Product[]>(PRODUCTS.map(product => ({ ...product })));
   readonly categories = signal<Category[]>(CATEGORY_DATA.map(category => ({ ...category })));
   readonly addons = signal<AdminAddon[]>([]);
   readonly banners = signal<AdminBanner[]>([]);
@@ -124,10 +124,16 @@ export class StoreService {
   async refreshCatalog(): Promise<void> {
     try {
       const { products, categories, subcategories, addons, banners } = await this.adminData.getPublicCatalog();
-      this.products.set(products.map(({ old_price, active: _active, ...product }) => ({
+      const apiProducts = products.map(({ old_price, active: _active, ...product }) => ({
         ...product,
         oldPrice: old_price
-      })));
+      }));
+      const productsById = new Map<number, Product>();
+      for (const product of apiProducts) productsById.set(product.id, product);
+      for (const product of PRODUCTS) {
+        if (!productsById.has(product.id)) productsById.set(product.id, product);
+      }
+      this.products.set([...productsById.values()]);
       const categoriesFromApi = [
         ...categories.map(({ name, image }) => ({ name, image })),
         ...subcategories
@@ -138,14 +144,16 @@ export class StoreService {
             parentName: categories.find(category => category.id === subcategory.categoryId)?.name
           }))
       ];
-      this.categories.set(
-        categoriesFromApi.length
-          ? categoriesFromApi.map(category => ({
-            ...category,
-            image: category.image || CATEGORY_DATA.find(item => item.name === category.name)?.image || ''
-          }))
-          : CATEGORY_DATA.map(category => ({ ...category }))
+      const categoriesByName = new Map(
+        CATEGORY_DATA.map(category => [category.name.toLowerCase(), { ...category }])
       );
+      for (const category of categoriesFromApi) {
+        categoriesByName.set(category.name.toLowerCase(), {
+          ...category,
+          image: category.image || CATEGORY_DATA.find(item => item.name === category.name)?.image || ''
+        });
+      }
+      this.categories.set([...categoriesByName.values()]);
       this.addons.set(addons);
       this.banners.set(banners);
       this.catalogError.set('');
@@ -255,7 +263,7 @@ export class StoreService {
 
   private persistFavorites(): void {
     if (!this.auth.user()) return;
-    const productIds = [...this.wishlist()];
+    const productIds = this.wishlist().filter(id => id > 0);
     this.favoritesSync = this.favoritesSync
       .then(() => this.accountData.saveFavorites(productIds).then(() => undefined))
       .catch(error => {

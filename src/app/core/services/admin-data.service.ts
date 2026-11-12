@@ -4,6 +4,7 @@ import {
   AddonDraft, BannerDraft, CategoryDraft, ProductDraft, SubcategoryDraft
 } from '../data/admin-catalog.models';
 import { ApiClientService } from './api-client.service';
+import { TrashEntry, TrashEntityType } from '../data/trash.models';
 
 export interface CatalogData {
   products: AdminProduct[];
@@ -23,6 +24,18 @@ export class AdminDataService {
 
   getAdminCatalog(): Promise<CatalogData> {
     return this.api.get<CatalogData>('/admin/catalog');
+  }
+
+  getTrash(): Promise<TrashEntry[]> {
+    return this.api.get<TrashEntry[]>('/admin/trash');
+  }
+
+  restoreTrashItem(type: TrashEntityType, entityId: string): Promise<void> {
+    return this.api.post<void>(`/admin/trash/${type}/${encodeURIComponent(entityId)}/restore`, {});
+  }
+
+  permanentlyDeleteTrashItem(type: TrashEntityType, entityId: string): Promise<void> {
+    return this.api.delete(`/admin/trash/${type}/${encodeURIComponent(entityId)}`);
   }
 
   saveProduct(draft: ProductDraft): Promise<AdminProduct> {

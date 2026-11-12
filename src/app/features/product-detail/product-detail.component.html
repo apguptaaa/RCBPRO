@@ -112,22 +112,64 @@
             <span><strong>Freshly made to order</strong><br /><span class="text-xs text-cocoa/55">Delivery available across Gwalior</span></span>
           </div>
 
-          <fieldset class="mt-6">
-            <legend class="mb-3 text-sm font-semibold">Weight <span class="font-normal text-cocoa/45">· Serving info</span></legend>
-            <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
-              @for (size of sizes; track size.label) {
-                <button
-                  (click)="selectedSize.set(size.label)"
-                  [attr.aria-pressed]="selectedSize() === size.label"
-                  [class]="'rounded-lg border px-2 py-2.5 text-xs font-semibold transition sm:text-sm ' +
-                    (selectedSize() === size.label
-                      ? 'border-cocoa bg-cocoa text-cream'
-                      : 'border-cocoa/15 bg-cream text-cocoa hover:border-caramel')">
-                  {{ size.label }}
-                </button>
-              }
-            </div>
-          </fieldset>
+          @if (availableFlavours().length) {
+            <fieldset class="mt-6">
+              <legend class="mb-3 text-sm font-semibold">Choose a flavour</legend>
+              <div class="flex flex-wrap gap-2">
+                @for (flavour of availableFlavours(); track flavour) {
+                  <button
+                    type="button"
+                    (click)="selectedFlavour.set(flavour)"
+                    [attr.aria-pressed]="selectedFlavour() === flavour"
+                    [class]="'rounded-lg border px-3 py-2.5 text-sm font-semibold transition ' +
+                      (selectedFlavour() === flavour
+                        ? 'border-cocoa bg-cocoa text-cream'
+                        : 'border-cocoa/15 bg-cream text-cocoa hover:border-caramel')">
+                    {{ flavour }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+          }
+
+          @if (cake.unit_type === 'count') {
+            <fieldset class="mt-6">
+              <legend class="mb-3 text-sm font-semibold">Cupcake quantity <span class="font-normal text-cocoa/45">· Count</span></legend>
+              <div class="flex flex-wrap gap-2">
+                @for (count of cupcakeCounts; track count) {
+                  <button
+                    type="button"
+                    (click)="selectedCupCount.set(count)"
+                    [attr.aria-pressed]="selectedCupCount() === count"
+                    [class]="'rounded-lg border px-4 py-2.5 text-sm font-semibold transition ' +
+                      (selectedCupCount() === count
+                        ? 'border-cocoa bg-cocoa text-cream'
+                        : 'border-cocoa/15 bg-cream text-cocoa hover:border-caramel')">
+                    {{ count }} cupcakes
+                  </button>
+                }
+              </div>
+              <p class="mt-2 text-xs text-cocoa/50">Price is shown per box of 6 and scales with quantity.</p>
+            </fieldset>
+          } @else {
+            <fieldset class="mt-6">
+              <legend class="mb-3 text-sm font-semibold">Weight <span class="font-normal text-cocoa/45">· Serving info</span></legend>
+              <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                @for (size of sizes; track size.label) {
+                  <button
+                    type="button"
+                    (click)="selectedSize.set(size.label)"
+                    [attr.aria-pressed]="selectedSize() === size.label"
+                    [class]="'rounded-lg border px-2 py-2.5 text-xs font-semibold transition sm:text-sm ' +
+                      (selectedSize() === size.label
+                        ? 'border-cocoa bg-cocoa text-cream'
+                        : 'border-cocoa/15 bg-cream text-cocoa hover:border-caramel')">
+                    {{ size.label }}
+                  </button>
+                }
+              </div>
+            </fieldset>
+          }
 
           @if (applicableAddons().length) {
             <fieldset class="mt-5">

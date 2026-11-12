@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -14,6 +14,7 @@ import {
 import { FormatPricePipe } from '../../core/pipes/format-price.pipe';
 import { Product } from '../../core/models/product.model';
 import { StoreService } from '../../core/services/store.service';
+import { DEFAULT_FLAVOURS } from '../../core/data/catalog.data';
 
 @Component({
   selector: 'app-product-detail',
@@ -83,7 +84,10 @@ export class ProductDetailComponent {
     { label: '3 kg', grams: 3000 },
     { label: '4 kg', grams: 4000 }
   ];
+  readonly cupcakeCounts = [6, 12, 24];
   readonly selectedSize = signal('500 g');
+  readonly selectedCupCount = signal(6);
+  readonly selectedFlavour = signal('');
   readonly activeImage = signal(0);
   readonly heartShape = signal(false);
   readonly cakeMessage = signal('');
@@ -93,12 +97,14 @@ export class ProductDetailComponent {
 
   readonly price = computed(() => {
     const product = this.product();
+    if (product?.unit_type === 'count') return Math.round(product.price * this.selectedCupCount() / 6);
     const size = this.sizes.find(item => item.label === this.selectedSize());
     return product && size ? Math.round(product.price * size.grams / 500) : product?.price ?? 0;
   });
 
   readonly oldPrice = computed(() => {
     const product = this.product();
+    if (product?.unit_type === 'count') return Math.round(product.oldPrice * this.selectedCupCount() / 6);
     const size = this.sizes.find(item => item.label === this.selectedSize());
     return product && size ? Math.round(product.oldPrice * size.grams / 500) : product?.oldPrice ?? 0;
   });
@@ -107,6 +113,19 @@ export class ProductDetailComponent {
     return this.store.addons().filter(addon => addon.product_id === null || addon.product_id === productId);
   });
   readonly selectedAddonIds = signal<string[]>([]);
+  readonly availableFlavours = computed(() => {
+    const flavours = this.product()?.flavours;
+    return flavours?.length ? flavours : DEFAULT_FLAVOURS;
+  });
+
+  constructor() {
+    effect(() => {
+      const flavours = this.availableFlavours();
+      if (!flavours.includes(this.selectedFlavour())) {
+        this.selectedFlavour.set(flavours[0] ?? '');
+      }
+    });
+  }
 
   readonly totalPrice = computed(() => {
     const addonTotal = this.applicableAddons()
@@ -163,7 +182,8 @@ export class ProductDetailComponent {
       .filter(addon => this.selectedAddonIds().includes(addon.id))
       .map(addon => addon.name);
     const variant = [
-      size,
+      this.selectedFlavour() ? `Flavour: ${this.selectedFlavour()}` : '',
+      product.unit_type === 'count' ? `Quantity: ${this.selectedCupCount()} cupcakes` : `Weight: ${size}`,
       this.heartShape() ? 'Heart shape' : '',
       selectedAddons.length ? `Add-ons: ${selectedAddons.join(', ')}` : ''
     ].filter(Boolean).join(' · ');
