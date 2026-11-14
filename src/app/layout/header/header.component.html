@@ -1,9 +1,9 @@
 <header class="sticky top-0 z-40 border-b border-cocoa/10 bg-cream/95 backdrop-blur-xl">
-  <div class="mx-auto flex h-16 max-w-7xl items-center gap-0 px-3 sm:h-20 sm:gap-5 sm:px-6 lg:px-8">
+  <div class="mx-auto flex h-16 max-w-7xl items-center gap-0 px-3 sm:h-20 sm:gap-5 md:gap-3 xl:gap-5 sm:px-6 lg:px-8">
 
     <!-- Mobile menu trigger -->
     <button
-      class="shrink-0 rounded-full p-1.5 text-cocoa sm:p-2 xl:hidden"
+      class="shrink-0 rounded-full p-1.5 text-cocoa sm:p-2 md:hidden"
       (click)="store.mobileOpen.set(true)"
       aria-label="Open menu">
       <svg lucideMenu [size]="25"></svg>
@@ -15,14 +15,14 @@
         <svg lucideCakeSlice [size]="21" [strokeWidth]="1.7"></svg>
       </span>
       <span class="min-w-0">
-        <strong class="block truncate whitespace-nowrap font-display text-[15px] leading-none text-espresso sm:text-2xl">Crumb &amp; Bloom</strong>
+        <strong class="block truncate whitespace-nowrap font-display text-[15px] leading-none text-espresso sm:text-2xl md:text-lg xl:text-2xl">Crumb &amp; Bloom</strong>
         <!-- <strong class="block font-display text-xl leading-none text-espresso sm:text-2xl">Royal Cake Bakery</strong> -->
         <small class="hidden text-[9px] font-bold uppercase tracking-[.28em] text-caramel sm:block">Bakery &amp; Florals</small>
       </span>
     </a>
 
     <!-- Desktop nav links -->
-    <nav class="hidden items-center gap-4 text-xs font-semibold xl:flex 2xl:gap-6 2xl:text-sm" aria-label="Main navigation">
+    <nav class="hidden items-center gap-2 text-xs font-semibold md:flex xl:gap-4 2xl:gap-6 2xl:text-sm" aria-label="Main navigation">
       <a routerLink="/" routerLinkActive="text-caramel" [routerLinkActiveOptions]="{ exact: true }" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Home</a>
       <a routerLink="/cakes" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Cakes</a>
       <a routerLink="/best-sellers" routerLinkActive="text-caramel" ariaCurrentWhenActive="page" class="whitespace-nowrap transition hover:text-caramel">Best Sellers</a>
